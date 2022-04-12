@@ -1,3 +1,9 @@
 <resources>
+
     <string name="app_name">QuickLine</string>
+
+    //Title
+    <string name="title_splash">Splash</string>
+    <string name="title_home">Home</string>
+
 </resources>

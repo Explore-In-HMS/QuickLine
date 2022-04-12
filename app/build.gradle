@@ -44,12 +44,12 @@ dependencies {
     implementation Dependencies.appCompat
     implementation Dependencies.materialDesign
     implementation Dependencies.constraintLayout
+    implementation Dependencies.navigationFragment
 
     testImplementation Dependencies.jUnit
     androidTestImplementation Dependencies.testJUnit
     androidTestImplementation Dependencies.espressoCore
 
-    implementation Dependencies.navigationFragment
     implementation Dependencies.navigationUi
 
     implementation Dependencies.hiltAndroid
@@ -59,4 +59,7 @@ dependencies {
 
     implementation Dependencies.glide
     kapt Dependencies.glideKapt
+
+    implementation Dependencies.sdp
+    implementation Dependencies.ssp
 }
