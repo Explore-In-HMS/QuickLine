@@ -22,4 +22,7 @@ object Dependencies {
 
     const val sdp = "com.intuit.sdp:sdp-android:${Versions.sdpVersion}"
     const val ssp = "com.intuit.ssp:ssp-android:${Versions.sspVersion}"
+
+    //AGConnect
+    const val agconnect = "com.huawei.agconnect:agconnect-core:${Versions.agcVersion}"
 }
