@@ -10,7 +10,7 @@ object Dependencies {
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCoreVersion}"
 
     const val navigationFragment = "androidx.navigation:navigation-fragment-ktx:${Versions.navigationVersion}"
-    const val navigationUi = "androidx.navigation:navigation-ui-ktx:${Versions.navigationVersion}"
+    const val navigationUi = "androidx.navigation:navigation-presentation-ktx:${Versions.navigationVersion}"
 
     const val glide = "com.github.bumptech.glide:glide:${Versions.glideVersion}"
     const val glideKapt = "com.github.bumptech.glide:compiler:${Versions.glideVersion}"
@@ -19,4 +19,7 @@ object Dependencies {
     const val hiltKapt = "com.google.dagger:hilt-android-compiler:${Versions.hiltVersion}"
 
     const val lifecycleCommon = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycleVersion}"
+
+    const val sdp = "com.intuit.sdp:sdp-android:${Versions.sdpVersion}"
+    const val ssp = "com.intuit.ssp:ssp-android:${Versions.sspVersion}"
 }
