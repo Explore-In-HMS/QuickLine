@@ -1,5 +1,5 @@
 object Versions {
-    const val gradlePluginVersion = "7.0.3"
+    const val gradlePluginVersion = "7.1.2"
     const val kotlinVersion = "1.6.20"
     const val appCompatVersion = "1.4.1"
     const val materialVersion = "1.5.0"
@@ -15,5 +15,5 @@ object Versions {
     const val glideVersion = "4.13.0"
     const val sdpVersion = "1.0.6"
     const val sspVersion = "1.0.6"
-    const val agcVersion = "1.6.4.300"
+    const val agcVersion = "1.6.5.300"
 }
