@@ -10,7 +10,7 @@ object Dependencies {
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCoreVersion}"
 
     const val navigationFragment = "androidx.navigation:navigation-fragment-ktx:${Versions.navigationVersion}"
-    const val navigationUi = "androidx.navigation:navigation-presentation-ktx:${Versions.navigationVersion}"
+    const val navigationUi = "androidx.navigation:navigation-ui-ktx:${Versions.navigationVersion}"
 
     const val glide = "com.github.bumptech.glide:glide:${Versions.glideVersion}"
     const val glideKapt = "com.github.bumptech.glide:compiler:${Versions.glideVersion}"
