@@ -15,4 +15,5 @@ object Versions {
     const val glideVersion = "4.13.0"
     const val sdpVersion = "1.0.6"
     const val sspVersion = "1.0.6"
+    const val agcVersion = "1.6.5.300"
 }

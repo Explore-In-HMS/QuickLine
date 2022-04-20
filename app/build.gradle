@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'com.huawei.agconnect'
 }
 
 android {
@@ -62,4 +63,7 @@ dependencies {
 
     implementation Dependencies.sdp
     implementation Dependencies.ssp
+
+    //AGConnect
+    implementation Dependencies.agconnect
 }
