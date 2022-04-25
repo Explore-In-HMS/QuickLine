@@ -1,6 +1,8 @@
 package com.hms.quickline.presentation
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
@@ -12,6 +14,7 @@ import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
@@ -26,7 +29,6 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
-        supportActionBar?.hide()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -52,6 +54,23 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
             NavigationUI.setupActionBarWithNavController(this, navController)
         }
         currentNavController = controller
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.actionbar_call, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_call -> {
+                CallDialog().show(supportFragmentManager,"CallDialog")
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun giveAction(action: Int) {
