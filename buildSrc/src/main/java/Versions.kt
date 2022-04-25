@@ -16,4 +16,5 @@ object Versions {
     const val sdpVersion = "1.0.6"
     const val sspVersion = "1.0.6"
     const val agcVersion = "1.6.5.300"
+    const val ktorVersion = "1.1.4"
 }

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    tools:context=".presentation.call.CallActivity">
+
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/vRemote"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="150dp"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="16dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+            <TextView
+                android:elevation="16dp"
+                android:background="@color/cardview_dark_background"
+                android:text="You"
+                android:textColor="@color/white"
+                android:padding="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <org.webrtc.SurfaceViewRenderer
+                android:id="@+id/vLocal"
+                android:layout_width="150dp"
+                android:layout_height="180dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:layout_centerInParent="true"
+        android:id="@+id/pvProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="@id/vRemote"
+        app:layout_constraintEnd_toEndOf="@id/vRemote"
+        app:layout_constraintStart_toStartOf="@id/vRemote"
+        app:layout_constraintTop_toTopOf="@id/vRemote" />
+    <ImageView
+        android:id="@+id/ivSwitchCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_alignParentEnd="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="12dp"
+        android:background="@drawable/circle_background"
+        app:backgroundTint="@android:color/darker_gray"
+        app:srcCompat="@drawable/ic_baseline_cameraswitch_24" />
+    <ImageView
+        android:id="@+id/ivAudioOutput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_toStartOf="@+id/ivSwitchCamera"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="12dp"
+        android:background="@drawable/circle_background"
+        app:backgroundTint="@android:color/darker_gray"
+        app:srcCompat="@drawable/ic_baseline_speaker_up_24" />
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/btnMic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:background="@drawable/circle_background"
+            app:backgroundTint="@color/cardview_dark_background"
+            app:srcCompat="@drawable/ic_baseline_mic_24" />
+        <ImageView
+            android:id="@+id/btnEndCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:background="@drawable/circle_background"
+            app:backgroundTint="@android:color/holo_red_dark"
+            app:srcCompat="@drawable/ic_baseline_call_end_24" />
+        <ImageView
+            android:id="@+id/btnVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:background="@drawable/circle_background"
+            app:backgroundTint="@color/cardview_dark_background"
+            app:srcCompat="@drawable/ic_baseline_videocam_24" />
+    </LinearLayout>
+
+</RelativeLayout>

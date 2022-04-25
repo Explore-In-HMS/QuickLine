@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hms.quickline">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:name=".QuickLineApp"
         android:allowBackup="true"
@@ -13,21 +11,29 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuickLine">
         <activity
+            android:name=".presentation.call.webrtc.CallActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.huawei.hms.client.channel.androidMarket"
             android:value="false" />
     </application>
+
     <queries>
         <intent>
             <action android:name="com.huawei.hms.core.aidlservice" />
         </intent>
     </queries>
-</manifest>
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+</manifest>
