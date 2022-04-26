@@ -12,9 +12,10 @@ import com.hms.quickline.databinding.DialogCallListBinding
  * @author b00557735
  * @since 2022-04-25
  */
-class CallDialogAdapter constructor(list: ArrayList<String>) : RecyclerView.Adapter<CallDialogAdapter.ViewHolder>() {
+class CallDialogAdapter constructor(list: ArrayList<String>,listener: ICallDialogAdapter) : RecyclerView.Adapter<CallDialogAdapter.ViewHolder>() {
 
     private var itemList: ArrayList<String> = list
+    private var itemListener = listener
     private lateinit var binding: CardCallDialogBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,6 +27,9 @@ class CallDialogAdapter constructor(list: ArrayList<String>) : RecyclerView.Adap
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item: String = itemList[position]
         holder.bind(item)
+        holder.itemView.setOnClickListener {
+            itemListener.onItemSelected(item)
+        }
     }
 
     override fun getItemCount() = itemList.size
@@ -36,5 +40,9 @@ class CallDialogAdapter constructor(list: ArrayList<String>) : RecyclerView.Adap
         fun bind(item: String) {
             binding.tvMeetingId.text = item
         }
+    }
+
+    interface ICallDialogAdapter {
+        fun onItemSelected(meetingId: String)
     }
 }
