@@ -32,12 +32,6 @@ class SignalingClient(
     var SDPtype : String? = null
     override val coroutineContext = Dispatchers.IO + job
 
-//    private val client = HttpClient(CIO) {
-//        install(WebSockets)
-//        install(JsonFeature) {
-//            serializer = GsonSerializer()
-//        }
-//    }
 
     private val sendChannel = ConflatedBroadcastChannel<String>()
 
@@ -49,21 +43,8 @@ class SignalingClient(
       /*  db.enableNetwork().addOnSuccessListener {
             listener.onConnectionEstablished()
         } */ //TODO replace with cloudDB
-        val sendData = sendChannel.offer("")
-        sendData.let {
-            Log.v(this@SignalingClient.javaClass.simpleName, "Sending: $it")
-//            val data = hashMapOf(
-//                    "data" to it
-//            )
-//            db.collection("calls")
-//                    .add(data)
-//                    .addOnSuccessListener { documentReference ->
-//                        Log.e(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-//                    }
-//                    .addOnFailureListener { e ->
-//                        Log.e(TAG, "Error adding document", e)
-//                    }
-        }
+
+
         try {
            /* db.collection("calls")
                 .document(meetingID)
@@ -123,21 +104,7 @@ class SignalingClient(
                             }
                         }
                     }
-//            db.collection("calls").document(meetingID)
-//                    .get()
-//                    .addOnSuccessListener { result ->
-//                        val data = result.data
-//                        if (data?.containsKey("type")!! && data.getValue("type").toString() == "OFFER") {
-//                            Log.e(TAG, "connect: OFFER - $data")
-//                            listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER,data["sdp"].toString()))
-//                        } else if (data?.containsKey("type") && data.getValue("type").toString() == "ANSWER") {
-//                            Log.e(TAG, "connect: ANSWER - $data")
-//                            listener.onAnswerReceived(SessionDescription(SessionDescription.Type.ANSWER,data["sdp"].toString()))
-//                        }
-//                    }
-//                    .addOnFailureListener {
-//                        Log.e(TAG, "connect: $it")
-//                    } */ // TODO replace with cloudDB
+          */ // TODO replace with cloudDB
 
         } catch (exception: Exception) {
             Log.e(TAG, "connectException: $exception")
