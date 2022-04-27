@@ -1,12 +1,15 @@
 package com.hms.quickline.presentation.call.webrtc
 
 import android.util.Log
-import com.google.gson.Gson
+import com.hms.quickline.core.util.Constants
+import com.hms.quickline.data.model.CallsCandidates
+import com.hms.quickline.data.model.CallsSdp
+import com.huawei.agconnect.cloud.database.*
+import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import io.ktor.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import org.json.JSONObject
 import org.webrtc.IceCandidate
+import org.webrtc.SessionDescription
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -16,99 +19,33 @@ class SignalingClient(
 ) : CoroutineScope {
 
     companion object {
-        private const val HOST_ADDRESS = "192.168.0.12"
+        private const val TAG = "SignallingClient"
     }
 
-    var jsonObject : JSONObject?= null
-
     private val job = Job()
-
-    val TAG = "SignallingClient"
-
-    //val db = Firebase.firestore //TODO replace with cloudDB
-
-    private val gson = Gson()
 
     var SDPtype : String? = null
     override val coroutineContext = Dispatchers.IO + job
 
-
-    private val sendChannel = ConflatedBroadcastChannel<String>()
+    private var cloudDB: AGConnectCloudDB? = CloudDbWrapper.cloudDB
+    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
+    private var mRegisterSdp: ListenerHandler? = null
+    private var mRegisterCandidate: ListenerHandler? = null
 
     init {
         connect()
     }
 
     private fun connect() = launch {
-      /*  db.enableNetwork().addOnSuccessListener {
+        cloudDB?.enableNetwork(Constants.CloudDbZoneName).also {
             listener.onConnectionEstablished()
-        } */ //TODO replace with cloudDB
-
+        }
 
         try {
-           /* db.collection("calls")
-                .document(meetingID)
-                .addSnapshotListener { snapshot, e ->
-
-                    if (e != null) {
-                        Log.w(TAG, "listen:error", e)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null && snapshot.exists()) {
-                        val data = snapshot.data
-                        if (data?.containsKey("type")!! &&
-                            data.getValue("type").toString() == "OFFER") {
-                                listener.onOfferReceived(SessionDescription(
-                                    SessionDescription.Type.OFFER,data["sdp"].toString()))
-                            SDPtype = "Offer"
-                        } else if (data?.containsKey("type") &&
-                            data.getValue("type").toString() == "ANSWER") {
-                                listener.onAnswerReceived(SessionDescription(
-                                    SessionDescription.Type.ANSWER,data["sdp"].toString()))
-                            SDPtype = "Answer"
-                        } else if (!Constants.isIntiatedNow && data.containsKey("type") &&
-                            data.getValue("type").toString() == "END_CALL") {
-                            listener.onCallEnded()
-                            SDPtype = "End Call"
-
-                        }
-                        Log.d(TAG, "Current data: ${snapshot.data}")
-                    } else {
-                        Log.d(TAG, "Current data: null")
-                    }
-                }
-            db.collection("calls").document(meetingID)
-                    .collection("candidates").addSnapshotListener{ querysnapshot,e->
-                        if (e != null) {
-                            Log.w(TAG, "listen:error", e)
-                            return@addSnapshotListener
-                        }
-
-                        if (querysnapshot != null && !querysnapshot.isEmpty) {
-                            for (dataSnapShot in querysnapshot) {
-
-                                val data = dataSnapShot.data
-                                if (SDPtype == "Offer" && data.containsKey("type") && data.get("type")=="offerCandidate") {
-                                    listener.onIceCandidateReceived(
-                                            IceCandidate(data["sdpMid"].toString(),
-                                                    Math.toIntExact(data["sdpMLineIndex"] as Long),
-                                                    data["sdpCandidate"].toString()))
-                                } else if (SDPtype == "Answer" && data.containsKey("type") && data.get("type")=="answerCandidate") {
-                                    listener.onIceCandidateReceived(
-                                            IceCandidate(data["sdpMid"].toString(),
-                                                    Math.toIntExact(data["sdpMLineIndex"] as Long),
-                                                    data["sdpCandidate"].toString()))
-                                }
-                                Log.e(TAG, "candidateQuery: $dataSnapShot" )
-                            }
-                        }
-                    }
-          */ // TODO replace with cloudDB
-
+            addCallsSdpSubscription()
+            addCallsCandidatesSubscription()
         } catch (exception: Exception) {
             Log.e(TAG, "connectException: $exception")
-
         }
     }
 
@@ -117,22 +54,119 @@ class SignalingClient(
             isJoin -> "answerCandidate"
             else -> "offerCandidate"
         }
-        val candidateConstant = hashMapOf(
-                "serverUrl" to candidate?.serverUrl,
-                "sdpMid" to candidate?.sdpMid,
-                "sdpMLineIndex" to candidate?.sdpMLineIndex,
-                "sdpCandidate" to candidate?.sdp,
-                "type" to type
-        )
-        /*db.collection("calls")
-            .document("$meetingID").collection("candidates")
-            .add(candidateConstant as Map<String, Any>)
-            .addOnSuccessListener {
-                Log.e(TAG, "sendIceCandidate: Success" )
+
+        val query = CloudDBZoneQuery.where(CallsCandidates::class.java)
+        val maxQueryTask = cloudDBZone?.executeMaximumQuery(query, "id",
+            CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY)
+        maxQueryTask?.addOnSuccessListener { number ->
+            val callsCandidates = CallsCandidates()
+            callsCandidates.id = number.toInt() + 1
+            callsCandidates.meetingID = meetingID
+            callsCandidates.serverUrl = candidate?.serverUrl
+            callsCandidates.sdpMid = candidate?.sdpMid
+            callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
+            callsCandidates.sdpCandidate = candidate?.sdp
+            callsCandidates.type = type
+
+            val upsertTask = cloudDBZone?.executeUpsert(callsCandidates)
+
+            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+            }?.addOnFailureListener {
+                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
             }
-            .addOnFailureListener {
-                Log.e(TAG, "sendIceCandidate: Error $it" )
-            } */ // TODO replace with cloudDB
+        }?.addOnFailureListener {
+            Log.w(TAG, "Maximum query is failed: " + Log.getStackTraceString(it))
+        }
+    }
+
+    private val mCallsSdpSnaphostListener = OnSnapshotListener<CallsSdp> { cloudDBZoneSnapshot, e ->
+
+        e?.let {
+            Log.w(TAG, "onSnapshot: " + e.message)
+            return@OnSnapshotListener
+        }
+
+        val snapshot = cloudDBZoneSnapshot.snapshotObjects
+        var callSdpTemp = CallsSdp()
+        try {
+            while (snapshot.hasNext()) {
+                callSdpTemp = snapshot.next()
+            }
+        } catch (e: AGConnectCloudDBException) {
+            Log.w(TAG, "Snapshot Error: " + e.message)
+        } finally {
+
+            if (callSdpTemp.callType.toString() == "OFFER") {
+                listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER, callSdpTemp.sdp.toString()))
+                SDPtype = "Offer"
+            } else if (callSdpTemp.callType.toString() == "ANSWER") {
+                listener.onAnswerReceived(SessionDescription(
+                    SessionDescription.Type.ANSWER,callSdpTemp.sdp.toString()))
+                SDPtype = "Answer"
+            } else if (!Constants.isIntiatedNow && callSdpTemp.callType.toString() == "END_CALL") {
+                listener.onCallEnded()
+                SDPtype = "End Call"
+            }
+            Log.d(TAG, "Current data: $callSdpTemp")
+        }
+    }
+
+    private val mCallsCandidatesSnaphostListener = OnSnapshotListener<CallsCandidates> { cloudDBZoneSnapshot, e ->
+
+        e?.let {
+            Log.w(TAG, "onSnapshot: " + e.message)
+            return@OnSnapshotListener
+        }
+
+        val snapshot = cloudDBZoneSnapshot.snapshotObjects
+        val callsCandidatesTemp = arrayListOf<CallsCandidates>()
+        try {
+            while (snapshot.hasNext()) {
+                callsCandidatesTemp.add(snapshot.next())
+            }
+        } catch (e: AGConnectCloudDBException) {
+            Log.w(TAG, "Snapshot Error: " + e.message)
+        } finally {
+
+            for (data in callsCandidatesTemp) {
+
+                if (SDPtype == "Offer" && data.type == "offerCandidate") {
+                    listener.onIceCandidateReceived(
+                        IceCandidate(data.sdpMid.toString(),
+                            Math.toIntExact(data.sdpMLineIndex.toLong()),
+                            data.sdpCandidate.toString()))
+                } else if (SDPtype == "Answer" && data.type == "answerCandidate") {
+                    listener.onIceCandidateReceived(
+                        IceCandidate(data.sdpMid.toString(),
+                            Math.toIntExact(data.sdpMLineIndex.toLong()),
+                            data.sdpCandidate.toString()))
+                }
+                Log.e(TAG, "candidateQuery: $data" )
+            }
+        }
+    }
+
+    private fun addCallsSdpSubscription() {
+
+        try {
+            val snapshotQuery = CloudDBZoneQuery.where(CallsSdp::class.java).equalTo("shadow_flag", true)
+            mRegisterSdp = cloudDBZone?.subscribeSnapshot(snapshotQuery,
+                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY, mCallsSdpSnaphostListener)
+        } catch (e: AGConnectCloudDBException) {
+            Log.w(TAG, "subscribeSnapshot: " + e.message)
+        }
+    }
+
+    private fun addCallsCandidatesSubscription() {
+
+        try {
+            val snapshotQuery = CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("shadow_flag", true)
+            mRegisterCandidate = cloudDBZone?.subscribeSnapshot(snapshotQuery,
+                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY, mCallsCandidatesSnaphostListener)
+        } catch (e: AGConnectCloudDBException) {
+            Log.w(TAG, "subscribeSnapshot: " + e.message)
+        }
     }
 
     fun destroy() {

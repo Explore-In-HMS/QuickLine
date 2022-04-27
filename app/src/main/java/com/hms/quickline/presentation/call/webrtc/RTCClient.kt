@@ -3,8 +3,11 @@ package com.hms.quickline.presentation.call.webrtc
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.hms.quickline.data.model.CallsCandidates
+import com.hms.quickline.data.model.CallsSdp
+import com.huawei.agconnect.cloud.database.*
+import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import org.webrtc.*
-
 
 class RTCClient(
         context: Application,
@@ -14,17 +17,17 @@ class RTCClient(
     companion object {
         private const val LOCAL_TRACK_ID = "local_track"
         private const val LOCAL_STREAM_ID = "local_track"
+        private val TAG = "RTCClient"
     }
 
     private val rootEglBase: EglBase = EglBase.create()
 
     private var localAudioTrack : AudioTrack? = null
     private var localVideoTrack : VideoTrack? = null
-    val TAG = "RTCClient"
 
     var remoteSessionDescription : SessionDescription? = null
 
-    //val db = Firebase.firestore //TODO replace with cloudDB
+    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
     init {
         initPeerConnectionFactory(context)
@@ -108,18 +111,18 @@ class RTCClient(
                     }
 
                     override fun onSetSuccess() {
-                        val offer = hashMapOf(
-                                "sdp" to desc?.description,
-                                "type" to desc?.type
-                        )
-                        /*db.collection("calls").document(meetingID)
-                                .set(offer)
-                                .addOnSuccessListener {
-                                    Log.e(TAG, "DocumentSnapshot added")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e(TAG, "Error adding document", e)
-                                } */ //TODO replace with cloudDB
+
+                        val offerSdp = CallsSdp()
+                        offerSdp.meetingID = meetingID
+                        offerSdp.sdp = Text(desc?.description)
+                        offerSdp.callType = desc?.type.toString()
+                        val upsertTask = cloudDBZone?.executeUpsert(offerSdp)
+
+                        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                        }?.addOnFailureListener {
+                            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                        }
                         Log.e(TAG, "onSetSuccess")
                     }
 
@@ -150,18 +153,18 @@ class RTCClient(
         }
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
-                val answer = hashMapOf(
-                        "sdp" to desc?.description,
-                        "type" to desc?.type
-                )
-                /*db.collection("calls").document(meetingID)
-                        .set(answer)
-                        .addOnSuccessListener {
-                            Log.e(TAG, "DocumentSnapshot added")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e(TAG, "Error adding document", e)
-                        } *///TODO replace with cloudDB
+
+                val answerSdp = CallsSdp()
+                answerSdp.meetingID = meetingID
+                answerSdp.sdp = Text(desc?.description)
+                answerSdp.callType = desc?.type.toString()
+                val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
+
+                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                }
                 setLocalDescription(object : SdpObserver {
                     override fun onSetFailure(p0: String?) {
                         Log.e(TAG, "onSetFailure: $p0")
@@ -219,31 +222,53 @@ class RTCClient(
     }
 
     fun endCall(meetingID: String) {
-       /* db.collection("calls").document(meetingID).collection("candidates")
-                .get().addOnSuccessListener {
-                    val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
-                    for ( dataSnapshot in it) {
-                        if (dataSnapshot.contains("type") && dataSnapshot["type"]=="offerCandidate") {
-                            val offerCandidate = dataSnapshot
-                            iceCandidateArray.add(IceCandidate(offerCandidate["sdpMid"].toString(), Math.toIntExact(offerCandidate["sdpMLineIndex"] as Long), offerCandidate["sdp"].toString()))
-                        } else if (dataSnapshot.contains("type") && dataSnapshot["type"]=="answerCandidate") {
-                            val answerCandidate = dataSnapshot
-                            iceCandidateArray.add(IceCandidate(answerCandidate["sdpMid"].toString(), Math.toIntExact(answerCandidate["sdpMLineIndex"] as Long), answerCandidate["sdp"].toString()))
-                        }
-                    }
-                    peerConnection?.removeIceCandidates(iceCandidateArray.toTypedArray())
-                }
-        val endCall = hashMapOf(
-                "type" to "END_CALL"
+
+        val queryTask = cloudDBZone?.executeQuery(
+            CloudDBZoneQuery.where(CallsCandidates::class.java),
+            CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
         )
-        db.collection("calls").document(meetingID)
-                .set(endCall)
-                .addOnSuccessListener {
-                    Log.e(TAG, "DocumentSnapshot added")
+        queryTask?.addOnSuccessListener { snapshot ->
+            val exampleListTemp = arrayListOf<CallsCandidates>()
+            try {
+                while (snapshot.snapshotObjects.hasNext()) {
+                    exampleListTemp.add(snapshot.snapshotObjects.next())
                 }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error adding document", e)
-                } *///TODO replace with cloudDB
+            } catch (e: AGConnectCloudDBException) {
+                Log.w(TAG, "Snapshot Error: " + e.message)
+            } finally {
+                val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
+                for (data in exampleListTemp) {
+                    if (data.type != null && data.type == "offerCandidate") {
+                        iceCandidateArray.add(IceCandidate(
+                            data.sdpMid,
+                            data.sdpMLineIndex,
+                            data.sdpCandidate
+                        ))
+                    }   else if (data.type != null && data.type == "answerCandidate") {
+                        iceCandidateArray.add(IceCandidate(
+                            data.sdpMid,
+                            data.sdpMLineIndex,
+                            data.sdpCandidate
+                        ))
+                    }
+                }
+                peerConnection?.removeIceCandidates(iceCandidateArray.toTypedArray())
+                snapshot.release()
+            }
+
+            val callsSdp = CallsSdp()
+            callsSdp.meetingID = meetingID
+            callsSdp.callType = "END_CALL"
+            val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
+
+            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+            }?.addOnFailureListener {
+                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+            }
+        }?.addOnFailureListener {
+            Log.w(TAG, "QueryTask Failure: " + it.message)
+        }
 
         peerConnection?.close()
     }

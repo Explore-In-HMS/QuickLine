@@ -12,8 +12,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import com.hms.quickline.R
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.databinding.ActivityCallBinding
-import com.hms.quickline.presentation.call.webrtc.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.webrtc.*
 
@@ -169,27 +169,33 @@ class CallActivity : AppCompatActivity() {
         rtcClient.initSurfaceView(binding.vRemote)
         rtcClient.initSurfaceView(binding.vLocal)
         rtcClient.startLocalVideoCapture(binding.vLocal)
-        signallingClient =  SignalingClient(meetingID,createSignallingClientListener())
+        signallingClient =  SignalingClient(meetingID, createSignallingClientListener())
         if (!isJoin)
             rtcClient.call(sdpObserver,meetingID)
     }
 
     private fun createSignallingClientListener() = object : SignalingClientListener {
         override fun onConnectionEstablished() {
-            binding.btnEndCall.isClickable = true
+            runOnUiThread {
+                binding.btnEndCall.isClickable = true
+            }
         }
 
         override fun onOfferReceived(description: SessionDescription) {
             rtcClient.onRemoteSessionReceived(description)
             Constants.isIntiatedNow = false
             rtcClient.answer(sdpObserver,meetingID)
-            binding.pvProgress.isGone = true
+            runOnUiThread {
+                binding.pvProgress.isGone = true
+            }
         }
 
         override fun onAnswerReceived(description: SessionDescription) {
             rtcClient.onRemoteSessionReceived(description)
             Constants.isIntiatedNow = false
-            binding.vRemote.isGone = true
+            runOnUiThread {
+                binding.vRemote.isGone = true
+            }
         }
 
         override fun onIceCandidateReceived(iceCandidate: IceCandidate) {

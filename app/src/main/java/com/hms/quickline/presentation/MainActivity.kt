@@ -12,9 +12,10 @@ import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
+import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
+import com.hms.quickline.presentation.call.webrtc.CloudDbWrapper
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
@@ -28,6 +29,10 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
+        }
+
+        CloudDbWrapper.initialize(this) {
+            showToastLong(this, "$it")
         }
     }
 
