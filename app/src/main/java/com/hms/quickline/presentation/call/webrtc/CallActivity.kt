@@ -58,7 +58,6 @@ class CallActivity : AppCompatActivity() {
         val view: View = binding.getRoot()
         setContentView(view)
 
-        //TODO these parameters will obtained from before activity.
         if (intent.hasExtra("meetingID"))
             meetingID = intent.getStringExtra("meetingID")!!
         if (intent.hasExtra("isJoin"))

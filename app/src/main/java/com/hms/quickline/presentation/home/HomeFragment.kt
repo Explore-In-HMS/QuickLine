@@ -38,8 +38,15 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         binding.btnJoin.setOnClickListener {
             val intent = Intent(requireActivity(), CallActivity::class.java)
-            intent.putExtra("meetingID","Meeting3")
+            intent.putExtra("meetingID",binding.etMeeting.text.toString())
             intent.putExtra("isJoin",true)
+            startActivity(intent)
+        }
+
+        binding.btnStart.setOnClickListener {
+            val intent = Intent(requireActivity(),CallActivity::class.java)
+            intent.putExtra("meetingID",binding.etMeeting.text.toString())
+            intent.putExtra("isJoin",false)
             startActivity(intent)
         }
     }

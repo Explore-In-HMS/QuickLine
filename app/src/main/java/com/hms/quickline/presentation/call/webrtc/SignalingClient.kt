@@ -59,14 +59,17 @@ class SignalingClient(
         val maxQueryTask = cloudDBZone?.executeMaximumQuery(query, "id",
             CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY)
         maxQueryTask?.addOnSuccessListener { number ->
+
+            val lastId = number?.toInt() ?: 0
+
             val callsCandidates = CallsCandidates()
-            callsCandidates.id = number.toInt() + 1
+            callsCandidates.id = lastId + 1
             callsCandidates.meetingID = meetingID
             callsCandidates.serverUrl = candidate?.serverUrl
             callsCandidates.sdpMid = candidate?.sdpMid
             callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
             callsCandidates.sdpCandidate = candidate?.sdp
-            callsCandidates.type = type
+            callsCandidates.callType = type
 
             val upsertTask = cloudDBZone?.executeUpsert(callsCandidates)
 
@@ -98,11 +101,11 @@ class SignalingClient(
         } finally {
 
             if (callSdpTemp.callType.toString() == "OFFER") {
-                listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER, callSdpTemp.sdp.toString()))
+                listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER, callSdpTemp.callType.toString()))
                 SDPtype = "Offer"
             } else if (callSdpTemp.callType.toString() == "ANSWER") {
                 listener.onAnswerReceived(SessionDescription(
-                    SessionDescription.Type.ANSWER,callSdpTemp.sdp.toString()))
+                    SessionDescription.Type.ANSWER,callSdpTemp.callType.toString()))
                 SDPtype = "Answer"
             } else if (!Constants.isIntiatedNow && callSdpTemp.callType.toString() == "END_CALL") {
                 listener.onCallEnded()
@@ -131,12 +134,12 @@ class SignalingClient(
 
             for (data in callsCandidatesTemp) {
 
-                if (SDPtype == "Offer" && data.type == "offerCandidate") {
+                if (SDPtype == "Offer" && data.callType == "offerCandidate") {
                     listener.onIceCandidateReceived(
                         IceCandidate(data.sdpMid.toString(),
                             Math.toIntExact(data.sdpMLineIndex.toLong()),
                             data.sdpCandidate.toString()))
-                } else if (SDPtype == "Answer" && data.type == "answerCandidate") {
+                } else if (SDPtype == "Answer" && data.callType == "answerCandidate") {
                     listener.onIceCandidateReceived(
                         IceCandidate(data.sdpMid.toString(),
                             Math.toIntExact(data.sdpMLineIndex.toLong()),

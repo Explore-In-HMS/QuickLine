@@ -17,7 +17,7 @@ class RTCClient(
     companion object {
         private const val LOCAL_TRACK_ID = "local_track"
         private const val LOCAL_STREAM_ID = "local_track"
-        private val TAG = "RTCClient"
+        private const val TAG = "RTCClient"
     }
 
     private val rootEglBase: EglBase = EglBase.create()
@@ -89,7 +89,7 @@ class RTCClient(
         val surfaceTextureHelper = SurfaceTextureHelper.create(Thread.currentThread().name, rootEglBase.eglBaseContext)
         (videoCapturer as VideoCapturer).initialize(surfaceTextureHelper, localVideoOutput.context, localVideoSource.capturerObserver)
         videoCapturer.startCapture(320, 240, 60)
-        localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID + "_audio", audioSource);
+        localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID + "_audio", audioSource)
         localVideoTrack = peerConnectionFactory.createVideoTrack(LOCAL_TRACK_ID, localVideoSource)
         localVideoTrack?.addSink(localVideoOutput)
         val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
@@ -116,8 +116,8 @@ class RTCClient(
                         offerSdp.meetingID = meetingID
                         offerSdp.sdp = Text(desc?.description)
                         offerSdp.callType = desc?.type.toString()
-                        val upsertTask = cloudDBZone?.executeUpsert(offerSdp)
 
+                        val upsertTask = cloudDBZone?.executeUpsert(offerSdp)
                         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
                             Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
                         }?.addOnFailureListener {
@@ -153,13 +153,12 @@ class RTCClient(
         }
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
-
                 val answerSdp = CallsSdp()
                 answerSdp.meetingID = meetingID
                 answerSdp.sdp = Text(desc?.description)
                 answerSdp.callType = desc?.type.toString()
-                val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
 
+                val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
                 upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
                     Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
                 }?.addOnFailureListener {
@@ -238,13 +237,13 @@ class RTCClient(
             } finally {
                 val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
                 for (data in exampleListTemp) {
-                    if (data.type != null && data.type == "offerCandidate") {
+                    if (data.callType != null && data.callType == "offerCandidate") {
                         iceCandidateArray.add(IceCandidate(
                             data.sdpMid,
                             data.sdpMLineIndex,
                             data.sdpCandidate
                         ))
-                    }   else if (data.type != null && data.type == "answerCandidate") {
+                    }   else if (data.callType != null && data.callType == "answerCandidate") {
                         iceCandidateArray.add(IceCandidate(
                             data.sdpMid,
                             data.sdpMLineIndex,

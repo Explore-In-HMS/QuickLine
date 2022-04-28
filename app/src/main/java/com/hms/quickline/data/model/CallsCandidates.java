@@ -17,10 +17,9 @@ import java.util.Date;
 /**
  * Definition of ObjectType CallsCandidates.
  *
- * @since 2022-04-27
+ * @since 2022-04-28
  */
 @PrimaryKeys({"id"})
-@Indexes({"id_index:id"})
 public final class CallsCandidates extends CloudDBZoneObject {
     private Integer id;
 
@@ -34,7 +33,7 @@ public final class CallsCandidates extends CloudDBZoneObject {
 
     private String sdpCandidate;
 
-    private String type;
+    private String callType;
 
     @DefaultValue(booleanValue = true)
     private Boolean shadow_flag;
@@ -92,12 +91,12 @@ public final class CallsCandidates extends CloudDBZoneObject {
         return sdpCandidate;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCallType(String callType) {
+        this.callType = callType;
     }
 
-    public String getType() {
-        return type;
+    public String getCallType() {
+        return callType;
     }
 
     public void setShadow_flag(Boolean shadow_flag) {

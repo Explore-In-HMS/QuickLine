@@ -25,38 +25,39 @@ class CloudDbWrapper {
             context: Context,
             cloudDbInitializeResponse: (Boolean) -> Unit
         ) {
-            if (cloudDBZone == null) {
 
-                AGConnectCloudDB.initialize(context)
-
-                instance = AGConnectInstance.buildInstance(
-                    AGConnectOptionsBuilder().setRoutePolicy(AGCRoutePolicy.GERMANY).build(context)
-                )
-
-                cloudDB = AGConnectCloudDB.getInstance(
-                    AGConnectInstance.getInstance(),
-                    AGConnectAuth.getInstance()
-                )
-                cloudDB?.createObjectType(ObjectTypeInfoHelper.getObjectTypeInfo())
-
-                config = CloudDBZoneConfig(
-                    Constants.CloudDbZoneName,
-                    CloudDBZoneConfig.CloudDBZoneSyncProperty.CLOUDDBZONE_CLOUD_CACHE,
-                    CloudDBZoneConfig.CloudDBZoneAccessProperty.CLOUDDBZONE_PUBLIC
-                )
-
-                config!!.persistenceEnabled = true
-                val task = cloudDB?.openCloudDBZone2(config!!, true)
-                task?.addOnSuccessListener {
-                    Log.i(TAG, "Open cloudDBZone success")
-                    cloudDBZone = it
-                    cloudDbInitializeResponse(true)
-                }?.addOnFailureListener {
-                    Log.w(TAG, "Open cloudDBZone failed for " + it.message)
-                    cloudDbInitializeResponse(false)
-                }
-            } else {
+            if (cloudDBZone != null) {
                 cloudDbInitializeResponse(true)
+                return
+            }
+
+            AGConnectCloudDB.initialize(context)
+
+            instance = AGConnectInstance.buildInstance(
+                AGConnectOptionsBuilder().setRoutePolicy(AGCRoutePolicy.GERMANY).build(context)
+            )
+
+            cloudDB = AGConnectCloudDB.getInstance(
+                AGConnectInstance.getInstance(),
+                AGConnectAuth.getInstance()
+            )
+            cloudDB?.createObjectType(ObjectTypeInfoHelper.getObjectTypeInfo())
+
+            config = CloudDBZoneConfig(
+                Constants.CloudDbZoneName,
+                CloudDBZoneConfig.CloudDBZoneSyncProperty.CLOUDDBZONE_CLOUD_CACHE,
+                CloudDBZoneConfig.CloudDBZoneAccessProperty.CLOUDDBZONE_PUBLIC
+            )
+
+            config!!.persistenceEnabled = true
+            val task = cloudDB?.openCloudDBZone2(config!!, true)
+            task?.addOnSuccessListener {
+                Log.i(TAG, "Open cloudDBZone success")
+                cloudDBZone = it
+                cloudDbInitializeResponse(true)
+            }?.addOnFailureListener {
+                Log.w(TAG, "Open cloudDBZone failed for " + it.message)
+                cloudDbInitializeResponse(false)
             }
         }
 
