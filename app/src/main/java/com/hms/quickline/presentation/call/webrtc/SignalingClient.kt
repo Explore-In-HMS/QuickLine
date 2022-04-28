@@ -101,11 +101,11 @@ class SignalingClient(
         } finally {
 
             if (callSdpTemp.callType.toString() == "OFFER") {
-                listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER, callSdpTemp.callType.toString()))
+                listener.onOfferReceived(SessionDescription(SessionDescription.Type.OFFER, callSdpTemp.sdp.toString()))
                 SDPtype = "Offer"
             } else if (callSdpTemp.callType.toString() == "ANSWER") {
                 listener.onAnswerReceived(SessionDescription(
-                    SessionDescription.Type.ANSWER,callSdpTemp.callType.toString()))
+                    SessionDescription.Type.ANSWER,callSdpTemp.sdp.toString()))
                 SDPtype = "Answer"
             } else if (!Constants.isIntiatedNow && callSdpTemp.callType.toString() == "END_CALL") {
                 listener.onCallEnded()

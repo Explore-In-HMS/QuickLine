@@ -14,6 +14,7 @@ import androidx.core.view.isGone
 import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.databinding.ActivityCallBinding
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.webrtc.*
 
@@ -27,6 +28,7 @@ class CallActivity : AppCompatActivity() {
     }
 
     private lateinit var rtcClient: RTCClient
+    @OptIn(KtorExperimentalAPI::class)
     private lateinit var signallingClient: SignalingClient
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
@@ -55,7 +57,7 @@ class CallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCallBinding.inflate(layoutInflater)
-        val view: View = binding.getRoot()
+        val view: View = binding.root
         setContentView(view)
 
         if (intent.hasExtra("meetingID"))
@@ -119,6 +121,7 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(KtorExperimentalAPI::class)
     private fun onCameraAndAudioPermissionGranted() {
         rtcClient = RTCClient(
             application,
@@ -248,6 +251,7 @@ class CallActivity : AppCompatActivity() {
         Toast.makeText(this, "Camera and Audio Permission Denied", Toast.LENGTH_LONG).show()
     }
 
+    @OptIn(KtorExperimentalAPI::class)
     override fun onDestroy() {
         signallingClient.destroy()
         super.onDestroy()
