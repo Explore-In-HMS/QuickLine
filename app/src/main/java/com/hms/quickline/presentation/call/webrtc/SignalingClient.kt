@@ -55,39 +55,35 @@ class SignalingClient(
             else -> "offerCandidate"
         }
 
+        val callCandidateList = arrayListOf<CallsCandidates>()
+
+        var lastId = 0
+
         for (candidate in iceCandidateList) {
-            coroutineScope {
-                launch {
-                    delay(200)
-                    val query = CloudDBZoneQuery.where(CallsCandidates::class.java)
-                    val maxQueryTask = cloudDBZone?.executeMaximumQuery(query, "id",
-                        CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY)
-                    maxQueryTask?.addOnSuccessListener { number ->
 
-                        val lastId = number?.toInt() ?: 0
+            val callsCandidates = CallsCandidates()
+            callsCandidates.id = lastId + 1
+            callsCandidates.meetingID = meetingID
+            callsCandidates.serverUrl = candidate?.serverUrl
+            callsCandidates.sdpMid = candidate?.sdpMid
+            callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
+            callsCandidates.sdpCandidate = candidate?.sdp
+            callsCandidates.callType = type
 
-                        val callsCandidates = CallsCandidates()
-                        callsCandidates.id = lastId + 1
-                        callsCandidates.meetingID = meetingID
-                        callsCandidates.serverUrl = candidate?.serverUrl
-                        callsCandidates.sdpMid = candidate?.sdpMid
-                        callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
-                        callsCandidates.sdpCandidate = candidate?.sdp
-                        callsCandidates.callType = type
+            Log.i("#TAG", "123")
+            callCandidateList.add(callsCandidates)
+            lastId++
+        }
 
-                        val upsertTask = cloudDBZone?.executeUpsert(callsCandidates)
+        Log.i("#TAG", callCandidateList.size.toString())
 
-                        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                            Log.i("JanerSuccess", System.currentTimeMillis().toString())
-                            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-                        }?.addOnFailureListener {
-                            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
-                        }
-                    }?.addOnFailureListener {
-                        Log.w(TAG, "Maximum query is failed: " + Log.getStackTraceString(it))
-                    }
-                }
-            }
+        val upsertTask = cloudDBZone?.executeUpsert(callCandidateList)
+
+        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+            Log.i("JanerSuccess", System.currentTimeMillis().toString())
+            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+        }?.addOnFailureListener {
+            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
         }
     }
 
