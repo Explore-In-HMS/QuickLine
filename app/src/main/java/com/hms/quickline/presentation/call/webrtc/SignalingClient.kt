@@ -10,6 +10,8 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
+import java.util.*
+import kotlin.collections.ArrayList
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -58,6 +60,7 @@ class SignalingClient(
         val callCandidateList = arrayListOf<CallsCandidates>()
 
         var lastId = 0
+        //UUID.randomUUID().toString()
 
         for (candidate in iceCandidateList) {
 
@@ -80,7 +83,6 @@ class SignalingClient(
         val upsertTask = cloudDBZone?.executeUpsert(callCandidateList)
 
         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-            Log.i("JanerSuccess", System.currentTimeMillis().toString())
             Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
         }?.addOnFailureListener {
             Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")

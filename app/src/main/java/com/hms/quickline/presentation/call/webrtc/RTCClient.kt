@@ -10,8 +10,8 @@ import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import org.webrtc.*
 
 class RTCClient(
-        context: Application,
-        observer: PeerConnection.Observer
+    context: Application,
+    observer: PeerConnection.Observer
 ) {
 
     companion object {
@@ -22,10 +22,10 @@ class RTCClient(
 
     private val rootEglBase: EglBase = EglBase.create()
 
-    private var localAudioTrack : AudioTrack? = null
-    private var localVideoTrack : VideoTrack? = null
+    private var localAudioTrack: AudioTrack? = null
+    private var localVideoTrack: VideoTrack? = null
 
-    var remoteSessionDescription : SessionDescription? = null
+    var remoteSessionDescription: SessionDescription? = null
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
@@ -41,43 +41,50 @@ class RTCClient(
     private val peerConnectionFactory by lazy { buildPeerConnectionFactory() }
     private val videoCapturer by lazy { getVideoCapturer(context) }
 
-    private val audioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints())}
+    private val audioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints()) }
     private val localVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private val peerConnection by lazy { buildPeerConnection(observer) }
 
     private fun initPeerConnectionFactory(context: Application) {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
-                .setEnableInternalTracer(true)
-                .setFieldTrials("WebRTC-H264HighProfile/Enabled/")
-                .createInitializationOptions()
+            .setEnableInternalTracer(true)
+            .setFieldTrials("WebRTC-H264HighProfile/Enabled/")
+            .createInitializationOptions()
         PeerConnectionFactory.initialize(options)
     }
 
     private fun buildPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory
-                .builder()
-                .setVideoDecoderFactory(DefaultVideoDecoderFactory(rootEglBase.eglBaseContext))
-                .setVideoEncoderFactory(DefaultVideoEncoderFactory(rootEglBase.eglBaseContext, true, true))
-                .setOptions(PeerConnectionFactory.Options().apply {
-                    disableEncryption = true
-                    disableNetworkMonitor = true
-                })
-                .createPeerConnectionFactory()
+            .builder()
+            .setVideoDecoderFactory(DefaultVideoDecoderFactory(rootEglBase.eglBaseContext))
+            .setVideoEncoderFactory(
+                DefaultVideoEncoderFactory(
+                    rootEglBase.eglBaseContext,
+                    true,
+                    true
+                )
+            )
+            .setOptions(PeerConnectionFactory.Options().apply {
+                disableEncryption = true
+                disableNetworkMonitor = true
+            })
+            .createPeerConnectionFactory()
     }
 
-    private fun buildPeerConnection(observer: PeerConnection.Observer) = peerConnectionFactory.createPeerConnection(
+    private fun buildPeerConnection(observer: PeerConnection.Observer) =
+        peerConnectionFactory.createPeerConnection(
             iceServer,
             observer
-    )
+        )
 
     private fun getVideoCapturer(context: Context) =
-            Camera2Enumerator(context).run {
-                deviceNames.find {
-                    isFrontFacing(it)
-                }?.let {
-                    createCapturer(it, null)
-                } ?: throw IllegalStateException()
-            }
+        Camera2Enumerator(context).run {
+            deviceNames.find {
+                isFrontFacing(it)
+            }?.let {
+                createCapturer(it, null)
+            } ?: throw IllegalStateException()
+        }
 
     fun initSurfaceView(view: SurfaceViewRenderer) = view.run {
         setMirror(true)
@@ -86,10 +93,16 @@ class RTCClient(
     }
 
     fun startLocalVideoCapture(localVideoOutput: SurfaceViewRenderer) {
-        val surfaceTextureHelper = SurfaceTextureHelper.create(Thread.currentThread().name, rootEglBase.eglBaseContext)
-        (videoCapturer as VideoCapturer).initialize(surfaceTextureHelper, localVideoOutput.context, localVideoSource.capturerObserver)
+        val surfaceTextureHelper =
+            SurfaceTextureHelper.create(Thread.currentThread().name, rootEglBase.eglBaseContext)
+        (videoCapturer as VideoCapturer).initialize(
+            surfaceTextureHelper,
+            localVideoOutput.context,
+            localVideoSource.capturerObserver
+        )
         videoCapturer.startCapture(320, 240, 60)
-        localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID + "_audio", audioSource)
+        localAudioTrack =
+            peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID + "_audio", audioSource)
         localVideoTrack = peerConnectionFactory.createVideoTrack(LOCAL_TRACK_ID, localVideoSource)
         localVideoTrack?.addSink(localVideoOutput)
         val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
@@ -101,6 +114,7 @@ class RTCClient(
     private fun PeerConnection.call(sdpObserver: SdpObserver, meetingID: String) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
 
         createOffer(object : SdpObserver by sdpObserver {
@@ -150,26 +164,28 @@ class RTCClient(
     private fun PeerConnection.answer(sdpObserver: SdpObserver, meetingID: String) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
-                val answerSdp = CallsSdp()
-                answerSdp.meetingID = meetingID
-                answerSdp.sdp = Text(desc?.description)
-                answerSdp.callType = desc?.type.toString()
-
-                val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
-                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-                }?.addOnFailureListener {
-                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
-                }
                 setLocalDescription(object : SdpObserver {
                     override fun onSetFailure(p0: String?) {
                         Log.e(TAG, "onSetFailure: $p0")
                     }
 
                     override fun onSetSuccess() {
+
+                        val answerSdp = CallsSdp()
+                        answerSdp.meetingID = meetingID
+                        answerSdp.sdp = Text(desc?.description)
+                        answerSdp.callType = desc?.type.toString()
+
+                        val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
+                        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                        }?.addOnFailureListener {
+                            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                        }
                         Log.e(TAG, "onSetSuccess")
                     }
 
@@ -190,9 +206,11 @@ class RTCClient(
         }, constraints)
     }
 
-    fun call(sdpObserver: SdpObserver, meetingID: String) = peerConnection?.call(sdpObserver, meetingID)
+    fun call(sdpObserver: SdpObserver, meetingID: String) =
+        peerConnection?.call(sdpObserver, meetingID)
 
-    fun answer(sdpObserver: SdpObserver, meetingID: String) = peerConnection?.answer(sdpObserver, meetingID)
+    fun answer(sdpObserver: SdpObserver, meetingID: String) =
+        peerConnection?.answer(sdpObserver, meetingID)
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
@@ -238,17 +256,21 @@ class RTCClient(
                 val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
                 for (data in exampleListTemp) {
                     if (data.callType != null && data.callType == "offerCandidate") {
-                        iceCandidateArray.add(IceCandidate(
-                            data.sdpMid,
-                            data.sdpMLineIndex,
-                            data.sdpCandidate
-                        ))
-                    }   else if (data.callType != null && data.callType == "answerCandidate") {
-                        iceCandidateArray.add(IceCandidate(
-                            data.sdpMid,
-                            data.sdpMLineIndex,
-                            data.sdpCandidate
-                        ))
+                        iceCandidateArray.add(
+                            IceCandidate(
+                                data.sdpMid,
+                                data.sdpMLineIndex,
+                                data.sdpCandidate
+                            )
+                        )
+                    } else if (data.callType != null && data.callType == "answerCandidate") {
+                        iceCandidateArray.add(
+                            IceCandidate(
+                                data.sdpMid,
+                                data.sdpMLineIndex,
+                                data.sdpCandidate
+                            )
+                        )
                     }
                 }
                 peerConnection?.removeIceCandidates(iceCandidateArray.toTypedArray())
@@ -273,7 +295,7 @@ class RTCClient(
     }
 
     fun enableVideo(videoEnabled: Boolean) {
-        if (localVideoTrack !=null)
+        if (localVideoTrack != null)
             localVideoTrack?.setEnabled(videoEnabled)
     }
 
@@ -281,6 +303,7 @@ class RTCClient(
         if (localAudioTrack != null)
             localAudioTrack?.setEnabled(audioEnabled)
     }
+
     fun switchCamera() {
         videoCapturer.switchCamera(null)
     }

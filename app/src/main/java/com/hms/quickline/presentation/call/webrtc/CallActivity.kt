@@ -170,20 +170,20 @@ class CallActivity : AppCompatActivity() {
             }
         )
 
-        GlobalScope.launch {
-            delay(2000)
-            Log.i("JanerSend", System.currentTimeMillis().toString())
-            signallingClient.sendIceCandidate(iceCandidateList, isJoin)
-        }
-
         rtcClient.initSurfaceView(binding.vRemote)
         rtcClient.initSurfaceView(binding.vLocal)
         rtcClient.startLocalVideoCapture(binding.vLocal)
-        signallingClient =  SignalingClient(meetingID, createSignallingClientListener())
+        signallingClient = SignalingClient(meetingID, createSignallingClientListener())
         if (!isJoin)
             rtcClient.call(sdpObserver,meetingID)
+
+        GlobalScope.launch {
+            delay(2000)
+            signallingClient.sendIceCandidate(iceCandidateList, isJoin)
+        }
     }
 
+    @OptIn(DelicateCoroutinesApi::class, KtorExperimentalAPI::class)
     private fun createSignallingClientListener() = object : SignalingClientListener {
         override fun onConnectionEstablished() {
             runOnUiThread {
@@ -194,7 +194,7 @@ class CallActivity : AppCompatActivity() {
         override fun onOfferReceived(description: SessionDescription) {
             rtcClient.onRemoteSessionReceived(description)
             Constants.isIntiatedNow = false
-            rtcClient.answer(sdpObserver,meetingID)
+            rtcClient.answer(sdpObserver, meetingID)
             runOnUiThread {
                 binding.pvProgress.isGone = true
             }
