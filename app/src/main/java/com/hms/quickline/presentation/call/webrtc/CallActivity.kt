@@ -15,7 +15,7 @@ import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.databinding.ActivityCallBinding
 import io.ktor.util.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import org.webrtc.*
 
 @ExperimentalCoroutinesApi
@@ -44,6 +44,8 @@ class CallActivity : AppCompatActivity() {
     private var isVideoPaused = false
 
     private var inSpeakerMode = true
+
+    private var iceCandidateList = arrayListOf<IceCandidate?>()
 
     private lateinit var binding: ActivityCallBinding
 
@@ -121,14 +123,14 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(KtorExperimentalAPI::class)
+    @OptIn(KtorExperimentalAPI::class, DelicateCoroutinesApi::class)
     private fun onCameraAndAudioPermissionGranted() {
         rtcClient = RTCClient(
             application,
             object : PeerConnectionObserver() {
                 override fun onIceCandidate(p0: IceCandidate?) {
                     super.onIceCandidate(p0)
-                    signallingClient.sendIceCandidate(p0, isJoin)
+                    iceCandidateList.add(p0)
                     rtcClient.addIceCandidate(p0)
                 }
 
@@ -167,6 +169,12 @@ class CallActivity : AppCompatActivity() {
                 }
             }
         )
+
+        GlobalScope.launch {
+            delay(2000)
+            Log.i("JanerSend", System.currentTimeMillis().toString())
+            signallingClient.sendIceCandidate(iceCandidateList, isJoin)
+        }
 
         rtcClient.initSurfaceView(binding.vRemote)
         rtcClient.initSurfaceView(binding.vLocal)

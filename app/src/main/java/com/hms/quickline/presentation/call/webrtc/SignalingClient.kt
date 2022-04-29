@@ -49,37 +49,45 @@ class SignalingClient(
         }
     }
 
-    fun sendIceCandidate(candidate: IceCandidate?,isJoin : Boolean) = runBlocking {
+    fun sendIceCandidate(iceCandidateList: ArrayList<IceCandidate?>, isJoin : Boolean) = runBlocking {
         val type = when {
             isJoin -> "answerCandidate"
             else -> "offerCandidate"
         }
 
-        val query = CloudDBZoneQuery.where(CallsCandidates::class.java)
-        val maxQueryTask = cloudDBZone?.executeMaximumQuery(query, "id",
-            CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY)
-        maxQueryTask?.addOnSuccessListener { number ->
+        for (candidate in iceCandidateList) {
+            coroutineScope {
+                launch {
+                    delay(200)
+                    val query = CloudDBZoneQuery.where(CallsCandidates::class.java)
+                    val maxQueryTask = cloudDBZone?.executeMaximumQuery(query, "id",
+                        CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY)
+                    maxQueryTask?.addOnSuccessListener { number ->
 
-            val lastId = number?.toInt() ?: 0
+                        val lastId = number?.toInt() ?: 0
 
-            val callsCandidates = CallsCandidates()
-            callsCandidates.id = lastId + 1
-            callsCandidates.meetingID = meetingID
-            callsCandidates.serverUrl = candidate?.serverUrl
-            callsCandidates.sdpMid = candidate?.sdpMid
-            callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
-            callsCandidates.sdpCandidate = candidate?.sdp
-            callsCandidates.callType = type
+                        val callsCandidates = CallsCandidates()
+                        callsCandidates.id = lastId + 1
+                        callsCandidates.meetingID = meetingID
+                        callsCandidates.serverUrl = candidate?.serverUrl
+                        callsCandidates.sdpMid = candidate?.sdpMid
+                        callsCandidates.sdpMLineIndex = candidate?.sdpMLineIndex
+                        callsCandidates.sdpCandidate = candidate?.sdp
+                        callsCandidates.callType = type
 
-            val upsertTask = cloudDBZone?.executeUpsert(callsCandidates)
+                        val upsertTask = cloudDBZone?.executeUpsert(callsCandidates)
 
-            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-            }?.addOnFailureListener {
-                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                            Log.i("JanerSuccess", System.currentTimeMillis().toString())
+                            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                        }?.addOnFailureListener {
+                            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                        }
+                    }?.addOnFailureListener {
+                        Log.w(TAG, "Maximum query is failed: " + Log.getStackTraceString(it))
+                    }
+                }
             }
-        }?.addOnFailureListener {
-            Log.w(TAG, "Maximum query is failed: " + Log.getStackTraceString(it))
         }
     }
 
