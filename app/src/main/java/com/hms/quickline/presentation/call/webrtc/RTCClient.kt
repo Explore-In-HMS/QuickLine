@@ -32,8 +32,6 @@ class RTCClient(
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
-    private var callSdpUID: String ? = null
-
     init {
         initPeerConnectionFactory(context)
     }
@@ -147,7 +145,7 @@ class RTCClient(
         peerConnection.addStream(localStream)
     }
 
-    private fun PeerConnection.call(sdpObserver: SdpObserver, meetingID: String) {
+    private fun PeerConnection.call(sdpObserver: SdpObserver, meetingID: String, callSdpUUID: String) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveVideo", "true"))
             mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveAudio", "true"))
@@ -162,10 +160,8 @@ class RTCClient(
 
                     override fun onSetSuccess() {
 
-                        callSdpUID = UUID.randomUUID().toString()
-
                         val offerSdp = CallsSdp()
-                        offerSdp.uuid = callSdpUID
+                        offerSdp.uuid = callSdpUUID
                         offerSdp.meetingID = meetingID
                         offerSdp.sdp = Text(desc?.description)
                         offerSdp.callType = desc?.type.toString()
@@ -200,7 +196,7 @@ class RTCClient(
         }, constraints)
     }
 
-    private fun PeerConnection.answer(sdpObserver: SdpObserver, meetingID: String) {
+    private fun PeerConnection.answer(sdpObserver: SdpObserver, meetingID: String, callSdpUUID: String) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveVideo", "true"))
             mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveAudio", "true"))
@@ -209,7 +205,7 @@ class RTCClient(
             override fun onCreateSuccess(desc: SessionDescription?) {
 
                 val answerSdp = CallsSdp()
-                answerSdp.uuid = callSdpUID
+                answerSdp.uuid = callSdpUUID
                 answerSdp.meetingID = meetingID
                 answerSdp.sdp = Text(desc?.description)
                 answerSdp.callType = desc?.type.toString()
@@ -246,11 +242,11 @@ class RTCClient(
         }, constraints)
     }
 
-    fun call(sdpObserver: SdpObserver, meetingID: String) =
-        peerConnection.call(sdpObserver, meetingID)
+    fun call(sdpObserver: SdpObserver, meetingID: String, callSdpUUID: String) =
+        peerConnection.call(sdpObserver, meetingID, callSdpUUID)
 
-    fun answer(sdpObserver: SdpObserver, meetingID: String) =
-        peerConnection.answer(sdpObserver, meetingID)
+    fun answer(sdpObserver: SdpObserver, meetingID: String, callSdpUUID: String) =
+        peerConnection.answer(sdpObserver, meetingID, callSdpUUID)
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
@@ -278,7 +274,7 @@ class RTCClient(
         peerConnection.addIceCandidate(iceCandidate)
     }
 
-    fun endCall(meetingID: String) {
+    fun endCall(meetingID: String, callSdpUUID: String) {
 
         val queryMeetingID = CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("meetingID", meetingID)
         val queryTask = cloudDBZone?.executeQuery(
@@ -326,7 +322,7 @@ class RTCClient(
             }
 
             val callsSdp = CallsSdp()
-            callsSdp.uuid = callSdpUID
+            callsSdp.uuid = callSdpUUID
             callsSdp.meetingID = meetingID
             callsSdp.callType = "END_CALL"
             val upsertTask = cloudDBZone?.executeUpsert(callsSdp)

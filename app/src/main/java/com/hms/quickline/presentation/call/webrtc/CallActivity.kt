@@ -17,6 +17,7 @@ import com.hms.quickline.databinding.ActivityCallBinding
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import org.webrtc.*
+import java.util.*
 
 @ExperimentalCoroutinesApi
 class CallActivity : AppCompatActivity() {
@@ -28,6 +29,7 @@ class CallActivity : AppCompatActivity() {
     }
 
     private lateinit var rtcClient: RTCClient
+
     @OptIn(KtorExperimentalAPI::class)
     private lateinit var signallingClient: SignalingClient
 
@@ -35,7 +37,7 @@ class CallActivity : AppCompatActivity() {
 
     private val TAG = "CallActivity"
 
-    private var meetingID : String = "test-call"
+    private var meetingID: String = "test-call"
 
     private var isJoin = false
 
@@ -48,6 +50,8 @@ class CallActivity : AppCompatActivity() {
     private var iceCandidateList = arrayListOf<IceCandidate?>()
 
     private lateinit var binding: ActivityCallBinding
+
+    private lateinit var callSdpUUID: String
 
     private val sdpObserver = object : AppSdpObserver() {
         override fun onCreateSuccess(p0: SessionDescription?) {
@@ -65,7 +69,7 @@ class CallActivity : AppCompatActivity() {
         if (intent.hasExtra("meetingID"))
             meetingID = intent.getStringExtra("meetingID")!!
         if (intent.hasExtra("isJoin"))
-            isJoin = intent.getBooleanExtra("isJoin",false)
+            isJoin = intent.getBooleanExtra("isJoin", false)
 
         checkCameraAndAudioPermission()
         audioManager.selectAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
@@ -105,7 +109,7 @@ class CallActivity : AppCompatActivity() {
             rtcClient.enableAudio(isMute)
         }
         binding.btnEndCall.setOnClickListener {
-            rtcClient.endCall(meetingID)
+            rtcClient.endCall(meetingID, callSdpUUID)
             binding.vRemote.isGone = false
             Constants.isCallEnded = true
             finish()
@@ -116,7 +120,8 @@ class CallActivity : AppCompatActivity() {
         if ((ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION)
                     != PackageManager.PERMISSION_GRANTED) &&
             (ContextCompat.checkSelfPermission(this, AUDIO_PERMISSION)
-                    != PackageManager.PERMISSION_GRANTED)) {
+                    != PackageManager.PERMISSION_GRANTED)
+        ) {
             requestCameraAndAudioPermission()
         } else {
             onCameraAndAudioPermissionGranted()
@@ -169,7 +174,7 @@ class CallActivity : AppCompatActivity() {
                 }
 
                 override fun onTrack(transceiver: RtpTransceiver?) {
-                    Log.e(TAG, "onTrack: $transceiver" )
+                    Log.e(TAG, "onTrack: $transceiver")
                 }
             }
         )
@@ -178,11 +183,12 @@ class CallActivity : AppCompatActivity() {
         rtcClient.initSurfaceView(binding.vLocal)
         rtcClient.startLocalVideoCapture(binding.vLocal)
         signallingClient = SignalingClient(meetingID, createSignallingClientListener())
+        callSdpUUID = UUID.randomUUID().toString()
         if (!isJoin)
-            rtcClient.call(sdpObserver,meetingID)
+            rtcClient.call(sdpObserver, meetingID, callSdpUUID)
 
         GlobalScope.launch {
-            delay(3000)
+            delay(9000)
             signallingClient.sendIceCandidate(iceCandidateList, isJoin)
         }
     }
@@ -198,7 +204,7 @@ class CallActivity : AppCompatActivity() {
         override fun onOfferReceived(description: SessionDescription) {
             rtcClient.onRemoteSessionReceived(description)
             Constants.isIntiatedNow = false
-            rtcClient.answer(sdpObserver, meetingID)
+            rtcClient.answer(sdpObserver, meetingID, callSdpUUID)
             runOnUiThread {
                 binding.pvProgress.isGone = true
             }
@@ -219,7 +225,7 @@ class CallActivity : AppCompatActivity() {
         override fun onCallEnded() {
             if (!Constants.isCallEnded) {
                 Constants.isCallEnded = true
-                rtcClient.endCall(meetingID)
+                rtcClient.endCall(meetingID, callSdpUUID)
                 finish()
             }
         }
@@ -228,10 +234,15 @@ class CallActivity : AppCompatActivity() {
     private fun requestCameraAndAudioPermission(dialogShown: Boolean = false) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, CAMERA_PERMISSION) &&
             ActivityCompat.shouldShowRequestPermissionRationale(this, AUDIO_PERMISSION) &&
-            !dialogShown) {
+            !dialogShown
+        ) {
             showPermissionRationaleDialog()
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(CAMERA_PERMISSION, AUDIO_PERMISSION), CAMERA_AUDIO_PERMISSION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(CAMERA_PERMISSION, AUDIO_PERMISSION),
+                CAMERA_AUDIO_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
@@ -250,7 +261,11 @@ class CallActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CAMERA_AUDIO_PERMISSION_REQUEST_CODE && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             onCameraAndAudioPermissionGranted()
