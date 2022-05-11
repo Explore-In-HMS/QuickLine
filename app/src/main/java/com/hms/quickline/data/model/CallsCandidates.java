@@ -5,11 +5,7 @@
 package com.hms.quickline.data.model;
 
 import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
-import com.huawei.agconnect.cloud.database.Text;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
-import com.huawei.agconnect.cloud.database.annotations.EntireEncrypted;
-import com.huawei.agconnect.cloud.database.annotations.NotNull;
-import com.huawei.agconnect.cloud.database.annotations.Indexes;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
 import java.util.Date;
@@ -17,11 +13,11 @@ import java.util.Date;
 /**
  * Definition of ObjectType CallsCandidates.
  *
- * @since 2022-04-28
+ * @since 2022-05-11
  */
-@PrimaryKeys({"id"})
+@PrimaryKeys({"uuid"})
 public final class CallsCandidates extends CloudDBZoneObject {
-    private Integer id;
+    private String uuid;
 
     private String meetingID;
 
@@ -43,12 +39,12 @@ public final class CallsCandidates extends CloudDBZoneObject {
         this.shadow_flag = true;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
-    public Integer getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
     public void setMeetingID(String meetingID) {

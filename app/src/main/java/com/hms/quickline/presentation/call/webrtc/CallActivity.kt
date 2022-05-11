@@ -137,7 +137,11 @@ class CallActivity : AppCompatActivity() {
                 override fun onAddStream(p0: MediaStream?) {
                     super.onAddStream(p0)
                     Log.e(TAG, "onAddStream: $p0")
-                    p0?.videoTracks?.get(0)?.addSink(binding.vRemote)
+                    val remoteVideoTrack: VideoTrack = p0!!.videoTracks[0]
+                    val remoteAudioTrack: AudioTrack = p0.audioTracks[0]
+                    remoteAudioTrack.setEnabled(true)
+                    remoteVideoTrack.setEnabled(true)
+                    p0.videoTracks?.get(0)?.addSink(binding.vRemote)
                 }
 
                 override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
@@ -178,7 +182,7 @@ class CallActivity : AppCompatActivity() {
             rtcClient.call(sdpObserver,meetingID)
 
         GlobalScope.launch {
-            delay(2000)
+            delay(3000)
             signallingClient.sendIceCandidate(iceCandidateList, isJoin)
         }
     }

@@ -8,6 +8,9 @@ import com.hms.quickline.data.model.CallsSdp
 import com.huawei.agconnect.cloud.database.*
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import org.webrtc.*
+import org.webrtc.PeerConnection.RTCConfiguration
+import java.util.*
+import kotlin.collections.ArrayList
 
 class RTCClient(
     context: Application,
@@ -25,18 +28,37 @@ class RTCClient(
     private var localAudioTrack: AudioTrack? = null
     private var localVideoTrack: VideoTrack? = null
 
-    var remoteSessionDescription: SessionDescription? = null
+    private var remoteSessionDescription: SessionDescription? = null
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
+
+    private var callSdpUID: String ? = null
 
     init {
         initPeerConnectionFactory(context)
     }
 
     private val iceServer = listOf(
-            PeerConnection.IceServer.builder(listOf("stun:stun1.l.google.com:19302","stun:stun2.l.google.com:19302"))
-                    .createIceServer()
+        PeerConnection.IceServer.builder(
+            listOf(
+                "stun:stun1.l.google.com:19302",
+                "stun:stun2.l.google.com:19302"
+            )
+        )
+            .createIceServer()
     )
+
+    var STUNList: List<String> = listOf(
+        "stun:stun.l.google.com:19302",
+        "stun:stun1.l.google.com:19302",
+        "stun:stun2.l.google.com:19302",
+        "stun:stun3.l.google.com:19302",
+        "stun:stun4.l.google.com:19302",
+        "stun:stun.vodafone.ro:3478",
+        "stun:stun.samsungsmartcam.com:3478",
+        "stun:stun.services.mozilla.com:3478"
+    )
+
 
     private val peerConnectionFactory by lazy { buildPeerConnectionFactory() }
     private val videoCapturer by lazy { getVideoCapturer(context) }
@@ -71,11 +93,25 @@ class RTCClient(
             .createPeerConnectionFactory()
     }
 
-    private fun buildPeerConnection(observer: PeerConnection.Observer) =
-        peerConnectionFactory.createPeerConnection(
-            iceServer,
-            observer
-        )
+    private fun buildPeerConnection(observer: PeerConnection.Observer) :PeerConnection  {
+
+        val iceServers: ArrayList<PeerConnection.IceServer> = ArrayList()
+
+        val iceServerBuilder: PeerConnection.IceServer.Builder = PeerConnection.IceServer.builder(STUNList)
+        iceServerBuilder.setTlsCertPolicy(PeerConnection.TlsCertPolicy.TLS_CERT_POLICY_INSECURE_NO_CHECK)
+
+        val iceServer = iceServerBuilder.createIceServer()
+        iceServers.add(iceServer)
+
+        val rtcConfig = RTCConfiguration(iceServers)
+
+        rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.DISABLED
+
+        rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXCOMPAT
+
+        return peerConnectionFactory.createPeerConnection(rtcConfig, observer)!!
+    }
+
 
     private fun getVideoCapturer(context: Context) =
         Camera2Enumerator(context).run {
@@ -108,13 +144,13 @@ class RTCClient(
         val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
         localStream.addTrack(localVideoTrack)
         localStream.addTrack(localAudioTrack)
-        peerConnection?.addStream(localStream)
+        peerConnection.addStream(localStream)
     }
 
     private fun PeerConnection.call(sdpObserver: SdpObserver, meetingID: String) {
         val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveVideo", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveAudio", "true"))
         }
 
         createOffer(object : SdpObserver by sdpObserver {
@@ -126,7 +162,10 @@ class RTCClient(
 
                     override fun onSetSuccess() {
 
+                        callSdpUID = UUID.randomUUID().toString()
+
                         val offerSdp = CallsSdp()
+                        offerSdp.uuid = callSdpUID
                         offerSdp.meetingID = meetingID
                         offerSdp.sdp = Text(desc?.description)
                         offerSdp.callType = desc?.type.toString()
@@ -163,41 +202,42 @@ class RTCClient(
 
     private fun PeerConnection.answer(sdpObserver: SdpObserver, meetingID: String) {
         val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveVideo", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("offerToReceiveAudio", "true"))
         }
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
-                setLocalDescription(object : SdpObserver {
-                    override fun onSetFailure(p0: String?) {
-                        Log.e(TAG, "onSetFailure: $p0")
-                    }
 
-                    override fun onSetSuccess() {
+                val answerSdp = CallsSdp()
+                answerSdp.uuid = callSdpUID
+                answerSdp.meetingID = meetingID
+                answerSdp.sdp = Text(desc?.description)
+                answerSdp.callType = desc?.type.toString()
 
-                        val answerSdp = CallsSdp()
-                        answerSdp.meetingID = meetingID
-                        answerSdp.sdp = Text(desc?.description)
-                        answerSdp.callType = desc?.type.toString()
-
-                        val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
-                        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-                        }?.addOnFailureListener {
-                            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                val upsertTask = cloudDBZone?.executeUpsert(answerSdp)
+                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                    setLocalDescription(object : SdpObserver {
+                        override fun onSetFailure(p0: String?) {
+                            Log.e(TAG, "onSetFailure: $p0")
                         }
-                        Log.e(TAG, "onSetSuccess")
-                    }
 
-                    override fun onCreateSuccess(p0: SessionDescription?) {
-                        Log.e(TAG, "onCreateSuccess: Description $p0")
-                    }
+                        override fun onSetSuccess() {
+                            Log.e(TAG, "onSetSuccess")
+                        }
 
-                    override fun onCreateFailure(p0: String?) {
-                        Log.e(TAG, "onCreateFailureLocal: $p0")
-                    }
-                }, desc)
-                sdpObserver.onCreateSuccess(desc)
+                        override fun onCreateSuccess(p0: SessionDescription?) {
+                            Log.e(TAG, "onCreateSuccess: Description $p0")
+                        }
+
+                        override fun onCreateFailure(p0: String?) {
+                            Log.e(TAG, "onCreateFailureLocal: $p0")
+                        }
+                    }, desc)
+                    sdpObserver.onCreateSuccess(desc)
+                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                }
             }
 
             override fun onCreateFailure(p0: String?) {
@@ -207,14 +247,14 @@ class RTCClient(
     }
 
     fun call(sdpObserver: SdpObserver, meetingID: String) =
-        peerConnection?.call(sdpObserver, meetingID)
+        peerConnection.call(sdpObserver, meetingID)
 
     fun answer(sdpObserver: SdpObserver, meetingID: String) =
-        peerConnection?.answer(sdpObserver, meetingID)
+        peerConnection.answer(sdpObserver, meetingID)
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
-        peerConnection?.setRemoteDescription(object : SdpObserver {
+        peerConnection.setRemoteDescription(object : SdpObserver {
             override fun onSetFailure(p0: String?) {
                 Log.e(TAG, "onSetFailure: $p0")
             }
@@ -235,17 +275,18 @@ class RTCClient(
     }
 
     fun addIceCandidate(iceCandidate: IceCandidate?) {
-        peerConnection?.addIceCandidate(iceCandidate)
+        peerConnection.addIceCandidate(iceCandidate)
     }
 
     fun endCall(meetingID: String) {
 
+        val queryMeetingID = CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("meetingID", meetingID)
         val queryTask = cloudDBZone?.executeQuery(
-            CloudDBZoneQuery.where(CallsCandidates::class.java),
+            queryMeetingID,
             CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
         )
         queryTask?.addOnSuccessListener { snapshot ->
-            val exampleListTemp = arrayListOf<CallsCandidates>()
+            val exampleListTemp = mutableListOf<CallsCandidates>()
             try {
                 while (snapshot.snapshotObjects.hasNext()) {
                     exampleListTemp.add(snapshot.snapshotObjects.next())
@@ -273,11 +314,19 @@ class RTCClient(
                         )
                     }
                 }
-                peerConnection?.removeIceCandidates(iceCandidateArray.toTypedArray())
+                peerConnection.removeIceCandidates(iceCandidateArray.toTypedArray())
+
+                val deleteTask = cloudDBZone?.executeDelete(exampleListTemp)
+                deleteTask?.addOnSuccessListener {
+                    Log.i(TAG, "Candidates Delete success: $it")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Candidates Delete failed: $it")
+                }
                 snapshot.release()
             }
 
             val callsSdp = CallsSdp()
+            callsSdp.uuid = callSdpUID
             callsSdp.meetingID = meetingID
             callsSdp.callType = "END_CALL"
             val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
@@ -291,7 +340,7 @@ class RTCClient(
             Log.w(TAG, "QueryTask Failure: " + it.message)
         }
 
-        peerConnection?.close()
+        peerConnection.close()
     }
 
     fun enableVideo(videoEnabled: Boolean) {
