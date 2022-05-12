@@ -1,5 +1,6 @@
 package com.hms.quickline.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +16,7 @@ import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.service.CallService
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,6 +28,8 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        startService(Intent(this,CallService::class.java))
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
