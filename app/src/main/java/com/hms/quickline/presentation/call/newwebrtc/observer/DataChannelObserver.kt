@@ -2,10 +2,6 @@ package com.hms.quickline.presentation.call.newwebrtc.observer
 
 import org.webrtc.DataChannel
 
-/**
- * Created by Agam on 07-02-2022.
- */
-
 open class DataChannelObserver(
     private val onBufferedAmountChangeCallback: (Long) -> Unit = {},
     private val onStateChangeCallback: () -> Unit = {},

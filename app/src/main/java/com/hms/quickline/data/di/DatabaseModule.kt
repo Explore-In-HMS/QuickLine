@@ -1,7 +1,7 @@
 package com.hms.quickline.data.di
 
 import android.content.Context
-import com.hms.quickline.presentation.call.webrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

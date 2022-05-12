@@ -14,7 +14,7 @@ import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
-import com.hms.quickline.presentation.call.webrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

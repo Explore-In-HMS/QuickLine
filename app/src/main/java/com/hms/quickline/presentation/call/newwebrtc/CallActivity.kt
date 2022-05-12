@@ -65,49 +65,50 @@ class CallActivity : AppCompatActivity() {
         receivingPreviousActivityData()
         initializingClasses()
 
-        binding.micBtn.setOnClickListener {
-            if (isMute) {
-                isMute = false
-                binding.micBtn.setImageResource(R.drawable.ic_baseline_mic_off_24)
-            } else {
-                isMute = true
-                binding.micBtn.setImageResource(R.drawable.ic_baseline_mic_24)
+        with(binding) {
+            micBtn.setOnClickListener {
+                if (isMute) {
+                    isMute = false
+                    micBtn.setImageResource(R.drawable.ic_baseline_mic_off_24)
+                } else {
+                    isMute = true
+                    micBtn.setImageResource(R.drawable.ic_baseline_mic_24)
+                }
+                webRtcClient.enableAudio(isMute)
             }
-            webRtcClient.enableAudio(isMute)
-        }
 
-        binding.videoBtn.setOnClickListener {
-            if (isVideoPaused) {
-                isVideoPaused = false
-                binding.videoBtn.setImageResource(R.drawable.ic_baseline_videocam_off_24)
-            } else {
-                isVideoPaused = true
-                binding.videoBtn.setImageResource(R.drawable.ic_baseline_videocam_24)
+            videoBtn.setOnClickListener {
+                if (isVideoPaused) {
+                    isVideoPaused = false
+                    videoBtn.setImageResource(R.drawable.ic_baseline_videocam_off_24)
+                } else {
+                    isVideoPaused = true
+                    videoBtn.setImageResource(R.drawable.ic_baseline_videocam_24)
+                }
+                webRtcClient.enableVideo(isVideoPaused)
             }
-            webRtcClient.enableVideo(isVideoPaused)
-        }
 
-        binding.switchCameraBtn.setOnClickListener {
-            webRtcClient.switchCamera()
-        }
+            switchCameraBtn.setOnClickListener {
+                webRtcClient.switchCamera()
+            }
 
-        binding.audioOutputBtn.setOnClickListener {
-            if (inSpeakerMode) {
-                inSpeakerMode = false
-                binding.audioOutputBtn.setImageResource(R.drawable.ic_baseline_hearing_24)
-                audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE)
-            } else {
-                inSpeakerMode = true
-                binding.audioOutputBtn.setImageResource(R.drawable.ic_baseline_speaker_up_24)
-                audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
+            audioOutputBtn.setOnClickListener {
+                if (inSpeakerMode) {
+                    inSpeakerMode = false
+                    audioOutputBtn.setImageResource(R.drawable.ic_baseline_hearing_24)
+                    audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE)
+                } else {
+                    inSpeakerMode = true
+                    audioOutputBtn.setImageResource(R.drawable.ic_baseline_speaker_up_24)
+                    audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
+                }
+            }
+
+            endCallBtn.setOnClickListener {
+                webRtcClient.endCall(callSdpUUID)
+                signalingMedium.destroy()
             }
         }
-
-        binding.endCallBtn.setOnClickListener {
-            webRtcClient.endCall(callSdpUUID)
-            signalingMedium.destroy()
-        }
-
     }
 
     private fun receivingPreviousActivityData() {

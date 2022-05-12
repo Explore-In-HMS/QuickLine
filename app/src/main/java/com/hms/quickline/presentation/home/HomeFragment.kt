@@ -27,27 +27,29 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
 
-        binding.btnAuth.setOnClickListener {
-            AGConnectAuth.getInstance()
-                .signIn(requireActivity(), AGConnectAuthCredential.HMS_Provider)
-                .addOnSuccessListener {
-                    showToastShort(requireContext(), "giriş yapıldı")
-                }
-                .addOnFailureListener {  }
-        }
+        with(binding) {
+            btnAuth.setOnClickListener {
+                AGConnectAuth.getInstance()
+                    .signIn(requireActivity(), AGConnectAuthCredential.HMS_Provider)
+                    .addOnSuccessListener {
+                        showToastShort(requireContext(), "giriş yapıldı")
+                    }
+                    .addOnFailureListener { }
+            }
 
-        binding.btnJoin.setOnClickListener {
-            val intent = Intent(requireActivity(), CallActivity::class.java)
-            intent.putExtra("meetingID",binding.etMeeting.text.toString())
-            intent.putExtra("isJoin",true)
-            startActivity(intent)
-        }
+            btnJoin.setOnClickListener {
+                val intent = Intent(requireActivity(), CallActivity::class.java)
+                intent.putExtra("meetingID", etMeeting.text.toString())
+                intent.putExtra("isJoin", true)
+                startActivity(intent)
+            }
 
-        binding.btnStart.setOnClickListener {
-            val intent = Intent(requireActivity(), CallActivity::class.java)
-            intent.putExtra("meetingID",binding.etMeeting.text.toString())
-            intent.putExtra("isJoin",false)
-            startActivity(intent)
+            btnStart.setOnClickListener {
+                val intent = Intent(requireActivity(), CallActivity::class.java)
+                intent.putExtra("meetingID", etMeeting.text.toString())
+                intent.putExtra("isJoin", false)
+                startActivity(intent)
+            }
         }
     }
 }

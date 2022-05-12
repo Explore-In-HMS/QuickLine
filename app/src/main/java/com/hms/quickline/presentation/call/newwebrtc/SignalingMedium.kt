@@ -5,7 +5,7 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
-import com.hms.quickline.presentation.call.webrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.*
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import kotlinx.coroutines.*

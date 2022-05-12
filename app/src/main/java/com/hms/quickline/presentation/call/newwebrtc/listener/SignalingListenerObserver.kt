@@ -3,10 +3,6 @@ package com.hms.quickline.presentation.call.newwebrtc.listener
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
 
-/**
- * Created by Agam on 02-02-2022.
- */
-
 class SignalingListenerObserver(
     private val onConnectionEstablishedCallback: () -> Unit = {},
     private val onOfferReceivedCallback: (SessionDescription) -> Unit = {},

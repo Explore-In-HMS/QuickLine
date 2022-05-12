@@ -3,10 +3,6 @@ package com.hms.quickline.presentation.call.newwebrtc.observer
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 
-/**
- * Created by Agam on 03-02-2022.
- */
-
 class SdpObserverImpl(
     private val onCreateSuccessCallback: (SessionDescription) -> Unit = {},
     private val onSetSuccessCallback: () -> Unit = {},

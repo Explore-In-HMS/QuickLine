@@ -1,4 +1,4 @@
-package com.hms.quickline.presentation.call.webrtc
+package com.hms.quickline.presentation.call.newwebrtc
 
 import android.content.Context
 import android.util.Log
@@ -17,7 +17,7 @@ class CloudDbWrapper {
         private const val TAG = "CloudDbWrapper"
 
         var cloudDB: AGConnectCloudDB? = null
-        var config: CloudDBZoneConfig? = null
+        private var config: CloudDBZoneConfig? = null
         var cloudDBZone: CloudDBZone? = null
         var instance: AGConnectInstance? = null
 

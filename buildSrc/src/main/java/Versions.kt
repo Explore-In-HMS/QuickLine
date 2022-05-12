@@ -20,4 +20,5 @@ object Versions {
     const val ktorVersion = "1.1.4"
     const val authVersion = "1.6.4.300"
     const val huaweiAuthVersion = "1.6.4.300"
+    const val webRtcVersion = "1.0.30039"
 }

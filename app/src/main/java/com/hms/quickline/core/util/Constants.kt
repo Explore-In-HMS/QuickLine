@@ -3,8 +3,6 @@ package com.hms.quickline.core.util
 object Constants {
 
     const val CloudDbZoneName = "COMDBZone"
-    var isCallEnded: Boolean = false
-    var isIntiatedNow: Boolean = true
 
     const val VIDEO_WIDTH = 280
     const val VIDEO_HEIGHT = 200

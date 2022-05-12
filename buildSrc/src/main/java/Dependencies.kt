@@ -37,7 +37,7 @@ object Dependencies {
     const val huaweiAuth = "com.huawei.agconnect:agconnect-auth-huawei:${Versions.huaweiAuthVersion}"
 
     //WebRTC
-    const val webRTC = "org.webrtc:google-webrtc:1.0.30039"
+    const val webRTC = "org.webrtc:google-webrtc:${Versions.webRtcVersion}"
 
     // Ktor
     const val ktorAndroid = "io.ktor:ktor-client-android:${Versions.ktorVersion}"
