@@ -46,9 +46,6 @@ dependencies {
     implementation Dependencies.materialDesign
     implementation Dependencies.constraintLayout
     implementation Dependencies.navigationFragment
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
 
     testImplementation Dependencies.jUnit
     androidTestImplementation Dependencies.testJUnit
@@ -75,12 +72,6 @@ dependencies {
 
     //WebRTC
     implementation Dependencies.webRTC
-
-    //Ktor
-    implementation Dependencies.ktorAndroid
-    implementation Dependencies.ktorWebSocket
-    implementation Dependencies.ktorCio
-    implementation Dependencies.ktorJson
 
     //Auth
     implementation Dependencies.auth
