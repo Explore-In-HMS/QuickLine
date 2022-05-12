@@ -82,6 +82,7 @@ dependencies {
     implementation Dependencies.ktorCio
     implementation Dependencies.ktorJson
 
-    implementation 'com.huawei.agconnect:agconnect-auth:1.6.4.300'
-    implementation "com.huawei.agconnect:agconnect-auth-huawei:1.6.4.300"
+    //Auth
+    implementation Dependencies.auth
+    implementation Dependencies.huaweiAuth
 }

@@ -18,4 +18,6 @@ object Versions {
     const val agcVersion = "1.6.5.300"
     const val cloudDBVersion = "1.5.0.300"
     const val ktorVersion = "1.1.4"
+    const val authVersion = "1.6.4.300"
+    const val huaweiAuthVersion = "1.6.4.300"
 }

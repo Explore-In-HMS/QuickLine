@@ -9,7 +9,7 @@ import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
-import com.hms.quickline.presentation.call.webrtc.CallActivity
+import com.hms.quickline.presentation.call.newwebrtc.CallActivity
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.auth.AGConnectAuthCredential
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +44,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         binding.btnStart.setOnClickListener {
-            val intent = Intent(requireActivity(),CallActivity::class.java)
+            val intent = Intent(requireActivity(), CallActivity::class.java)
             intent.putExtra("meetingID",binding.etMeeting.text.toString())
             intent.putExtra("isJoin",false)
             startActivity(intent)

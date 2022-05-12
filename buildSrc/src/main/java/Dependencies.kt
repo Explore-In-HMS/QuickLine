@@ -32,10 +32,14 @@ object Dependencies {
     //CloudDB
     const val cloudDB = "com.huawei.agconnect:agconnect-cloud-database:${Versions.cloudDBVersion}"
 
-    //WebRTC
-    const val webRTC = "org.webrtc:google-webrtc:1.0.32006"
+    //Auth
+    const val auth = "com.huawei.agconnect:agconnect-auth:${Versions.authVersion}"
+    const val huaweiAuth = "com.huawei.agconnect:agconnect-auth-huawei:${Versions.huaweiAuthVersion}"
 
-    // Ktor dependencies (you can retorfit instead)
+    //WebRTC
+    const val webRTC = "org.webrtc:google-webrtc:1.0.30039"
+
+    // Ktor
     const val ktorAndroid = "io.ktor:ktor-client-android:${Versions.ktorVersion}"
     const val ktorWebSocket = "io.ktor:ktor-client-websocket:${Versions.ktorVersion}"
     const val ktorCio = "io.ktor:ktor-client-cio:${Versions.ktorVersion}"

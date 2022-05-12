@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuickLine">
         <activity
-            android:name=".presentation.call.webrtc.CallActivity"
+            android:name=".presentation.call.newwebrtc.CallActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.MainActivity"

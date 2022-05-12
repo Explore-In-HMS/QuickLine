@@ -9,7 +9,7 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hms.quickline.databinding.DialogCallListBinding
-import com.hms.quickline.presentation.call.webrtc.CallActivity
+import com.hms.quickline.presentation.call.newwebrtc.CallActivity
 
 /**
  * 功能描述
@@ -34,7 +34,7 @@ class CallDialog: DialogFragment(),CallDialogAdapter.ICallDialogAdapter {
     }
 
     override fun onItemSelected(meetingId: String) {
-        val intent = Intent(requireActivity(),CallActivity::class.java)
+        val intent = Intent(requireActivity(), CallActivity::class.java)
         intent.putExtra("meetingID",meetingId)
         intent.putExtra("isJoin",false)
         startActivity(intent)

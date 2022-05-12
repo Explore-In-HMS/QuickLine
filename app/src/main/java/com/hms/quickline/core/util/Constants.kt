@@ -4,6 +4,26 @@ object Constants {
 
     const val CloudDbZoneName = "COMDBZone"
     var isCallEnded: Boolean = false
-    var isIntiatedNow : Boolean = true
+    var isIntiatedNow: Boolean = true
+
+    const val VIDEO_WIDTH = 280
+    const val VIDEO_HEIGHT = 200
+    const val VIDEO_FPS = 20
+
+    const val LOCAL_TRACK_ID = "local_track"
+    const val LOCAL_STREAM_ID = "stream_track"
+
+    const val DATA_CHANNEL_NAME = "sendDataChannel"
+
+    enum class USERTYPE {
+        OFFER_USER,
+        ANSWER_USER
+    }
+
+    enum class TYPE {
+        OFFER,
+        ANSWER,
+        END
+    }
 }
 
