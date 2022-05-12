@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.example.codefunvideocallingtest.rtc.regular.WebRtcClient
 import com.hms.quickline.R
 import com.hms.quickline.databinding.ActivityCallBinding
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver

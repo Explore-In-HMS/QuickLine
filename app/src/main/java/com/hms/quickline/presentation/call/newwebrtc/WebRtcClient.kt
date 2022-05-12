@@ -1,4 +1,4 @@
-package com.example.codefunvideocallingtest.rtc.regular
+package com.hms.quickline.presentation.call.newwebrtc
 
 import android.app.Application
 import android.util.Log
@@ -13,7 +13,6 @@ import com.hms.quickline.core.util.Constants.VIDEO_WIDTH
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
-import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
 import com.huawei.agconnect.cloud.database.Text
