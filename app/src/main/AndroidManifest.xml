@@ -13,7 +13,12 @@
         android:theme="@style/Theme.QuickLine">
 
         <receiver
-            android:name=".presentation.call.service.AlarmReceiver"
+            android:name=".presentation.call.service.ActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".presentation.call.service.NotificationReceiver"
             android:enabled="true"
             android:exported="false" />
         <service

@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.hms.quickline.R
+import com.hms.quickline.core.util.Constants.IS_JOIN
+import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.databinding.ActivityCallBinding
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
@@ -57,9 +59,7 @@ class CallActivity : AppCompatActivity() {
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            ),
-            PERMISSION_CODE
-        )
+            ))
 
         receivingPreviousActivityData()
         initializingClasses()
@@ -111,24 +111,19 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun receivingPreviousActivityData() {
-        if (intent.hasExtra("meetingID"))
-            meetingID = intent.getStringExtra("meetingID")!!
-        if (intent.hasExtra("isJoin"))
-            isJoin = intent.getBooleanExtra("isJoin", false)
+        if (intent.hasExtra(MEETING_ID))
+           meetingID = intent.getStringExtra(MEETING_ID)!!
+
+        if (intent.hasExtra(IS_JOIN))
+            isJoin = intent.getBooleanExtra(IS_JOIN, false)
 
         Log.d(TAG, "receivingPreviousFragmentData: roomName = $meetingID & isJoin = $isJoin")
     }
 
     private fun initializingClasses() {
-        peerConnectionUtil = PeerConnectionUtil(
-            application,
-            eglBase.eglBaseContext
-        )
+        peerConnectionUtil = PeerConnectionUtil(application, eglBase.eglBaseContext)
 
-        webRtcClient = WebRtcClient(
-            context = application,
-            eglBase = eglBase,
-            meetingID = meetingID,
+        webRtcClient = WebRtcClient(context = application, eglBase = eglBase, meetingID = meetingID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -242,9 +237,7 @@ class CallActivity : AppCompatActivity() {
             webRtcClient.call(callSdpUUID)
     }
 
-    private fun checkPermission(permission: Array<String>, requestCode: Int) {
-        ActivityCompat.requestPermissions(this, permission, requestCode)
-    }
+    private fun checkPermission(permission: Array<String>) = ActivityCompat.requestPermissions(this, permission, PERMISSION_CODE)
 
     companion object {
         private const val TAG = "ui_CallFragment"

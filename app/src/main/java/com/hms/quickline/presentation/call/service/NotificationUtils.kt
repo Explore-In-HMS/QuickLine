@@ -12,9 +12,15 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.hms.quickline.R
-import com.hms.quickline.presentation.call.newwebrtc.CallActivity
+import com.hms.quickline.core.util.Constants.ACTION_ANSWER
+import com.hms.quickline.core.util.Constants.ACTION_DECLINE
+import com.hms.quickline.core.util.Constants.ANSWER
+import com.hms.quickline.core.util.Constants.DECLINE
+import com.hms.quickline.core.util.Constants.UID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class NotificationUtils(context: Context) : ContextWrapper(context) {
+@ExperimentalCoroutinesApi
+class NotificationUtils(context: Context,private val uid: String? = null) : ContextWrapper(context) {
 
     private var manager: NotificationManager? = null
 
@@ -37,27 +43,29 @@ class NotificationUtils(context: Context) : ContextWrapper(context) {
     }
 
     fun getNotificationBuilder(): NotificationCompat.Builder {
-        val answerIntent = Intent(this, AlarmReceiver::class.java).apply {
+        val answerIntent = Intent(this, ActionReceiver::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        val declineIntent = Intent(this, AlarmReceiver::class.java).apply {
+        val declineIntent = Intent(this, ActionReceiver::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        answerIntent.putExtra("actionAnswer","answer");
-        declineIntent.putExtra("actionDecline","decline");
+        answerIntent.putExtra(ACTION_ANSWER, ANSWER)
+        answerIntent.putExtra(UID, uid)
+        declineIntent.putExtra(ACTION_DECLINE, DECLINE)
 
         val pendingAnswerIntent = PendingIntent.getBroadcast(this, 0, answerIntent, 0)
         val pendingIntent = PendingIntent.getActivity(this, 0, answerIntent, PendingIntent.FLAG_IMMUTABLE)
-        val pendingDeclineIntent = PendingIntent.getBroadcast(this, 0, answerIntent, 0)
+        val pendingDeclineIntent = PendingIntent.getBroadcast(this, 0, declineIntent, 0)
+
         return NotificationCompat.Builder(applicationContext, MY_CHANNEL_ID)
             .setContentTitle("Alarm!")
             .setContentText("Your AlarmManager is working.")
             .setSmallIcon(R.drawable.hwid_auth_button_normal)
             .setColor(Color.YELLOW)
-            .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_baseline_call_end_24,"Answer",pendingAnswerIntent)
-            .addAction(R.drawable.upsdk_cancel_normal,"Decline",pendingDeclineIntent)
+           // .setContentIntent(pendingIntent)
+            .addAction(R.drawable.ic_baseline_call_end_24,getString(R.string.answer),pendingAnswerIntent)
+            .addAction(R.drawable.upsdk_cancel_normal,getString(R.string.decline),pendingDeclineIntent)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setAutoCancel(true)
     }

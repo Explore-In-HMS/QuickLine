@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.data.model.Users
 
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.*
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
 /**
@@ -18,11 +20,11 @@ import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
  * @author b00557735
  * @since 2022-05-12
  */
+@ExperimentalCoroutinesApi
 class CallService: Service() {
-    private var cloudDB: AGConnectCloudDB? = CloudDbWrapper.cloudDB
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
     private var mRegisterSdp: ListenerHandler? = null
-    private val TAG = "Service"
+    private val TAG = "CallService"
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -30,10 +32,9 @@ class CallService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         showCallNotification("Oda")
-        return super.onStartCommand(intent, flags, startId)
 
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private val userSnapshotListener = OnSnapshotListener<Users> { cloudDBZoneSnapshot, e ->
@@ -45,6 +46,7 @@ class CallService: Service() {
 
         val snapshot = cloudDBZoneSnapshot.snapshotObjects
         var users = Users()
+
         try {
             while (snapshot.hasNext()) {
                 users = snapshot.next()
@@ -60,8 +62,8 @@ class CallService: Service() {
 
     private fun showCallNotification(uid: String) {
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-        intent.putExtra("uid",uid)
+        val intent = Intent(this, NotificationReceiver::class.java).putExtra(Constants.UID,uid)
+
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent)
     }
@@ -70,7 +72,7 @@ class CallService: Service() {
 
         try {
             val snapshotQuery =
-                CloudDBZoneQuery.where(Users::class.java).equalTo("uid", "uid")
+                CloudDBZoneQuery.where(Users::class.java).equalTo(Constants.UID, Constants.UID)
             mRegisterSdp = cloudDBZone?.subscribeSnapshot(
                 snapshotQuery,
                 CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY,

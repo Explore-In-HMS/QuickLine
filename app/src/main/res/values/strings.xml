@@ -10,5 +10,7 @@
     <string name="pref_speakerphone_default">auto</string>
     <string name="call">Call</string>
     <string name="select_contact_to_call">Select contact to call</string>
+    <string name="answer">Answer</string>
+    <string name="decline">Decline</string>
 
 </resources>
