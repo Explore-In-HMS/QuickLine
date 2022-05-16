@@ -38,10 +38,4 @@ object Dependencies {
 
     //WebRTC
     const val webRTC = "org.webrtc:google-webrtc:${Versions.webRtcVersion}"
-
-    // Ktor
-    const val ktorAndroid = "io.ktor:ktor-client-android:${Versions.ktorVersion}"
-    const val ktorWebSocket = "io.ktor:ktor-client-websocket:${Versions.ktorVersion}"
-    const val ktorCio = "io.ktor:ktor-client-cio:${Versions.ktorVersion}"
-    const val ktorJson = "io.ktor:ktor-client-gson:${Versions.ktorVersion}"
 }

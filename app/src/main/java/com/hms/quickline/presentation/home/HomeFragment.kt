@@ -7,13 +7,12 @@ import androidx.fragment.app.viewModels
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
-import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
-import com.hms.quickline.presentation.call.newwebrtc.CallActivity
+import com.hms.quickline.presentation.call.newwebrtc.VideoCallActivity
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.auth.AGConnectAuth
-import com.huawei.agconnect.auth.AGConnectAuthCredential
+import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
@@ -22,32 +21,35 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     private val viewModel: HomeViewModel by viewModels()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private var cloudDBZone: CloudDBZone? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
 
+        cloudDBZone = CloudDbWrapper.cloudDBZone
+
+        var name = ""
+
+        AGConnectAuth.getInstance().currentUser?.let {
+            name = it.displayName
+        }
+
         with(binding) {
-            btnAuth.setOnClickListener {
-                AGConnectAuth.getInstance()
-                    .signIn(requireActivity(), AGConnectAuthCredential.HMS_Provider)
-                    .addOnSuccessListener {
-                        showToastShort(requireContext(), "giriş yapıldı")
-                    }
-                    .addOnFailureListener { }
-            }
 
             btnJoin.setOnClickListener {
-                val intent = Intent(requireActivity(), CallActivity::class.java)
-                intent.putExtra("meetingID", etMeeting.text.toString())
+                val intent = Intent(requireActivity(), VideoCallActivity::class.java)
+                intent.putExtra("isMeetingContact", false)
+                intent.putExtra("meetingID", etMeetingId.text.toString())
+                intent.putExtra("name", name)
                 intent.putExtra("isJoin", true)
                 startActivity(intent)
             }
 
-            btnStart.setOnClickListener {
-                val intent = Intent(requireActivity(), CallActivity::class.java)
-                intent.putExtra("meetingID", etMeeting.text.toString())
-                intent.putExtra("isJoin", false)
+            btnCreate.setOnClickListener {
+                val intent = Intent(requireActivity(), VideoCallActivity::class.java)
+                intent.putExtra("meetingID", etMeetingId.text.toString())
+                intent.putExtra("isJoin", true)
                 startActivity(intent)
             }
         }

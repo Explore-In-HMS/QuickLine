@@ -2,7 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hms.quickline">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <application
         android:name=".QuickLineApp"
         android:allowBackup="true"
@@ -25,7 +32,10 @@
             android:name=".presentation.call.service.CallService"
             android:exported="false"/>
         <activity
-            android:name=".presentation.call.newwebrtc.CallActivity"
+            android:name=".presentation.call.newwebrtc.VideoCallActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.call.newwebrtc.VoiceCallActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.MainActivity"
@@ -40,6 +50,9 @@
         <meta-data
             android:name="com.huawei.hms.client.channel.androidMarket"
             android:value="false" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
     <queries>
@@ -47,11 +60,5 @@
             <action android:name="com.huawei.hms.core.aidlservice" />
         </intent>
     </queries>
-
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 </manifest>
