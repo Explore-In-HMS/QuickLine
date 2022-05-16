@@ -3,6 +3,41 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/bg_bottom_nav.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/bg_calling_buttons.xml" value="0.3145" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/bg_logo.xml" value="0.2095" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/bg_voice_video_buttons.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/circle_background.xml" value="0.3145" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/curve_background.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_baseline_available_12.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_baseline_busy_12.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_baseline_call_24.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_baseline_call_end_24.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_baseline_cameraswitch_24.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_bg_blur_rectangle.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_call.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_camera.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_contacts_24.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_logo.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_microphone.xml" value="0.22" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_right_chevron.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/drawable/ic_vector_home.xml" value="0.284" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/font/poppins.xml" value="0.39076923076923076" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/font/poppins_bold.xml" value="0.39076923076923076" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/font/poppins_light.xml" value="0.39076923076923076" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/font/poppins_medium.xml" value="0.39076923076923076" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/activity_call.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/activity_voice_call.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/bottom_sheet_call.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/card_call_dialog.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/dialog_call_list.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_call.xml" value="0.36102564102564105" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_contacts.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_home.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_recent_calls.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_splash.xml" value="0.36102564102564105" />
+        <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/menu/actionbar_call.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/s00598961/Desktop/QuickLine/app/src/main/res/layout/activity_main.xml" value="0.371875" />
       </map>
     </option>

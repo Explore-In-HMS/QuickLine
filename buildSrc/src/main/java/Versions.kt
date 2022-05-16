@@ -2,7 +2,7 @@ object Versions {
     const val gradlePluginVersion = "7.1.2"
     const val kotlinVersion = "1.6.20"
     const val appCompatVersion = "1.4.1"
-    const val materialVersion = "1.5.0"
+    const val materialVersion = "1.6.0"
     const val constraintLayoutVersion = "2.1.3"
     const val jvmVersion = "1.8"
     const val jUnitVersion = "4.+"
@@ -16,4 +16,8 @@ object Versions {
     const val sdpVersion = "1.0.6"
     const val sspVersion = "1.0.6"
     const val agcVersion = "1.6.5.300"
+    const val cloudDBVersion = "1.5.0.300"
+    const val authVersion = "1.6.4.300"
+    const val huaweiAuthVersion = "1.6.4.300"
+    const val webRtcVersion = "1.0.30039"
 }

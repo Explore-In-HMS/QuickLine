@@ -1,10 +1,15 @@
 package com.hms.quickline.presentation
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
-import androidx.navigation.ui.NavigationUI
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
@@ -26,7 +31,6 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
-        supportActionBar?.hide()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -38,7 +42,9 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         val navGraphIds =
             listOf(
                 R.navigation.main_nav_graph,
-                R.navigation.home
+                R.navigation.home,
+                R.navigation.contacts,
+                R.navigation.recentcalls
             )
 
         val controller = binding.bottomNav.setupWithNavController(
@@ -48,10 +54,39 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
             intent = intent
         )
 
-        controller.observe(this) { navController ->
-            NavigationUI.setupActionBarWithNavController(this, navController)
-        }
         currentNavController = controller
+
+        checkPermissions(this)
+    }
+
+    private fun checkPermissions(activity: Activity) {
+
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("checkPermissions", "No Permissions")
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                100
+            )
+        }
     }
 
     override fun giveAction(action: Int) {

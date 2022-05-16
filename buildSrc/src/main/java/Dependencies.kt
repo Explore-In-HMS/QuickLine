@@ -28,4 +28,14 @@ object Dependencies {
 
     //AGConnect
     const val agconnect = "com.huawei.agconnect:agconnect-core:${Versions.agcVersion}"
+
+    //CloudDB
+    const val cloudDB = "com.huawei.agconnect:agconnect-cloud-database:${Versions.cloudDBVersion}"
+
+    //Auth
+    const val auth = "com.huawei.agconnect:agconnect-auth:${Versions.authVersion}"
+    const val huaweiAuth = "com.huawei.agconnect:agconnect-auth-huawei:${Versions.huaweiAuthVersion}"
+
+    //WebRTC
+    const val webRTC = "org.webrtc:google-webrtc:${Versions.webRtcVersion}"
 }
