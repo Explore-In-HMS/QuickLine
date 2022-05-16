@@ -24,6 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class CallService: Service() {
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
     private var registerUser: ListenerHandler? = null
+    private var currentUID :String? = ""
     private val TAG = "CallService"
 
 
@@ -32,6 +33,7 @@ class CallService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        currentUID = intent?.getStringExtra(Constants.UID)!!
         addUserSubscription()
         return super.onStartCommand(intent, flags, startId)
     }
@@ -71,13 +73,15 @@ class CallService: Service() {
     private fun addUserSubscription() {
 
         try {
-            val snapshotQuery =
-                CloudDBZoneQuery.where(Users::class.java).equalTo(Constants.UID, Constants.UID)
-            registerUser = cloudDBZone?.subscribeSnapshot(
-                snapshotQuery,
-                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY,
-                userSnapshotListener
-            )
+            if (currentUID != null) {
+                val snapshotQuery =
+                    CloudDBZoneQuery.where(Users::class.java).equalTo(Constants.UID, currentUID!!)
+                registerUser = cloudDBZone?.subscribeSnapshot(
+                    snapshotQuery,
+                    CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY,
+                    userSnapshotListener
+                )
+            }
         } catch (e: AGConnectCloudDBException) {
             Log.w(TAG, "subscribeSnapshot: " + e.message)
         }
