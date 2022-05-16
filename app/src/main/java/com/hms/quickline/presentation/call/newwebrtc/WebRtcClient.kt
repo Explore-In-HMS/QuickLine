@@ -12,6 +12,7 @@ import com.hms.quickline.core.util.Constants.VIDEO_HEIGHT
 import com.hms.quickline.core.util.Constants.VIDEO_WIDTH
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
+import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
@@ -19,13 +20,14 @@ import com.huawei.agconnect.cloud.database.Text
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import org.webrtc.*
 import java.lang.IllegalStateException
+import kotlin.math.sign
 
 class WebRtcClient(
     private val context: Application,
     private val eglBase: EglBase,
     private val meetingID: String,
     private val dataChannelObserver: DataChannelObserver,
-    private val peerConnectionObserver: PeerConnection.Observer,
+    private val peerConnectionObserver: PeerConnection.Observer
 ) {
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
@@ -53,7 +55,9 @@ class WebRtcClient(
 
     private var localDataChannel: DataChannel? = null
 
-    private val videoCapturer by lazy { getFrontCameraCapturer() }
+    private var videoCapturer = getFrontCameraCapturer()
+
+    private var isFrontCamera = true
 
     private fun buildPeerConnection(observer: PeerConnection.Observer) =
         peerConnectionFactory.createPeerConnection(
@@ -85,7 +89,7 @@ class WebRtcClient(
 
 
     fun initSurfaceView(view: SurfaceViewRenderer) = view.run {
-        setMirror(true)
+        setMirror(false)
         setEnableHardwareScaler(true)
         init(eglBase.eglBaseContext, null)
     }
@@ -93,6 +97,14 @@ class WebRtcClient(
     private fun getFrontCameraCapturer() = Camera2Enumerator(context).run {
         deviceNames.find {
             isFrontFacing(it)
+        }?.let {
+            createCapturer(it, null)
+        } ?: throw IllegalStateException()
+    }
+
+    private fun getBackCameraCapturer() = Camera2Enumerator(context).run {
+        deviceNames.find {
+            isBackFacing(it)
         }?.let {
             createCapturer(it, null)
         } ?: throw IllegalStateException()
@@ -119,19 +131,29 @@ class WebRtcClient(
         localStream.addTrack(localAudioTrack)
 
         peerConnection?.addStream(localStream)
+    }
 
+    fun startVoice() {
+
+        localAudioTrack =
+            peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID + "_audio", localAudioSource)
+
+        val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
+        localStream.addTrack(localAudioTrack)
+
+        peerConnection?.addStream(localStream)
     }
 
     fun call(callSdpUUID: String) {
-        Log.d(TAG, "call: called")
+        Log.d(TAG, "contacts: called")
 
         peerConnection?.createOffer(
             SdpObserverImpl(
                 onCreateSuccessCallback = { sdp ->
-                    Log.d(TAG, "call: onCreateSuccessCallback called")
+                    Log.d(TAG, "contacts: onCreateSuccessCallback called")
                     peerConnection?.setLocalDescription(SdpObserverImpl(
                         onSetSuccessCallback = {
-                            Log.d(TAG, "call: onSetSuccess called")
+                            Log.d(TAG, "contacts: onSetSuccess called")
 
                             val offerSdp = CallsSdp()
                             offerSdp.uuid = callSdpUUID
@@ -194,23 +216,35 @@ class WebRtcClient(
 
     fun endCall(callSdpUUID: String) {
 
-        val queryMeetingID =
+        val callsSdp = CallsSdp()
+        callsSdp.uuid = callSdpUUID
+        callsSdp.meetingID = meetingID
+        callsSdp.callType = Constants.TYPE.END.name
+        val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
+
+        upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+            Log.i("TAG", "Calls Sdp Upsert success: $cloudDBZoneResult")
+        }?.addOnFailureListener {
+            Log.i("TAG", "Calls Sdp Upsert failed: ${it.message}")
+        }
+
+        val queryCallsCandidates =
             CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("meetingID", meetingID)
-        val queryTask = cloudDBZone?.executeQuery(
-            queryMeetingID,
+        val queryTaskCallsCandidates = cloudDBZone?.executeQuery(
+            queryCallsCandidates,
             CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
         )
-        queryTask?.addOnSuccessListener { snapshot ->
-            val exampleListTemp = mutableListOf<CallsCandidates>()
+        queryTaskCallsCandidates?.addOnSuccessListener { snapshot ->
+            val callsCandidatesList = mutableListOf<CallsCandidates>()
             try {
                 while (snapshot.snapshotObjects.hasNext()) {
-                    exampleListTemp.add(snapshot.snapshotObjects.next())
+                    callsCandidatesList.add(snapshot.snapshotObjects.next())
                 }
             } catch (e: AGConnectCloudDBException) {
                 Log.w(TAG, "Snapshot Error: " + e.message)
             } finally {
                 val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
-                for (data in exampleListTemp) {
+                for (data in callsCandidatesList) {
                     if (data.callType != null && data.callType == Constants.USERTYPE.OFFER_USER.name) {
                         iceCandidateArray.add(
                             IceCandidate(
@@ -232,7 +266,7 @@ class WebRtcClient(
 
                 peerConnection?.removeIceCandidates(iceCandidateArray.toTypedArray())
 
-                val deleteTask = cloudDBZone?.executeDelete(exampleListTemp)
+                val deleteTask = cloudDBZone?.executeDelete(callsCandidatesList)
                 deleteTask?.addOnSuccessListener {
                     Log.i(TAG, "Candidates Delete success: $it")
                 }?.addOnFailureListener {
@@ -240,17 +274,32 @@ class WebRtcClient(
                 }
                 snapshot.release()
             }
+        }?.addOnFailureListener {
+            Log.w(TAG, "QueryTask Failure: " + it.message)
+        }
 
-            val callsSdp = CallsSdp()
-            callsSdp.uuid = callSdpUUID
-            callsSdp.meetingID = meetingID
-            callsSdp.callType = Constants.TYPE.END.name
-            val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
-
-            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-            }?.addOnFailureListener {
-                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+        val queryCallsSdp =
+            CloudDBZoneQuery.where(CallsSdp::class.java).equalTo("meetingID", meetingID)
+        val queryTaskCallsSdp = cloudDBZone?.executeQuery(
+            queryCallsSdp,
+            CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
+        )
+        queryTaskCallsSdp?.addOnSuccessListener { snapshot ->
+            val callsSdpList = mutableListOf<CallsSdp>()
+            try {
+                while (snapshot.snapshotObjects.hasNext()) {
+                    callsSdpList.add(snapshot.snapshotObjects.next())
+                }
+            } catch (e: AGConnectCloudDBException) {
+                Log.w(TAG, "Snapshot Error: " + e.message)
+            } finally {
+                val deleteTask = cloudDBZone?.executeDelete(callsSdpList)
+                deleteTask?.addOnSuccessListener {
+                    Log.i(TAG, "Sdp Delete success: $it")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Sdp Delete failed: $it")
+                }
+                snapshot.release()
             }
         }?.addOnFailureListener {
             Log.w(TAG, "QueryTask Failure: " + it.message)
@@ -276,7 +325,9 @@ class WebRtcClient(
     }
 
     fun switchCamera() {
-        videoCapturer.switchCamera(null)
+        isFrontCamera = !isFrontCamera
+        videoCapturer = if (isFrontCamera) getFrontCameraCapturer()
+        else getBackCameraCapturer()
     }
 
     companion object {

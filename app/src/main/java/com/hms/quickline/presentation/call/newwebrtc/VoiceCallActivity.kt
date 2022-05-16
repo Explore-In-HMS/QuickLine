@@ -2,119 +2,143 @@ package com.hms.quickline.presentation.call.newwebrtc
 
 import android.Manifest
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.bumptech.glide.Glide
 import com.hms.quickline.R
-import com.hms.quickline.databinding.ActivityCallBinding
+import com.hms.quickline.core.util.invisible
+import com.hms.quickline.core.util.visible
+import com.hms.quickline.databinding.ActivityVoiceCallBinding
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
 import org.webrtc.*
 import java.util.*
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class CallActivity : AppCompatActivity() {
+class VoiceCallActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityCallBinding
+    private lateinit var binding: ActivityVoiceCallBinding
 
     private lateinit var meetingID: String
-
+    private var name: String? = null
     private var isJoin by Delegates.notNull<Boolean>()
 
     private lateinit var webRtcClient: WebRtcClient
     private lateinit var peerConnectionUtil: PeerConnectionUtil
 
-    private lateinit var signalingMedium: SignalingMedium
+    private lateinit var signalingClient: SignalingClient
 
     @Inject
     lateinit var eglBase: EglBase
 
     private var isMute = false
-    private var isVideoPaused = false
     private var inSpeakerMode = true
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
 
     private lateinit var callSdpUUID: String
 
+    var millisecondTime = 0L
+    var startTime = 0L
+
+    var seconds = 0
+    var minutes = 0
+
+    var handler: Handler? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCallBinding.inflate(layoutInflater)
+        binding = ActivityVoiceCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        callSdpUUID = UUID.randomUUID().toString()
+        handler = Handler(Looper.getMainLooper())
 
-        checkPermission(
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            ),
-            PERMISSION_CODE
-        )
+        callSdpUUID = UUID.randomUUID().toString()
 
         receivingPreviousActivityData()
         initializingClasses()
 
         with(binding) {
+
+            name?.let {
+                tvCallingUser.text = name
+            }
+
             micBtn.setOnClickListener {
-                if (isMute) {
-                    isMute = false
-                    micBtn.setImageResource(R.drawable.ic_baseline_mic_off_24)
-                } else {
-                    isMute = true
-                    micBtn.setImageResource(R.drawable.ic_baseline_mic_24)
-                }
-                webRtcClient.enableAudio(isMute)
+                isMute = !isMute
+                webRtcClient.enableAudio(!isMute)
+                if (isMute) micBtn.setImageResource(R.drawable.ic_mic_off)
+                else micBtn.setImageResource(R.drawable.ic_mic)
             }
 
-            videoBtn.setOnClickListener {
-                if (isVideoPaused) {
-                    isVideoPaused = false
-                    videoBtn.setImageResource(R.drawable.ic_baseline_videocam_off_24)
-                } else {
-                    isVideoPaused = true
-                    videoBtn.setImageResource(R.drawable.ic_baseline_videocam_24)
-                }
-                webRtcClient.enableVideo(isVideoPaused)
-            }
-
-            switchCameraBtn.setOnClickListener {
-                webRtcClient.switchCamera()
-            }
-
-            audioOutputBtn.setOnClickListener {
+            btnAudioOutput.setOnClickListener {
+                inSpeakerMode = !inSpeakerMode
                 if (inSpeakerMode) {
-                    inSpeakerMode = false
-                    audioOutputBtn.setImageResource(R.drawable.ic_baseline_hearing_24)
+                    btnAudioOutput.setImageResource(R.drawable.ic_hearing)
                     audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE)
                 } else {
-                    inSpeakerMode = true
-                    audioOutputBtn.setImageResource(R.drawable.ic_baseline_speaker_up_24)
+                    btnAudioOutput.setImageResource(R.drawable.ic_speaker_up)
                     audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
                 }
             }
 
             endCallBtn.setOnClickListener {
                 webRtcClient.endCall(callSdpUUID)
-                signalingMedium.destroy()
+                signalingClient.removeEventsListener()
+                signalingClient.destroy()
+                finish()
             }
         }
     }
 
+    private var runnable: Runnable = object : Runnable {
+
+        override fun run() {
+
+            millisecondTime = SystemClock.uptimeMillis() - startTime
+
+            seconds = (millisecondTime / 1000).toInt()
+
+            minutes = seconds / 60
+
+            seconds %= 60
+
+            if (minutes.toString().length < 2) {
+                "0$minutes:".also { binding.tvCallingTimeMinute.text = it }
+            } else {
+                binding.tvCallingTimeMinute.text = minutes.toString()
+            }
+
+            if (seconds.toString().length < 2) {
+                "0$seconds".also { binding.tvCallingTimeSecond.text = it }
+            } else {
+                binding.tvCallingTimeSecond.text = seconds.toString()
+            }
+
+            handler?.postDelayed(this, 0)
+        }
+    }
+
     private fun receivingPreviousActivityData() {
-        if (intent.hasExtra("meetingID"))
-            meetingID = intent.getStringExtra("meetingID")!!
-        if (intent.hasExtra("isJoin"))
-            isJoin = intent.getBooleanExtra("isJoin", false)
+
+        intent.getStringExtra("meetingID")?.let {
+            meetingID = it
+        }
+
+        intent.getStringExtra("name")?.let {
+            name = it
+        }
+
+        isJoin = intent.getBooleanExtra("isJoin", false)
 
         Log.d(TAG, "receivingPreviousFragmentData: roomName = $meetingID & isJoin = $isJoin")
     }
@@ -143,18 +167,14 @@ class CallActivity : AppCompatActivity() {
             ),
             peerConnectionObserver = PeerConnectionObserver(
                 onIceCandidateCallback = {
-                    signalingMedium.sendIceCandidateModelToUser(it, isJoin)
+                    signalingClient.sendIceCandidateModelToUser(it, isJoin)
                     webRtcClient.addIceCandidate(it)
                 },
                 onTrackCallback = {
-                    val videoTrack = it.receiver.track() as VideoTrack
-                    videoTrack.addSink(binding.remoteView)
+
                 },
                 onAddStreamCallback = {
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
-                    Log.d(TAG, "onAddStreamCallback: $it")
-                    it.videoTracks.first().addSink(binding.remoteView)
+
                 },
                 onDataChannelCallback = { dataChannel ->
                     Log.d(
@@ -183,19 +203,16 @@ class CallActivity : AppCompatActivity() {
             )
         )
         webRtcClient.createLocalDataChannel()
-        gettingCameraPictureToShowInLocalView()
+        initVoice()
     }
 
-    private fun gettingCameraPictureToShowInLocalView() {
-        webRtcClient.initSurfaceView(binding.remoteView)
-        webRtcClient.initSurfaceView(binding.localView)
-        webRtcClient.startLocalVideoCapture(binding.localView)
-
+    private fun initVoice() {
+        webRtcClient.startVoice()
         handlingSignalingClient()
     }
 
     private fun handlingSignalingClient() {
-        signalingMedium = SignalingMedium(
+        signalingClient = SignalingClient(
             meetingID = meetingID,
             signalingListener = SignalingListenerObserver(
                 onConnectionEstablishedCallback = {
@@ -212,6 +229,7 @@ class CallActivity : AppCompatActivity() {
                     )
                     webRtcClient.setRemoteDescription(it)
                     webRtcClient.answer(callSdpUUID)
+
                 },
                 onAnswerReceivedCallback = {
                     Log.d(
@@ -219,6 +237,23 @@ class CallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onAnswerReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
+                    runOnUiThread {
+                        with(binding) {
+                            imgVoiceLoading.invisible()
+                            tvCallingText.invisible()
+                            imgUserImage.visible()
+                            tvCallingTimeMinute.visible()
+                            tvCallingTimeSecond.visible()
+
+                            Glide.with(this@VoiceCallActivity)
+                                .load("https://media-exp1.licdn.com/dms/image/D4D03AQEweV5ra2apTw/profile-displayphoto-shrink_800_800/0/1630667862366?e=1658361600&v=beta&t=qlNpziZO8fxddUwj5eiVQYygZJA0tNHNdFZTkBbdg-A")
+                                .circleCrop()
+                                .into(imgUserImage)
+                        }
+
+                        handler?.postDelayed(runnable, 0)
+                        startTime = SystemClock.uptimeMillis()
+                    }
                 },
                 onIceCandidateReceivedCallback = {
                     Log.d(
@@ -233,17 +268,22 @@ class CallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
                     webRtcClient.endCall(callSdpUUID)
-                    signalingMedium.destroy()
+                    signalingClient.removeEventsListener()
+                    signalingClient.destroy()
+                    finish()
                 }
-            ), isJoin
+            )
         )
 
         if (!isJoin)
             webRtcClient.call(callSdpUUID)
     }
 
-    private fun checkPermission(permission: Array<String>, requestCode: Int) {
-        ActivityCompat.requestPermissions(this, permission, requestCode)
+    override fun onDestroy() {
+        super.onDestroy()
+        webRtcClient.endCall(callSdpUUID)
+        signalingClient.removeEventsListener()
+        signalingClient.destroy()
     }
 
     companion object {

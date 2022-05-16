@@ -46,6 +46,7 @@ dependencies {
     implementation Dependencies.materialDesign
     implementation Dependencies.constraintLayout
     implementation Dependencies.navigationFragment
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     testImplementation Dependencies.jUnit
     androidTestImplementation Dependencies.testJUnit
@@ -76,4 +77,6 @@ dependencies {
     //Auth
     implementation Dependencies.auth
     implementation Dependencies.huaweiAuth
+
+    implementation 'com.airbnb.android:lottie:5.0.3'
 }

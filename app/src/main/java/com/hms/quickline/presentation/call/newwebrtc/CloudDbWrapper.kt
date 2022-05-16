@@ -69,13 +69,5 @@ class CloudDbWrapper {
                 Log.w("CloudDBZone", e)
             }
         }
-
-//        fun removeSingleEventListener() {
-//            mRegisterSdp?.remove()
-//        }
-//
-//        fun removeAllEventsListener() {
-//            mRegisterCandidate?.remove()
-//        }
     }
 }

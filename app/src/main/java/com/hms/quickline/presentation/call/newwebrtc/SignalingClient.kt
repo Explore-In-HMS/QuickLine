@@ -5,21 +5,18 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
-import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.*
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import kotlinx.coroutines.*
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
+import java.lang.NullPointerException
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-private const val TAG = "SignalingMedium"
-
-class SignalingMedium(
+class SignalingClient(
     private val meetingID: String,
-    private val signalingListener: SignalingListener,
-    private val isJoin: Boolean
+    private val signalingListener: SignalingListener
 ) : CoroutineScope {
 
     private val job = Job()
@@ -36,7 +33,7 @@ class SignalingMedium(
 
     init {
         connectionEstablishedTask()
-        checkingIsThereAnyOfferOrAnswer()
+        listenOfferAndAnswer()
     }
 
     private fun connectionEstablishedTask() = launch {
@@ -46,7 +43,7 @@ class SignalingMedium(
         }
     }
 
-    private fun checkingIsThereAnyOfferOrAnswer() = launch {
+    private fun listenOfferAndAnswer() = launch {
         try {
             addCallsSdpSubscription()
             addCallsCandidatesSubscription()
@@ -72,33 +69,37 @@ class SignalingMedium(
             Log.w(TAG, "Snapshot Error: " + e.message)
         } finally {
 
-            when (callSdpTemp.callType.toString()) {
-                Constants.TYPE.OFFER.name -> {
-                    signalingListener.onOfferReceived(
-                        SessionDescription(
-                            SessionDescription.Type.OFFER,
-                            callSdpTemp.sdp.toString()
+            try {
+                when (callSdpTemp.callType.toString()) {
+                    Constants.TYPE.OFFER.name -> {
+                        signalingListener.onOfferReceived(
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                callSdpTemp.sdp.toString()
+                            )
                         )
-                    )
-                    sdpType = Constants.TYPE.OFFER
+                        sdpType = Constants.TYPE.OFFER
+                    }
+
+                    Constants.TYPE.ANSWER.name -> {
+                        signalingListener.onAnswerReceived(
+                            SessionDescription(
+                                SessionDescription.Type.ANSWER,
+                                callSdpTemp.sdp.toString()
+                            )
+                        )
+                        sdpType = Constants.TYPE.ANSWER
+                    }
+                    Constants.TYPE.END.name -> {
+                        signalingListener.onCallEnded()
+                        sdpType = Constants.TYPE.END
+                    }
                 }
 
-                Constants.TYPE.ANSWER.name -> {
-                    signalingListener.onAnswerReceived(
-                        SessionDescription(
-                            SessionDescription.Type.ANSWER,
-                            callSdpTemp.sdp.toString()
-                        )
-                    )
-                    sdpType = Constants.TYPE.ANSWER
-                }
-                Constants.TYPE.END.name -> {
-                    signalingListener.onCallEnded()
-                    sdpType = Constants.TYPE.END
-                }
+                Log.d(TAG, "Current data: $callSdpTemp")
+            }   catch (e: NullPointerException) {
+                Log.w(TAG, "callSdpTemp.callType Error: " + e.message)
             }
-
-            Log.d(TAG, "Current data: $callSdpTemp")
         }
     }
 
@@ -200,11 +201,16 @@ class SignalingMedium(
         }
     }
 
+    fun removeEventsListener() {
+        mRegisterCandidate?.remove()
+        mRegisterSdp?.remove()
+    }
+
     fun destroy() {
         job.complete()
     }
 
     companion object {
-        private const val TAG = "SignalingMedium"
+        private const val TAG = "SignalingClient"
     }
 }

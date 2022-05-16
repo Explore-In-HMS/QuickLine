@@ -1,20 +1,21 @@
 package com.hms.quickline.presentation
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.util.Log
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
-import androidx.navigation.ui.NavigationUI
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
-import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
-import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,10 +31,6 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
-
-        CloudDbWrapper.initialize(this) {
-            showToastLong(this, "$it")
-        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -45,7 +42,9 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         val navGraphIds =
             listOf(
                 R.navigation.main_nav_graph,
-                R.navigation.home
+                R.navigation.home,
+                R.navigation.contacts,
+                R.navigation.recentcalls
             )
 
         val controller = binding.bottomNav.setupWithNavController(
@@ -55,26 +54,38 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
             intent = intent
         )
 
-        controller.observe(this) { navController ->
-            NavigationUI.setupActionBarWithNavController(this, navController)
-        }
         currentNavController = controller
+
+        checkPermissions(this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.actionbar_call, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
+    private fun checkPermissions(activity: Activity) {
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_call -> {
-                CallDialog().show(supportFragmentManager,"CallDialog")
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("checkPermissions", "No Permissions")
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                100
+            )
         }
     }
 

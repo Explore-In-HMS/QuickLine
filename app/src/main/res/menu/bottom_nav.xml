@@ -3,6 +3,16 @@
 
     <item
         android:id="@+id/home"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/ic_home"
         android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/contacts"
+        android:icon="@drawable/ic_contacts_24"
+        android:title="@string/title_contacts" />
+
+    <item
+        android:id="@+id/recentCalls"
+        android:icon="@drawable/ic_recent"
+        android:title="@string/title_recent_calls" />
 </menu>
