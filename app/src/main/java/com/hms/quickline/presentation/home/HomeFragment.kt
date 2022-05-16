@@ -8,7 +8,7 @@ import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.databinding.FragmentHomeBinding
-import com.hms.quickline.presentation.call.newwebrtc.VideoCallActivity
+import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone

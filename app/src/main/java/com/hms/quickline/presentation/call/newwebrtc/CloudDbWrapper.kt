@@ -4,11 +4,13 @@ import android.content.Context
 import android.util.Log
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.data.model.ObjectTypeInfoHelper
+import com.hms.quickline.data.model.Users
 import com.huawei.agconnect.AGCRoutePolicy
 import com.huawei.agconnect.AGConnectInstance
 import com.huawei.agconnect.AGConnectOptionsBuilder
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.*
+import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 
 class CloudDbWrapper {
 
@@ -61,6 +63,32 @@ class CloudDbWrapper {
             }
         }
 
+        fun getUserById(uid: String,callback: ICloudDbWrapper){
+            val queryUser = CloudDBZoneQuery.where(Users::class.java).contains("uid", uid)
+            val queryTask = cloudDBZone?.executeQuery(
+                queryUser,
+                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
+            )
+            queryTask?.addOnSuccessListener { snapshot ->
+                val usersTemp: MutableList<Users> = mutableListOf()
+
+                try {
+                    while (snapshot.snapshotObjects.hasNext()) {
+                        val jobModel = snapshot.snapshotObjects.next()
+                        usersTemp.add(jobModel)
+                    }
+                } catch (e: AGConnectCloudDBException) {
+                    Log.w(TAG, "processQueryResult: " + e.message)
+                } finally {
+                    callback.onUserObtained(usersTemp[0])
+                    snapshot.release()
+                }
+            }?.addOnFailureListener {
+                Log.w(TAG, "processQueryResult: " + it.message)
+            }
+
+        }
+
         fun closeCloudDBZone() {
             try {
                 cloudDB?.closeCloudDBZone(cloudDBZone)
@@ -69,5 +97,9 @@ class CloudDbWrapper {
                 Log.w("CloudDBZone", e)
             }
         }
+    }
+
+    interface ICloudDbWrapper{
+        fun onUserObtained(users: Users)
     }
 }

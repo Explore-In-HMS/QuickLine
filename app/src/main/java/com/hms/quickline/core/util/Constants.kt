@@ -18,6 +18,7 @@ object Constants {
     const val ANSWER = "answer"
     const val ACTION_ANSWER = "actionAnswer"
     const val UID = "uid"
+    const val USER = "user"
     const val DECLINE = "decline"
     const val ACTION_DECLINE = "actionDecline"
 

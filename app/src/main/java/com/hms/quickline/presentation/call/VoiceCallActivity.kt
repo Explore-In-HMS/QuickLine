@@ -1,4 +1,4 @@
-package com.hms.quickline.presentation.call.newwebrtc
+package com.hms.quickline.presentation.call
 
 import android.os.Bundle
 import android.os.Handler
@@ -6,10 +6,14 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.hms.quickline.R
-import com.hms.quickline.core.util.gone
+import com.hms.quickline.core.util.invisible
 import com.hms.quickline.core.util.visible
-import com.hms.quickline.databinding.ActivityVideoCallBinding
+import com.hms.quickline.databinding.ActivityVoiceCallBinding
+import com.hms.quickline.presentation.call.newwebrtc.RTCAudioManager
+import com.hms.quickline.presentation.call.newwebrtc.SignalingClient
+import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
@@ -21,13 +25,12 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class VideoCallActivity : AppCompatActivity() {
+class VoiceCallActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityVideoCallBinding
+    private lateinit var binding: ActivityVoiceCallBinding
 
     private lateinit var meetingID: String
     private var name: String? = null
-    private var isMeetingContact by Delegates.notNull<Boolean>()
     private var isJoin by Delegates.notNull<Boolean>()
 
     private lateinit var webRtcClient: WebRtcClient
@@ -39,8 +42,7 @@ class VideoCallActivity : AppCompatActivity() {
     lateinit var eglBase: EglBase
 
     private var isMute = false
-    private var isVideoPaused = false
-    //private var inSpeakerMode = true
+    private var inSpeakerMode = true
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
 
@@ -56,7 +58,7 @@ class VideoCallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityVideoCallBinding.inflate(layoutInflater)
+        binding = ActivityVoiceCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
@@ -68,11 +70,8 @@ class VideoCallActivity : AppCompatActivity() {
 
         with(binding) {
 
-            if (isMeetingContact) clVideoLoading.visible()
-
             name?.let {
                 tvCallingUser.text = name
-                tvCallingUserLoading.text = name
             }
 
             micBtn.setOnClickListener {
@@ -82,19 +81,16 @@ class VideoCallActivity : AppCompatActivity() {
                 else micBtn.setImageResource(R.drawable.ic_mic)
             }
 
-            videoBtn.setOnClickListener {
-                isVideoPaused = !isVideoPaused
-                webRtcClient.enableVideo(!isVideoPaused)
-                if (isVideoPaused) videoBtn.setImageResource(R.drawable.ic_videocam_off)
-                else videoBtn.setImageResource(R.drawable.ic_videocam)
+            btnAudioOutput.setOnClickListener {
+                inSpeakerMode = !inSpeakerMode
+                if (inSpeakerMode) {
+                    btnAudioOutput.setImageResource(R.drawable.ic_hearing)
+                    audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE)
+                } else {
+                    btnAudioOutput.setImageResource(R.drawable.ic_speaker_up)
+                    audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
+                }
             }
-
-            switchCameraBtn.setOnClickListener {
-                webRtcClient.switchCamera()
-                webRtcClient.startLocalVideoCapture(binding.localView)
-            }
-
-            audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
 
             endCallBtn.setOnClickListener {
                 webRtcClient.endCall(callSdpUUID)
@@ -134,8 +130,6 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun receivingPreviousActivityData() {
-
-        isMeetingContact = intent.getBooleanExtra("isMeetingContact", false)
 
         intent.getStringExtra("meetingID")?.let {
             meetingID = it
@@ -178,14 +172,10 @@ class VideoCallActivity : AppCompatActivity() {
                     webRtcClient.addIceCandidate(it)
                 },
                 onTrackCallback = {
-                    val videoTrack = it.receiver.track() as VideoTrack
-                    videoTrack.addSink(binding.remoteView)
+
                 },
                 onAddStreamCallback = {
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
-                    Log.d(TAG, "onAddStreamCallback: $it")
-                    it.videoTracks.first().addSink(binding.remoteView)
+
                 },
                 onDataChannelCallback = { dataChannel ->
                     Log.d(
@@ -214,14 +204,11 @@ class VideoCallActivity : AppCompatActivity() {
             )
         )
         webRtcClient.createLocalDataChannel()
-        gettingCameraPictureToShowInLocalView()
+        initVoice()
     }
 
-    private fun gettingCameraPictureToShowInLocalView() {
-        webRtcClient.initSurfaceView(binding.remoteView)
-        webRtcClient.initSurfaceView(binding.localView)
-        webRtcClient.startLocalVideoCapture(binding.localView)
-
+    private fun initVoice() {
+        webRtcClient.startVoice()
         handlingSignalingClient()
     }
 
@@ -243,6 +230,7 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                     webRtcClient.setRemoteDescription(it)
                     webRtcClient.answer(callSdpUUID)
+
                 },
                 onAnswerReceivedCallback = {
                     Log.d(
@@ -251,7 +239,19 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                     webRtcClient.setRemoteDescription(it)
                     runOnUiThread {
-                        binding.clVideoLoading.gone()
+                        with(binding) {
+                            imgVoiceLoading.invisible()
+                            tvCallingText.invisible()
+                            imgUserImage.visible()
+                            tvCallingTimeMinute.visible()
+                            tvCallingTimeSecond.visible()
+
+                            Glide.with(this@VoiceCallActivity)
+                                .load("https://media-exp1.licdn.com/dms/image/D4D03AQEweV5ra2apTw/profile-displayphoto-shrink_800_800/0/1630667862366?e=1658361600&v=beta&t=qlNpziZO8fxddUwj5eiVQYygZJA0tNHNdFZTkBbdg-A")
+                                .circleCrop()
+                                .into(imgUserImage)
+                        }
+
                         handler?.postDelayed(runnable, 0)
                         startTime = SystemClock.uptimeMillis()
                     }

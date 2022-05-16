@@ -32,10 +32,10 @@
             android:name=".presentation.call.service.CallService"
             android:exported="false"/>
         <activity
-            android:name=".presentation.call.newwebrtc.VideoCallActivity"
+            android:name=".presentation.call.VideoCallActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.call.newwebrtc.VoiceCallActivity"
+            android:name=".presentation.call.VoiceCallActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.MainActivity"

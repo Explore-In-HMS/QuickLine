@@ -1,4 +1,4 @@
-package com.hms.quickline.presentation.call.newwebrtc
+package com.hms.quickline.presentation.contacts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -44,11 +44,11 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
                 }
 
                 imgVoiceCall.setOnClickListener {
-                    itemListener.onItemSelected(true, item.name, item.name)
+                    itemListener.onItemSelected(true, item)
                 }
 
                 imgVideoCall.setOnClickListener {
-                    itemListener.onItemSelected(false,item.name, item.name)
+                    itemListener.onItemSelected(false,item)
                 }
             }
         }
@@ -57,6 +57,6 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
     override fun getItemCount() = itemList.size
 
     interface ICallDialogAdapter {
-        fun onItemSelected(isVoiceCall: Boolean, meetingId: String, name: String)
+        fun onItemSelected(isVoiceCall: Boolean, user: Users)
     }
 }

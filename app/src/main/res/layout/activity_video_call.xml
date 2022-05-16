@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.call.newwebrtc.VideoCallActivity">
+    tools:context=".presentation.call.VideoCallActivity">
 
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/remote_view"
