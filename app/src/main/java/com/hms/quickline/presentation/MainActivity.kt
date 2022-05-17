@@ -32,9 +32,7 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val intent = Intent(this,CallService::class.java)
-        intent.putExtra(Constants.UID,AGConnectAuth.getInstance().currentUser.uid)
-        startService(intent)
+
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()

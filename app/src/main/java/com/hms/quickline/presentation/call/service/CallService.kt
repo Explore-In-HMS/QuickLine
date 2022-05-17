@@ -20,7 +20,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * @author b00557735
  * @since 2022-05-12
  */
-@ExperimentalCoroutinesApi
 class CallService: Service() {
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
     private var registerUser: ListenerHandler? = null

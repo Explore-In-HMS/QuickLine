@@ -33,7 +33,7 @@ class ActionReceiver : BroadcastReceiver() {
                 val i = Intent(context, VideoCallActivity::class.java)
                 i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 i.putExtra(MEETING_ID,uid)
-                i.putExtra(IS_JOIN, false)
+                i.putExtra(IS_JOIN, true)
                 context.startActivity(i)
                 notificationUtils.getManager().cancel(150)
             }

@@ -1,5 +1,6 @@
 package com.hms.quickline.presentation.splash
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,11 +8,13 @@ import androidx.lifecycle.lifecycleScope
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentSplashBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.service.CallService
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.auth.AGConnectAuthCredential
 import com.huawei.agconnect.cloud.database.CloudDBZone
@@ -34,6 +37,9 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
             delay(2000)
 
             AGConnectAuth.getInstance().currentUser?.let {
+                val intent = Intent(requireContext(), CallService::class.java)
+                intent.putExtra(Constants.UID,it.uid)
+                activity?.startService(intent)
                 navigate(SplashFragmentDirections.actionSplashFragmentToHome())
             }
 
@@ -64,10 +70,14 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
                             val upsertTask = cloudDBZone?.executeUpsert(currentUser)
                             upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
                                 Log.i("UpsertUser", "User Upsert success: $cloudDBZoneResult")
+                                val intent = Intent(requireContext(), CallService::class.java)
+                                intent.putExtra(Constants.UID,AGConnectAuth.getInstance().currentUser.uid)
+                                activity?.startService(intent)
                                 navigate(SplashFragmentDirections.actionSplashFragmentToHome())
                             }?.addOnFailureListener {
                                 Log.i("UpsertUser", "User Upsert failed: ${it.message}")
                             }
+
                         }
                     }
                     .addOnFailureListener {}
