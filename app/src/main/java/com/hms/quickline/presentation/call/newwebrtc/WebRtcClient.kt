@@ -12,6 +12,8 @@ import com.hms.quickline.core.util.Constants.VIDEO_HEIGHT
 import com.hms.quickline.core.util.Constants.VIDEO_WIDTH
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
+import com.hms.quickline.data.model.Users
+import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
@@ -26,6 +28,7 @@ class WebRtcClient(
     private val context: Application,
     private val eglBase: EglBase,
     private val meetingID: String,
+    private val callSdpUUID: String,
     private val dataChannelObserver: DataChannelObserver,
     private val peerConnectionObserver: PeerConnection.Observer
 ) {
@@ -144,7 +147,7 @@ class WebRtcClient(
         peerConnection?.addStream(localStream)
     }
 
-    fun call(callSdpUUID: String) {
+    fun call() {
         Log.d(TAG, "contacts: called")
 
         peerConnection?.createOffer(
@@ -175,7 +178,7 @@ class WebRtcClient(
         )
     }
 
-    fun answer(callSdpUUID: String) {
+    fun answer() {
         Log.d(TAG, "answer: called")
 
         peerConnection?.createAnswer(
@@ -214,9 +217,9 @@ class WebRtcClient(
         peerConnection?.addIceCandidate(iceCandidate)
     }
 
-    fun endCall(callSdpUUID: String) {
+    fun endCall() {
 
-        val callsSdp = CallsSdp()
+       /* val callsSdp = CallsSdp()
         callsSdp.uuid = callSdpUUID
         callsSdp.meetingID = meetingID
         callsSdp.callType = Constants.TYPE.END.name
@@ -226,7 +229,19 @@ class WebRtcClient(
             Log.i("TAG", "Calls Sdp Upsert success: $cloudDBZoneResult")
         }?.addOnFailureListener {
             Log.i("TAG", "Calls Sdp Upsert failed: ${it.message}")
-        }
+        }*/
+
+        CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
+            override fun onUserObtained(users: Users) {
+                users.isCalling = false
+                val upsertTaskIsCalling = cloudDBZone?.executeUpsert(users)
+                upsertTaskIsCalling?.addOnSuccessListener { cloudDBZoneResult ->
+                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                }
+            }
+        })
 
         val queryCallsCandidates =
             CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("meetingID", meetingID)
