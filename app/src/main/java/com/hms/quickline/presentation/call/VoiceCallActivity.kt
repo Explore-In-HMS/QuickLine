@@ -93,7 +93,7 @@ class VoiceCallActivity : AppCompatActivity() {
             }
 
             endCallBtn.setOnClickListener {
-                webRtcClient.endCall(callSdpUUID)
+                webRtcClient.endCall()
                 signalingClient.removeEventsListener()
                 signalingClient.destroy()
                 finish()
@@ -154,6 +154,7 @@ class VoiceCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
+            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -229,7 +230,7 @@ class VoiceCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
-                    webRtcClient.answer(callSdpUUID)
+                    webRtcClient.answer()
 
                 },
                 onAnswerReceivedCallback = {
@@ -268,7 +269,7 @@ class VoiceCallActivity : AppCompatActivity() {
                         SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
-                    webRtcClient.endCall(callSdpUUID)
+                    webRtcClient.endCall()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
                     finish()
@@ -277,12 +278,12 @@ class VoiceCallActivity : AppCompatActivity() {
         )
 
         if (!isJoin)
-            webRtcClient.call(callSdpUUID)
+            webRtcClient.call()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall(callSdpUUID)
+        webRtcClient.endCall()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }

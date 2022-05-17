@@ -105,7 +105,7 @@ class VideoCallActivity : AppCompatActivity() {
             audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
 
             endCallBtn.setOnClickListener {
-                webRtcClient.endCall(callSdpUUID)
+                webRtcClient.endCall()
                 signalingClient.removeEventsListener()
                 signalingClient.destroy()
                 finish()
@@ -168,6 +168,7 @@ class VideoCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
+            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -226,18 +227,7 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
-        CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
-            override fun onUserObtained(users: Users) {
-                users.isCalling = false
-                val upsertTask = cloudDBZone?.executeUpsert(users)
-                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-                }?.addOnFailureListener {
-                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
-                }
-            }
-        })
+        webRtcClient.endCall()
         super.onBackPressed()
     }
 
@@ -266,7 +256,7 @@ class VideoCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
-                    webRtcClient.answer(callSdpUUID)
+                    webRtcClient.answer()
                 },
                 onAnswerReceivedCallback = {
                     Log.d(
@@ -307,7 +297,7 @@ class VideoCallActivity : AppCompatActivity() {
                     })
 
 
-                    webRtcClient.endCall(callSdpUUID)
+                    webRtcClient.endCall()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
                     finish()
@@ -316,12 +306,12 @@ class VideoCallActivity : AppCompatActivity() {
         )
 
         if (!isJoin)
-            webRtcClient.call(callSdpUUID)
+            webRtcClient.call()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall(callSdpUUID)
+        webRtcClient.endCall()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }
@@ -330,6 +320,5 @@ class VideoCallActivity : AppCompatActivity() {
         private const val TAG = "ui_CallFragment"
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
-        private const val PERMISSION_CODE = 101
     }
 }
