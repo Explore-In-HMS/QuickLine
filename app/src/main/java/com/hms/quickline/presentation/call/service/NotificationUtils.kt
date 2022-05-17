@@ -77,8 +77,8 @@ class NotificationUtils(context: Context,private val uid: String? = null) : Cont
             .build()
 
         return NotificationCompat.Builder(applicationContext, MY_CHANNEL_ID)
-            .setContentTitle("Alarm!")
-            .setContentText("Your AlarmManager is working.")
+            .setContentTitle("Quick Line")
+            .setContentText("Incoming Call!")
             .setSmallIcon(R.drawable.hwid_auth_button_normal)
             .setColor(Color.YELLOW)
             .addAction(actionAnswer)
