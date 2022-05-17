@@ -32,6 +32,7 @@ class ActionReceiver : BroadcastReceiver() {
             ANSWER -> {
                 val i = Intent(context, VideoCallActivity::class.java)
                 i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                Log.i(TAG,uid.toString())
                 i.putExtra(MEETING_ID,uid)
                 i.putExtra(IS_JOIN, true)
                 context.startActivity(i)

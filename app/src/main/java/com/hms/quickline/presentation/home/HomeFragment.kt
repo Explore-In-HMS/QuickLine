@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.databinding.FragmentHomeBinding
 import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
@@ -42,14 +43,14 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 intent.putExtra("isMeetingContact", false)
                 intent.putExtra("meetingID", etMeetingId.text.toString())
                 intent.putExtra("name", name)
-                intent.putExtra("isJoin", true)
+                intent.putExtra(Constants.IS_JOIN, true)
                 startActivity(intent)
             }
 
             btnCreate.setOnClickListener {
                 val intent = Intent(requireActivity(), VideoCallActivity::class.java)
                 intent.putExtra("meetingID", etMeetingId.text.toString())
-                intent.putExtra("isJoin", true)
+                intent.putExtra(Constants.IS_JOIN, false)
                 startActivity(intent)
             }
         }

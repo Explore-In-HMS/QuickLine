@@ -7,6 +7,7 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.hms.quickline.R
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.gone
 import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
@@ -153,7 +154,7 @@ class VideoCallActivity : AppCompatActivity() {
             name = it
         }
 
-        isJoin = intent.getBooleanExtra("isJoin", false)
+        isJoin = intent.getBooleanExtra(Constants.IS_JOIN, false)
 
         Log.d(TAG, "receivingPreviousFragmentData: roomName = $meetingID & isJoin = $isJoin")
     }
