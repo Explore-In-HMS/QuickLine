@@ -1,18 +1,20 @@
-package com.hms.quickline.presentation.call.newwebrtc
+package com.hms.quickline.presentation.call
 
-import android.Manifest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
 import com.hms.quickline.R
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.invisible
 import com.hms.quickline.core.util.visible
 import com.hms.quickline.databinding.ActivityVoiceCallBinding
+import com.hms.quickline.presentation.call.newwebrtc.RTCAudioManager
+import com.hms.quickline.presentation.call.newwebrtc.SignalingClient
+import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
@@ -92,7 +94,7 @@ class VoiceCallActivity : AppCompatActivity() {
             }
 
             endCallBtn.setOnClickListener {
-                webRtcClient.endCall(callSdpUUID)
+                webRtcClient.endCall()
                 signalingClient.removeEventsListener()
                 signalingClient.destroy()
                 finish()
@@ -138,7 +140,7 @@ class VoiceCallActivity : AppCompatActivity() {
             name = it
         }
 
-        isJoin = intent.getBooleanExtra("isJoin", false)
+        isJoin = intent.getBooleanExtra(Constants.IS_JOIN, false)
 
         Log.d(TAG, "receivingPreviousFragmentData: roomName = $meetingID & isJoin = $isJoin")
     }
@@ -153,6 +155,7 @@ class VoiceCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
+            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -228,7 +231,7 @@ class VoiceCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
-                    webRtcClient.answer(callSdpUUID)
+                    webRtcClient.answer()
 
                 },
                 onAnswerReceivedCallback = {
@@ -267,7 +270,7 @@ class VoiceCallActivity : AppCompatActivity() {
                         SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
-                    webRtcClient.endCall(callSdpUUID)
+                    webRtcClient.endCall()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
                     finish()
@@ -276,12 +279,12 @@ class VoiceCallActivity : AppCompatActivity() {
         )
 
         if (!isJoin)
-            webRtcClient.call(callSdpUUID)
+            webRtcClient.call()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall(callSdpUUID)
+        webRtcClient.endCall()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }

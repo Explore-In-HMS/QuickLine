@@ -1,4 +1,4 @@
-package com.hms.quickline.presentation.call.newwebrtc
+package com.hms.quickline.presentation.call
 
 import android.os.Bundle
 import android.os.Handler
@@ -7,13 +7,20 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.hms.quickline.R
+import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.gone
 import com.hms.quickline.core.util.visible
+import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.ActivityVideoCallBinding
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.hms.quickline.presentation.call.newwebrtc.RTCAudioManager
+import com.hms.quickline.presentation.call.newwebrtc.SignalingClient
+import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
+import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.*
 import java.util.*
@@ -53,6 +60,8 @@ class VideoCallActivity : AppCompatActivity() {
     var minutes = 0
 
     var handler: Handler? = null
+
+    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +106,7 @@ class VideoCallActivity : AppCompatActivity() {
             audioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
 
             endCallBtn.setOnClickListener {
-                webRtcClient.endCall(callSdpUUID)
+                webRtcClient.endCall()
                 signalingClient.removeEventsListener()
                 signalingClient.destroy()
                 finish()
@@ -145,7 +154,7 @@ class VideoCallActivity : AppCompatActivity() {
             name = it
         }
 
-        isJoin = intent.getBooleanExtra("isJoin", false)
+        isJoin = intent.getBooleanExtra(Constants.IS_JOIN, false)
 
         Log.d(TAG, "receivingPreviousFragmentData: roomName = $meetingID & isJoin = $isJoin")
     }
@@ -160,6 +169,7 @@ class VideoCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
+            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -217,6 +227,11 @@ class VideoCallActivity : AppCompatActivity() {
         gettingCameraPictureToShowInLocalView()
     }
 
+    override fun onBackPressed() {
+        webRtcClient.endCall()
+        super.onBackPressed()
+    }
+
     private fun gettingCameraPictureToShowInLocalView() {
         webRtcClient.initSurfaceView(binding.remoteView)
         webRtcClient.initSurfaceView(binding.localView)
@@ -242,7 +257,7 @@ class VideoCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
-                    webRtcClient.answer(callSdpUUID)
+                    webRtcClient.answer()
                 },
                 onAnswerReceivedCallback = {
                     Log.d(
@@ -268,7 +283,22 @@ class VideoCallActivity : AppCompatActivity() {
                         SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
-                    webRtcClient.endCall(callSdpUUID)
+
+                    CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
+                        override fun onUserObtained(users: Users) {
+                            users.isCalling = false
+
+                            val upsertTask = cloudDBZone?.executeUpsert(users)
+                            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                            }?.addOnFailureListener {
+                                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                            }
+                        }
+                    })
+
+
+                    webRtcClient.endCall()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
                     finish()
@@ -277,12 +307,12 @@ class VideoCallActivity : AppCompatActivity() {
         )
 
         if (!isJoin)
-            webRtcClient.call(callSdpUUID)
+            webRtcClient.call()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall(callSdpUUID)
+        webRtcClient.endCall()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }
@@ -291,6 +321,5 @@ class VideoCallActivity : AppCompatActivity() {
         private const val TAG = "ui_CallFragment"
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
-        private const val PERMISSION_CODE = 101
     }
 }

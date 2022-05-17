@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragmentContacts"
-        android:name="com.hms.quickline.presentation.call.newwebrtc.ContactsFragment"
+        android:name="com.hms.quickline.presentation.contacts.ContactsFragment"
         android:label="fragment_contacts"
         tools:layout="@layout/fragment_contacts" />
 </navigation>

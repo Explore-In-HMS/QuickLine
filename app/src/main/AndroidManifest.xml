@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".QuickLineApp"
@@ -17,11 +18,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QuickLine">
+
+        <receiver
+            android:name=".presentation.call.service.ActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".presentation.call.service.NotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".presentation.call.service.CallService"
+            android:exported="false"/>
         <activity
-            android:name=".presentation.call.newwebrtc.VideoCallActivity"
+            android:name=".presentation.call.VideoCallActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.call.newwebrtc.VoiceCallActivity"
+            android:name=".presentation.call.VoiceCallActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.MainActivity"
