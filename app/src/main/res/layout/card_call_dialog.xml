@@ -23,7 +23,7 @@
             android:layout_marginStart="@dimen/_12sdp"
             android:textColor="@color/black"
             android:textSize="@dimen/_14ssp"
-            app:layout_constraintStart_toEndOf="@+id/img_profil_photo"
+            app:layout_constraintStart_toEndOf="@+id/img_profile_photo"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Caner Türe" />
 
@@ -40,7 +40,8 @@
             app:layout_constraintStart_toStartOf="@+id/tv_name"
             app:layout_constraintTop_toBottomOf="@+id/tv_name"
             app:srcCompat="@drawable/ic_check_12"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/img_state_busy"
@@ -55,14 +56,14 @@
             app:layout_constraintStart_toStartOf="@+id/tv_name"
             app:layout_constraintTop_toBottomOf="@+id/tv_name"
             app:srcCompat="@drawable/ic_busy"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/tv_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_4sdp"
-            android:text="TextView"
             android:textSize="@dimen/_10ssp"
             app:layout_constraintBottom_toBottomOf="@+id/img_state_available"
             app:layout_constraintStart_toEndOf="@+id/img_state_available"
@@ -80,7 +81,8 @@
             app:layout_constraintEnd_toStartOf="@+id/img_video_call"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_call"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/img_video_call"
@@ -92,16 +94,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_camera"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
 
         <ImageView
-            android:id="@+id/img_profil_photo"
+            android:id="@+id/img_profile_photo"
             android:layout_width="@dimen/_36sdp"
             android:layout_height="@dimen/_36sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_person" />
+            app:srcCompat="@drawable/ic_person"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
