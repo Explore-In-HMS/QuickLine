@@ -284,7 +284,7 @@ class VideoCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
-                    CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
+                    CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
                         override fun onUserObtained(users: Users) {
                             users.isCalling = false
 
@@ -296,7 +296,6 @@ class VideoCallActivity : AppCompatActivity() {
                             }
                         }
                     })
-
 
                     webRtcClient.endCall()
                     signalingClient.removeEventsListener()
