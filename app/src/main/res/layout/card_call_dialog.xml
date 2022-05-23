@@ -77,6 +77,7 @@
             android:layout_marginEnd="@dimen/_8sdp"
             android:background="@drawable/bg_voice_video_buttons"
             android:padding="@dimen/_6sdp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/img_video_call"
             app:layout_constraintTop_toTopOf="parent"
