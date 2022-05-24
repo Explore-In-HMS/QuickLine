@@ -1,6 +1,5 @@
 package com.hms.quickline.presentation
 
-import android.content.Intent
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -15,11 +14,8 @@ import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
-import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.databinding.ActivityMainBinding
-import com.hms.quickline.presentation.call.service.CallService
-import com.huawei.agconnect.auth.AGConnectAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

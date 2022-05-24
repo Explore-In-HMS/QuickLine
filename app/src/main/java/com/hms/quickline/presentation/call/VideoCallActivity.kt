@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
@@ -16,6 +17,7 @@ import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.hms.quickline.presentation.call.newwebrtc.RTCAudioManager
 import com.hms.quickline.presentation.call.newwebrtc.SignalingClient
 import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
+import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
@@ -107,8 +109,6 @@ class VideoCallActivity : AppCompatActivity() {
 
             endCallBtn.setOnClickListener {
                 webRtcClient.endCall()
-                signalingClient.removeEventsListener()
-                signalingClient.destroy()
                 finish()
             }
         }
@@ -222,7 +222,15 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                 }
             )
-        )
+        , signalingListener =  SignalingListenerObserver(
+                onCallEndedCallback = {
+                    webRtcClient.clearSdp()
+                    finish()
+                    signalingClient.removeEventsListener()
+                    signalingClient.destroy()
+
+                }
+        ))
         webRtcClient.createLocalDataChannel()
         gettingCameraPictureToShowInLocalView()
     }
@@ -298,10 +306,11 @@ class VideoCallActivity : AppCompatActivity() {
                     })
 
 
-                    webRtcClient.endCall()
+                    webRtcClient.clearSdp()
+                    finish()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
-                    finish()
+
                 }
             )
         )
@@ -312,7 +321,7 @@ class VideoCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall()
+        webRtcClient.clearSdp()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }

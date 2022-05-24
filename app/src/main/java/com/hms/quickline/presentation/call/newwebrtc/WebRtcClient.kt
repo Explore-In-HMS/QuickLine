@@ -15,6 +15,7 @@ import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
+import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
@@ -30,7 +31,8 @@ class WebRtcClient(
     private val meetingID: String,
     private val callSdpUUID: String,
     private val dataChannelObserver: DataChannelObserver,
-    private val peerConnectionObserver: PeerConnection.Observer
+    private val peerConnectionObserver: PeerConnection.Observer,
+    private val signalingListener: SignalingListenerObserver
 ) {
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
@@ -219,17 +221,18 @@ class WebRtcClient(
 
     fun endCall() {
 
-       /* val callsSdp = CallsSdp()
+        val callsSdp = CallsSdp()
         callsSdp.uuid = callSdpUUID
         callsSdp.meetingID = meetingID
         callsSdp.callType = Constants.TYPE.END.name
         val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
 
         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+            signalingListener.onCallEnded()
             Log.i("TAG", "Calls Sdp Upsert success: $cloudDBZoneResult")
         }?.addOnFailureListener {
             Log.i("TAG", "Calls Sdp Upsert failed: ${it.message}")
-        }*/
+        }
 
         CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
             override fun onUserObtained(users: Users) {
@@ -293,6 +296,38 @@ class WebRtcClient(
             Log.w(TAG, "QueryTask Failure: " + it.message)
         }
 
+       /* val queryCallsSdp =
+            CloudDBZoneQuery.where(CallsSdp::class.java).equalTo("meetingID", meetingID)
+        val queryTaskCallsSdp = cloudDBZone?.executeQuery(
+            queryCallsSdp,
+            CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
+        )
+        queryTaskCallsSdp?.addOnSuccessListener { snapshot ->
+            val callsSdpList = mutableListOf<CallsSdp>()
+            try {
+                while (snapshot.snapshotObjects.hasNext()) {
+                    callsSdpList.add(snapshot.snapshotObjects.next())
+                }
+            } catch (e: AGConnectCloudDBException) {
+                Log.w(TAG, "Snapshot Error: " + e.message)
+            } finally {
+                val deleteTask = cloudDBZone?.executeDelete(callsSdpList)
+                deleteTask?.addOnSuccessListener {
+                    Log.i(TAG, "Sdp Delete success: $it")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Sdp Delete failed: $it")
+                }
+                snapshot.release()
+            }
+        }?.addOnFailureListener {
+            Log.w(TAG, "QueryTask Failure: " + it.message)
+        } */
+
+        peerConnection?.close()
+    }
+
+    fun clearSdp(){
+
         val queryCallsSdp =
             CloudDBZoneQuery.where(CallsSdp::class.java).equalTo("meetingID", meetingID)
         val queryTaskCallsSdp = cloudDBZone?.executeQuery(
@@ -319,8 +354,6 @@ class WebRtcClient(
         }?.addOnFailureListener {
             Log.w(TAG, "QueryTask Failure: " + it.message)
         }
-
-        peerConnection?.close()
     }
 
     fun checkDataChannelState() {

@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.hms.quickline.R
@@ -204,7 +205,12 @@ class VoiceCallActivity : AppCompatActivity() {
                     )
                 }
             )
-        )
+            , signalingListener =  SignalingListenerObserver(
+                onCallEndedCallback = {
+                    webRtcClient.clearSdp()
+                    finish()
+                }
+            ))
         webRtcClient.createLocalDataChannel()
         initVoice()
     }
