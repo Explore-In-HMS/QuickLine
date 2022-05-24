@@ -21,6 +21,7 @@ object Constants {
     const val USER = "user"
     const val DECLINE = "decline"
     const val ACTION_DECLINE = "actionDecline"
+    const val IS_MEETING_CONTACT = "isMeetingContact"
 
     enum class USERTYPE {
         OFFER_USER,
