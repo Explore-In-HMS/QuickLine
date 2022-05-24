@@ -20,6 +20,7 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerO
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
+import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.*
@@ -80,9 +81,10 @@ class VideoCallActivity : AppCompatActivity() {
             if (isMeetingContact) clVideoLoading.visible()
 
             name?.let {
-                tvCallingUser.text = name
+                //  tvCallingUser.text = name
                 tvCallingUserLoading.text = name
             }
+            AGConnectAuth.getInstance().currentUser.displayName
 
             micBtn.setOnClickListener {
                 isMute = !isMute
