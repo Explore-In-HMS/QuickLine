@@ -2,8 +2,6 @@ package com.hms.quickline.presentation.call.newwebrtc
 
 import android.app.Application
 import android.util.Log
-import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
-import com.hms.quickline.presentation.call.newwebrtc.observer.SdpObserverImpl
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.LOCAL_STREAM_ID
 import com.hms.quickline.core.util.Constants.LOCAL_TRACK_ID
@@ -13,6 +11,8 @@ import com.hms.quickline.core.util.Constants.VIDEO_WIDTH
 import com.hms.quickline.data.model.CallsCandidates
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
+import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
+import com.hms.quickline.presentation.call.newwebrtc.observer.SdpObserverImpl
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
@@ -338,6 +338,7 @@ class WebRtcClient(
 
     fun switchCamera() {
         isFrontCamera = !isFrontCamera
+        videoCapturer.stopCapture()
         videoCapturer = if (isFrontCamera) getFrontCameraCapturer()
         else getBackCameraCapturer()
     }

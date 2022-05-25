@@ -8,16 +8,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
-import com.hms.quickline.core.util.Constants
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentContactsBinding
-import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.VoiceCallActivity
-import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
-import com.huawei.agconnect.cloud.database.ListenerHandler
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 
 class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
@@ -37,6 +34,11 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
         cloudDBZone = CloudDbWrapper.cloudDBZone
 
         queryUsers()
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            queryUsers()
+            binding.swipeRefreshLayout.isRefreshing = false
+        }
     }
 
     private fun queryUsers() {

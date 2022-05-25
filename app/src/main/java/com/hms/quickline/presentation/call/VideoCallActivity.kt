@@ -20,9 +20,11 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerO
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
+import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.*
+import java.util.*
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -74,7 +76,7 @@ class VideoCallActivity : AppCompatActivity() {
             if (isMeetingContact) clVideoLoading.visible()
 
             name?.let {
-                tvCallingUser.text = name
+                //  tvCallingUser.text = name
                 tvCallingUserLoading.text = name
             }
 
@@ -179,14 +181,18 @@ class VideoCallActivity : AppCompatActivity() {
                     webRtcClient.addIceCandidate(it)
                 },
                 onTrackCallback = {
-                    val videoTrack = it.receiver.track() as VideoTrack
-                    videoTrack.addSink(binding.remoteView)
+                    runOnUiThread {
+                        val videoTrack = it.receiver.track() as VideoTrack
+                        videoTrack.addSink(binding.remoteView)
+                    }
                 },
                 onAddStreamCallback = {
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
-                    Log.d(TAG, "onAddStreamCallback: $it")
-                    it.videoTracks.first().addSink(binding.remoteView)
+                    runOnUiThread {
+                        Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
+                        Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
+                        Log.d(TAG, "onAddStreamCallback: $it")
+                        it.videoTracks.first().addSink(binding.remoteView)
+                    }
                 },
                 onDataChannelCallback = { dataChannel ->
                     Log.d(

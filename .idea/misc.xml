@@ -38,7 +38,25 @@
         <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_recent_calls.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/layout/fragment_splash.xml" value="0.36102564102564105" />
         <entry key="..\:/Users/c84239659/AndroidStudioProjects/QuckLineAndroid/app/src/main/res/menu/actionbar_call.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_available.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_busy.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_contacts_24.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_person.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_recent.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_right_chevron.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_speaker_up.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_switch.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/drawable/ic_videocam.xml" value="0.1275" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/activity_video_call.xml" value="0.1935185185185185" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/activity_voice_call.xml" value="0.3421875" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/card_call_dialog.xml" value="0.19114583333333332" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/fragment_contacts.xml" value="0.1882051282051282" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/fragment_home.xml" value="0.1935185185185185" />
+        <entry key="..\:/Users/d00625778/Desktop/QuckLineAndroid/app/src/main/res/layout/fragment_recent_calls.xml" value="0.334375" />
         <entry key="..\:/Users/s00598961/Desktop/QuickLine/app/src/main/res/layout/activity_main.xml" value="0.371875" />
+        <entry key="..\:/projects/QuckLineAndroid/app/src/main/res/layout/activity_video_call.xml" value="0.18110435663627153" />
+        <entry key="..\:/projects/QuckLineAndroid/app/src/main/res/layout/fragment_home.xml" value="0.1" />
+        <entry key="..\:/projects/QuckLineAndroid/app/src/main/res/layout/fragment_splash.xml" value="0.14356884057971014" />
       </map>
     </option>
   </component>
