@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 class SplashFragment : BaseFragment(R.layout.fragment_splash) {
 
     private val binding by viewBinding(FragmentSplashBinding::bind)
+    private val TAG = "SplashFragmentTag"
 
     private var cloudDBZone: CloudDBZone? = null
 
@@ -36,10 +37,11 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
             delay(2000)
 
             AGConnectAuth.getInstance().currentUser?.let {
-                val intent = Intent(requireContext(), CallService::class.java)
-                intent.putExtra(Constants.UID,it.uid)
-                activity?.startService(intent)
-                navigate(SplashFragmentDirections.actionSplashFragmentToHome())
+                checkUser(it.uid) { hasUser ->
+                    if (hasUser) {
+                        navigateHome()
+                    }
+                }
             }
 
             cloudDBZone = CloudDbWrapper.cloudDBZone
@@ -69,10 +71,12 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
                             val upsertTask = cloudDBZone?.executeUpsert(currentUser)
                             upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
                                 Log.i("UpsertUser", "User Upsert success: $cloudDBZoneResult")
-                                val intent = Intent(requireContext(), CallService::class.java)
-                                intent.putExtra(Constants.UID,AGConnectAuth.getInstance().currentUser.uid)
-                                activity?.startService(intent)
-                                navigate(SplashFragmentDirections.actionSplashFragmentToHome())
+
+                                checkUser(AGConnectAuth.getInstance().currentUser.uid) { hasUser ->
+                                    if (hasUser) {
+                                        navigateHome()
+                                    }
+                                }
                             }?.addOnFailureListener {
                                 Log.i("UpsertUser", "User Upsert failed: ${it.message}")
                             }
@@ -82,5 +86,35 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
                     .addOnFailureListener {}
             }
         }
+    }
+
+    /**
+     * Check user exists in CloudDatabase
+     */
+    private fun checkUser(userId: String, hasUser: (Boolean) -> Unit) {
+
+        CloudDbWrapper.checkUserById(userId, object : CloudDbWrapper.ResultListener {
+            override fun onSuccess(result: Any?) {
+                val resultList: ArrayList<Users>? = result as? ArrayList<Users>
+
+                resultList?.forEach {
+                    if (it.uid == userId) hasUser(true) else hasUser(false)
+                }
+            }
+
+            override fun onFailure(e: Exception) {
+                e.localizedMessage?.let {
+                    Log.e(TAG, it)
+                }
+            }
+        })
+    }
+
+    private fun navigateHome() {
+        val intent = Intent(requireContext(), CallService::class.java)
+        intent.putExtra(Constants.UID, AGConnectAuth.getInstance().currentUser.uid)
+        activity?.startService(intent)
+
+        navigate(SplashFragmentDirections.actionSplashFragmentToHome())
     }
 }

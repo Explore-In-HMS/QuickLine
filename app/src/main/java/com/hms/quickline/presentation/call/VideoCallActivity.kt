@@ -190,14 +190,18 @@ class VideoCallActivity : AppCompatActivity() {
                     webRtcClient.addIceCandidate(it)
                 },
                 onTrackCallback = {
-                    val videoTrack = it.receiver.track() as VideoTrack
-                    videoTrack.addSink(binding.remoteView)
+                    runOnUiThread {
+                        val videoTrack = it.receiver.track() as VideoTrack
+                        videoTrack.addSink(binding.remoteView)
+                    }
                 },
                 onAddStreamCallback = {
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
-                    Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
-                    Log.d(TAG, "onAddStreamCallback: $it")
-                    it.videoTracks.first().addSink(binding.remoteView)
+                    runOnUiThread {
+                        Log.d(TAG, "onAddStreamCallback: ${it.videoTracks.first()}")
+                        Log.d(TAG, "onAddStreamCallback: ${it.videoTracks}")
+                        Log.d(TAG, "onAddStreamCallback: $it")
+                        it.videoTracks.first().addSink(binding.remoteView)
+                    }
                 },
                 onDataChannelCallback = { dataChannel ->
                     Log.d(
