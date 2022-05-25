@@ -1,8 +1,4 @@
 
-Q
-!buildSrc/src/main/java/Configs.kt,2\b\2b88ef2e8304a0785e3d2843854b389452a0ea3b
-P
- app/src/main/AndroidManifest.xml,8\c\8c55c3ccc257e5907959013f99656e4c8ec3903e
 n
 >app/src/main/java/com/hms/quickline/data/di/ViewModelModule.kt,0\a\0af67a94ee7358d3975261c7ec98421eb50d1a41
 9
@@ -11,12 +7,8 @@ u
 Eapp/src/main/java/com/hms/quickline/presentation/home/HomeFragment.kt,6\5\65bd106df4b9fa9286d0c2a0316acc7e5772254e
 v
 Fapp/src/main/java/com/hms/quickline/presentation/home/HomeViewModel.kt,6\b\6b6bb061d790c6f9592fd64ae0b7c7d5192cd954
-V
-&buildSrc/src/main/java/Dependencies.kt,e\8\e814710098f674890a8b6d2265ec0d2432e04a92
 c
 3app/src/main/java/com/hms/quickline/QuickLineApp.kt,b\7\b7f6d9470d540bb2e884d264efd5342dcea9558e
-@
-app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 i
 9app/src/main/java/com/hms/quickline/data/model/Users.java,6\e\6efd45ec70722ab6a4309e849a0f415ddb5676d0
 z
