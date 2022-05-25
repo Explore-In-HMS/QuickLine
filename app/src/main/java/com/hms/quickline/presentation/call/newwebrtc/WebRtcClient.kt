@@ -19,12 +19,12 @@ import com.huawei.agconnect.cloud.database.CloudDBZoneQuery
 import com.huawei.agconnect.cloud.database.Text
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
 import org.webrtc.*
+import java.lang.IllegalStateException
 
 class WebRtcClient(
     private val context: Application,
     private val eglBase: EglBase,
     private val meetingID: String,
-    private val callSdpUUID: String,
     private val dataChannelObserver: DataChannelObserver,
     private val peerConnectionObserver: PeerConnection.Observer
 ) {
@@ -155,7 +155,6 @@ class WebRtcClient(
                             Log.d(TAG, "contacts: onSetSuccess called")
 
                             val offerSdp = CallsSdp()
-                            offerSdp.uuid = callSdpUUID
                             offerSdp.meetingID = meetingID
                             offerSdp.sdp = Text(sdp.description)
                             offerSdp.callType = sdp.type.name
@@ -183,7 +182,6 @@ class WebRtcClient(
                     Log.d(TAG, "answer: onCreateSuccessCallback called")
 
                     val answerSdp = CallsSdp()
-                    answerSdp.uuid = callSdpUUID
                     answerSdp.meetingID = meetingID
                     answerSdp.sdp = Text(sdp.description)
                     answerSdp.callType = sdp.type.name
@@ -205,29 +203,20 @@ class WebRtcClient(
         )
     }
 
-    fun setRemoteDescription(sessionDescription: SessionDescription) {
-        peerConnection?.setRemoteDescription(SdpObserverImpl(), sessionDescription)
-    }
-
-    fun addIceCandidate(iceCandidate: IceCandidate) {
-        peerConnection?.addIceCandidate(iceCandidate)
-    }
-
     fun endCall() {
 
-       /* val callsSdp = CallsSdp()
-        callsSdp.uuid = callSdpUUID
+        val callsSdp = CallsSdp()
         callsSdp.meetingID = meetingID
         callsSdp.callType = Constants.TYPE.END.name
         val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
 
         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-            Log.i("TAG", "Calls Sdp Upsert success: $cloudDBZoneResult")
+            Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
         }?.addOnFailureListener {
-            Log.i("TAG", "Calls Sdp Upsert failed: ${it.message}")
-        }*/
+            Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+        }
 
-        CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
+        CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
             override fun onUserObtained(users: Users) {
                 users.isCalling = false
                 val upsertTaskIsCalling = cloudDBZone?.executeUpsert(users)
@@ -238,7 +227,16 @@ class WebRtcClient(
                 }
             }
         })
+    }
 
+    fun setRemoteDescription(sessionDescription: SessionDescription) =
+        peerConnection?.setRemoteDescription(SdpObserverImpl(), sessionDescription)
+
+    fun addIceCandidate(iceCandidate: IceCandidate) = peerConnection?.addIceCandidate(iceCandidate)
+
+    fun closePeerConnection() = peerConnection?.close()
+
+    fun clearCandidates() {
         val queryCallsCandidates =
             CloudDBZoneQuery.where(CallsCandidates::class.java).equalTo("meetingID", meetingID)
         val queryTaskCallsCandidates = cloudDBZone?.executeQuery(
@@ -288,6 +286,9 @@ class WebRtcClient(
         }?.addOnFailureListener {
             Log.w(TAG, "QueryTask Failure: " + it.message)
         }
+    }
+
+    fun clearSdp() {
 
         val queryCallsSdp =
             CloudDBZoneQuery.where(CallsSdp::class.java).equalTo("meetingID", meetingID)

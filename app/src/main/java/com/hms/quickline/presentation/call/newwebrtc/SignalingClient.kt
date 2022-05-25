@@ -139,6 +139,8 @@ class SignalingClient(
                                 data.sdpCandidate
                             )
                         )
+                    } else if (sdpType == Constants.TYPE.END) {
+                        signalingListener.onCallEnded()
                     }
 
                     Log.e(TAG, "candidateQuery: $data")

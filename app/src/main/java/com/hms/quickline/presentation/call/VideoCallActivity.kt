@@ -48,11 +48,8 @@ class VideoCallActivity : AppCompatActivity() {
 
     private var isMute = false
     private var isVideoPaused = false
-    //private var inSpeakerMode = true
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
-
-    private lateinit var callSdpUUID: String
 
     var millisecondTime = 0L
     var startTime = 0L
@@ -71,8 +68,6 @@ class VideoCallActivity : AppCompatActivity() {
 
         handler = Handler(Looper.getMainLooper())
 
-        callSdpUUID = UUID.randomUUID().toString()
-
         receivingPreviousActivityData()
         initializingClasses()
 
@@ -84,7 +79,6 @@ class VideoCallActivity : AppCompatActivity() {
                 //  tvCallingUser.text = name
                 tvCallingUserLoading.text = name
             }
-            AGConnectAuth.getInstance().currentUser.displayName
 
             micBtn.setOnClickListener {
                 isMute = !isMute
@@ -109,8 +103,6 @@ class VideoCallActivity : AppCompatActivity() {
 
             endCallBtn.setOnClickListener {
                 webRtcClient.endCall()
-                signalingClient.removeEventsListener()
-                signalingClient.destroy()
                 finish()
             }
         }
@@ -171,7 +163,6 @@ class VideoCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
-            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -227,15 +218,9 @@ class VideoCallActivity : AppCompatActivity() {
                         )
                     )
                 }
-            )
-        )
+            ))
         webRtcClient.createLocalDataChannel()
         gettingCameraPictureToShowInLocalView()
-    }
-
-    override fun onBackPressed() {
-        webRtcClient.endCall()
-        super.onBackPressed()
     }
 
     private fun gettingCameraPictureToShowInLocalView() {
@@ -302,11 +287,11 @@ class VideoCallActivity : AppCompatActivity() {
                             }
                         }
                     })
-
-                    webRtcClient.endCall()
-                    signalingClient.removeEventsListener()
-                    signalingClient.destroy()
                     finish()
+                    webRtcClient.clearCandidates()
+                    webRtcClient.closePeerConnection()
+                    webRtcClient.clearSdp()
+                    signalingClient.destroy()
                 }
             )
         )
@@ -317,8 +302,8 @@ class VideoCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall()
-        signalingClient.removeEventsListener()
+        webRtcClient.clearCandidates()
+        webRtcClient.closePeerConnection()
         signalingClient.destroy()
     }
 
