@@ -11,6 +11,7 @@ import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
+import com.hms.quickline.core.util.Constants.NAME
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
@@ -53,7 +54,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                         val intent = Intent(requireActivity(), VideoCallActivity::class.java)
                         intent.putExtra(IS_MEETING_CONTACT, false)
                         intent.putExtra(MEETING_ID, selectedMeetingId)
-                        intent.putExtra("name", name)
+                        intent.putExtra(NAME, name)
                         intent.putExtra(Constants.IS_JOIN, true)
                         startActivity(intent)
                     } else {
