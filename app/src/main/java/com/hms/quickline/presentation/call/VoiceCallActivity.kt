@@ -48,8 +48,6 @@ class VoiceCallActivity : AppCompatActivity() {
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
 
-    private lateinit var callSdpUUID: String
-
     var millisecondTime = 0L
     var startTime = 0L
 
@@ -64,8 +62,6 @@ class VoiceCallActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
-
-        callSdpUUID = UUID.randomUUID().toString()
 
         receivingPreviousActivityData()
         initializingClasses()
@@ -156,7 +152,6 @@ class VoiceCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
-            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -205,12 +200,7 @@ class VoiceCallActivity : AppCompatActivity() {
                     )
                 }
             )
-            , signalingListener =  SignalingListenerObserver(
-                onCallEndedCallback = {
-                    webRtcClient.clearSdp()
-                    finish()
-                }
-            ))
+        )
         webRtcClient.createLocalDataChannel()
         initVoice()
     }
@@ -276,7 +266,9 @@ class VoiceCallActivity : AppCompatActivity() {
                         SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
-                    webRtcClient.endCall()
+                    webRtcClient.clearSdp()
+                    webRtcClient.clearCandidates()
+                    webRtcClient.closePeerConnection()
                     signalingClient.removeEventsListener()
                     signalingClient.destroy()
                     finish()
@@ -290,7 +282,8 @@ class VoiceCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.endCall()
+        webRtcClient.clearCandidates()
+        webRtcClient.closePeerConnection()
         signalingClient.removeEventsListener()
         signalingClient.destroy()
     }

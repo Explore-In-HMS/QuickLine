@@ -5,13 +5,19 @@
 package com.hms.quickline.data.model;
 
 import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
+import com.huawei.agconnect.cloud.database.Text;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
+import com.huawei.agconnect.cloud.database.annotations.EntireEncrypted;
+import com.huawei.agconnect.cloud.database.annotations.NotNull;
+import com.huawei.agconnect.cloud.database.annotations.Indexes;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
+
+import java.util.Date;
 
 /**
  * Definition of ObjectType CallsCandidates.
  *
- * @since 2022-05-12
+ * @since 2022-05-25
  */
 @PrimaryKeys({"uuid"})
 public final class CallsCandidates extends CloudDBZoneObject {

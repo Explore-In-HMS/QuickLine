@@ -11,7 +11,7 @@ import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 /**
  * Definition of ObjectType Users.
  *
- * @since 2022-05-12
+ * @since 2022-05-25
  */
 @PrimaryKeys({"uid"})
 public final class Users extends CloudDBZoneObject {

@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
@@ -17,7 +16,6 @@ import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.hms.quickline.presentation.call.newwebrtc.RTCAudioManager
 import com.hms.quickline.presentation.call.newwebrtc.SignalingClient
 import com.hms.quickline.presentation.call.newwebrtc.WebRtcClient
-import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListener
 import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
@@ -25,7 +23,6 @@ import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.*
-import java.util.*
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -49,11 +46,8 @@ class VideoCallActivity : AppCompatActivity() {
 
     private var isMute = false
     private var isVideoPaused = false
-    //private var inSpeakerMode = true
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
-
-    private lateinit var callSdpUUID: String
 
     var millisecondTime = 0L
     var startTime = 0L
@@ -71,8 +65,6 @@ class VideoCallActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
-
-        callSdpUUID = UUID.randomUUID().toString()
 
         receivingPreviousActivityData()
         initializingClasses()
@@ -169,7 +161,6 @@ class VideoCallActivity : AppCompatActivity() {
             context = application,
             eglBase = eglBase,
             meetingID = meetingID,
-            callSdpUUID = callSdpUUID,
             dataChannelObserver = DataChannelObserver(
                 onBufferedAmountChangeCallback = {
                     Log.d(WEB_RTC_DATA_CHANNEL_TAG, "onBufferedAmountChange: called")
@@ -221,23 +212,9 @@ class VideoCallActivity : AppCompatActivity() {
                         )
                     )
                 }
-            )
-        , signalingListener =  SignalingListenerObserver(
-                onCallEndedCallback = {
-                    webRtcClient.clearSdp()
-                    finish()
-                    signalingClient.removeEventsListener()
-                    signalingClient.destroy()
-
-                }
-        ))
+            ))
         webRtcClient.createLocalDataChannel()
         gettingCameraPictureToShowInLocalView()
-    }
-
-    override fun onBackPressed() {
-        webRtcClient.endCall()
-        super.onBackPressed()
     }
 
     private fun gettingCameraPictureToShowInLocalView() {
@@ -292,7 +269,7 @@ class VideoCallActivity : AppCompatActivity() {
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
-                    CloudDbWrapper.getUserById(meetingID,object :CloudDbWrapper.ICloudDbWrapper{
+                    CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
                         override fun onUserObtained(users: Users) {
                             users.isCalling = false
 
@@ -304,13 +281,11 @@ class VideoCallActivity : AppCompatActivity() {
                             }
                         }
                     })
-
-
-                    webRtcClient.clearSdp()
                     finish()
-                    signalingClient.removeEventsListener()
+                    webRtcClient.clearCandidates()
+                    webRtcClient.closePeerConnection()
+                    webRtcClient.clearSdp()
                     signalingClient.destroy()
-
                 }
             )
         )
@@ -321,8 +296,8 @@ class VideoCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        webRtcClient.clearSdp()
-        signalingClient.removeEventsListener()
+        webRtcClient.clearCandidates()
+        webRtcClient.closePeerConnection()
         signalingClient.destroy()
     }
 

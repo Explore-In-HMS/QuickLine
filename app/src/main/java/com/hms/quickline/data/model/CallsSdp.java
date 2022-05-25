@@ -12,32 +12,22 @@ import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 /**
  * Definition of ObjectType CallsSdp.
  *
- * @since 2022-05-12
+ * @since 2022-05-25
  */
-@PrimaryKeys({"uuid"})
+@PrimaryKeys({"meetingID"})
 public final class CallsSdp extends CloudDBZoneObject {
-    private String uuid;
-
     private String meetingID;
 
     private Text sdp;
 
     private String callType;
 
-    @DefaultValue(booleanValue = true)
+    @DefaultValue(booleanValue = false)
     private Boolean shadow_flag;
 
     public CallsSdp() {
         super(CallsSdp.class);
-        this.shadow_flag = true;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getUuid() {
-        return uuid;
+        this.shadow_flag = false;
     }
 
     public void setMeetingID(String meetingID) {
