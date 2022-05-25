@@ -17,5 +17,6 @@
     <string name="select_contact_to_call">Select contact to call</string>
     <string name="answer">Answer</string>
     <string name="decline">Decline</string>
+    <string name="no_room_message">No room found with this ID</string>
 
 </resources>

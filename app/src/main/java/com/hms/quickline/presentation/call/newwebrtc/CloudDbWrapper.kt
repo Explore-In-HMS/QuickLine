@@ -3,6 +3,9 @@ package com.hms.quickline.presentation.call.newwebrtc
 import android.content.Context
 import android.util.Log
 import com.hms.quickline.core.util.Constants
+import com.hms.quickline.core.util.Constants.MEETING_ID
+import com.hms.quickline.core.util.Constants.UID
+import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.ObjectTypeInfoHelper
 import com.hms.quickline.data.model.Users
 import com.huawei.agconnect.AGCRoutePolicy
@@ -64,7 +67,7 @@ class CloudDbWrapper {
         }
 
         fun getUserById(uid: String,callback: ICloudDbWrapper){
-            val queryUser = CloudDBZoneQuery.where(Users::class.java).contains("uid", uid)
+            val queryUser = CloudDBZoneQuery.where(Users::class.java).contains(UID, uid)
             val queryTask = cloudDBZone?.executeQuery(
                 queryUser,
                 CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_FROM_CLOUD_ONLY
@@ -89,6 +92,46 @@ class CloudDbWrapper {
 
         }
 
+        fun checkUserById(uid: String,resultListener: ResultListener){
+            if (cloudDBZone == null)
+                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+
+            val query = CloudDBZoneQuery.where(Users::class.java).equalTo(UID, uid)
+            val queryTask = cloudDBZone!!.executeQuery(query,
+                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_DEFAULT
+            )
+
+            queryTask.addOnSuccessListener {
+                if (it.snapshotObjects.size() > 0)
+                    resultListener.onSuccess(arrayListOf(it.snapshotObjects.get(0)))
+                else
+                    resultListener.onFailure(Exception("noElements"))
+            }.addOnFailureListener {
+                Log.e(TAG, "Query User is failed ${it.message}")
+                resultListener.onFailure(it)
+            }
+        }
+
+        fun checkMeetingId(meetingId: String,resultListener: ResultListener){
+            if (cloudDBZone == null)
+                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+
+            val query = CloudDBZoneQuery.where(CallsSdp::class.java).equalTo(MEETING_ID, meetingId)
+            val queryTask = cloudDBZone!!.executeQuery(query,
+                CloudDBZoneQuery.CloudDBZoneQueryPolicy.POLICY_QUERY_DEFAULT
+            )
+
+            queryTask.addOnSuccessListener {
+                if (it.snapshotObjects.size() > 0)
+                    resultListener.onSuccess(arrayListOf(it.snapshotObjects.get(0)))
+                else
+                    resultListener.onFailure(Exception("noElements"))
+            }.addOnFailureListener {
+                Log.e(TAG, "Query User is failed ${it.message}")
+                resultListener.onFailure(it)
+            }
+        }
+
         fun closeCloudDBZone() {
             try {
                 cloudDB?.closeCloudDBZone(cloudDBZone)
@@ -101,5 +144,9 @@ class CloudDbWrapper {
 
     interface ICloudDbWrapper{
         fun onUserObtained(users: Users)
+    }
+    interface ResultListener {
+        fun onSuccess(result: Any?)
+        fun onFailure(e:  Exception)
     }
 }
