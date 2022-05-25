@@ -16,7 +16,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        app:srcCompat="@drawable/ic_vector_home" />
+        app:srcCompat="@drawable/ic_vector_home"
+        tools:ignore="ContentDescription" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_meeting_id"
@@ -41,8 +42,9 @@
             android:id="@+id/et_meeting_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:gravity="center"
-            android:hint="Meeting ID" />
+            android:hint="@string/meeting_id" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -51,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/_8sdp"
         android:backgroundTint="@color/orange_dark"
-        android:text="Join"
+        android:text="@string/join"
         app:layout_constraintBottom_toTopOf="@+id/btn_create"
         app:layout_constraintEnd_toEndOf="@+id/til_meeting_id"
         app:layout_constraintHorizontal_bias="0.5"
@@ -63,7 +65,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/orange_dark"
-        android:text="Create"
+        android:text="@string/create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/til_meeting_id"
         app:layout_constraintHorizontal_bias="0.5"

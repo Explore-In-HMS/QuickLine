@@ -1,9 +1,11 @@
 package com.hms.quickline.presentation.contacts
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.hms.quickline.R
 import com.hms.quickline.core.util.gone
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.CardCallDialogBinding
@@ -26,13 +28,20 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
 
     inner class ViewHolder(binding: CardCallDialogBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        @SuppressLint("SetTextI18n")
         fun bind(item: Users) {
             with(binding) {
-
-                Glide.with(this.root.context)
-                    .load("https://media-exp1.licdn.com/dms/image/D4D03AQEweV5ra2apTw/profile-displayphoto-shrink_800_800/0/1630667862366?e=1658361600&v=beta&t=qlNpziZO8fxddUwj5eiVQYygZJA0tNHNdFZTkBbdg-A")
-                    .circleCrop()
-                    .into(imgProfilPhoto)
+                if (item.photo == null) {
+                    Glide.with(this.root.context)
+                        .load(R.drawable.ic_person_24)
+                        .circleCrop()
+                        .into(imgProfilePhoto)
+                } else {
+                    Glide.with(this.root.context)
+                        .load(item.photo)
+                        .circleCrop()
+                        .into(imgProfilePhoto)
+                }
 
                 tvName.text = item.name
                 if (item.isAvailable) {
@@ -48,7 +57,7 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
                 }
 
                 imgVideoCall.setOnClickListener {
-                    itemListener.onItemSelected(false,item)
+                    itemListener.onItemSelected(false, item)
                 }
             }
         }

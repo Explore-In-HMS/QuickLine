@@ -19,4 +19,9 @@
     <string name="decline">Decline</string>
     <string name="no_room_message">No room found with this ID</string>
 
+    //HomeFragment
+    <string name="meeting_id">Meeting ID</string>
+    <string name="join">Join</string>
+    <string name="create">Create</string>
+
 </resources>

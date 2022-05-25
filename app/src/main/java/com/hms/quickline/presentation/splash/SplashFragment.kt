@@ -10,7 +10,6 @@ import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.navigate
-import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentSplashBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
