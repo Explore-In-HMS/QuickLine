@@ -1,13 +1,19 @@
 package com.hms.quickline.presentation.call
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
+import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
+import com.hms.quickline.core.util.Constants.MEETING_ID
+import com.hms.quickline.core.util.Constants.NAME
 import com.hms.quickline.core.util.gone
 import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
@@ -20,11 +26,9 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerO
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
-import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.*
-import java.util.*
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -42,6 +46,8 @@ class VideoCallActivity : AppCompatActivity() {
     private lateinit var peerConnectionUtil: PeerConnectionUtil
 
     private lateinit var signalingClient: SignalingClient
+
+    private lateinit var mediaPlayer: MediaPlayer
 
     @Inject
     lateinit var eglBase: EglBase
@@ -67,13 +73,17 @@ class VideoCallActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
+        mediaPlayer = MediaPlayer.create(this, R.raw.quickline_call_ring)
 
         receivingPreviousActivityData()
         initializingClasses()
 
         with(binding) {
 
-            if (isMeetingContact) clVideoLoading.visible()
+            if (isMeetingContact) {
+                clVideoLoading.visible()
+                handleRing(clVideoLoading.isVisible)
+            }
 
             name?.let {
                 //  tvCallingUser.text = name
@@ -138,13 +148,13 @@ class VideoCallActivity : AppCompatActivity() {
 
     private fun receivingPreviousActivityData() {
 
-        isMeetingContact = intent.getBooleanExtra("isMeetingContact", false)
+        isMeetingContact = intent.getBooleanExtra(IS_MEETING_CONTACT, false)
 
-        intent.getStringExtra("meetingID")?.let {
+        intent.getStringExtra(MEETING_ID)?.let {
             meetingID = it
         }
 
-        intent.getStringExtra("name")?.let {
+        intent.getStringExtra(NAME)?.let {
             name = it
         }
 
@@ -154,10 +164,7 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun initializingClasses() {
-        peerConnectionUtil = PeerConnectionUtil(
-            application,
-            eglBase.eglBaseContext
-        )
+        peerConnectionUtil = PeerConnectionUtil(application, eglBase.eglBaseContext)
 
         webRtcClient = WebRtcClient(
             context = application,
@@ -232,9 +239,7 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun handlingSignalingClient() {
-        signalingClient = SignalingClient(
-            meetingID = meetingID,
-            signalingListener = SignalingListenerObserver(
+        signalingClient = SignalingClient(meetingID = meetingID, signalingListener = SignalingListenerObserver(
                 onConnectionEstablishedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -242,6 +247,7 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                     binding.endCallBtn.isClickable = true
                 },
+
                 onOfferReceivedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -250,6 +256,7 @@ class VideoCallActivity : AppCompatActivity() {
                     webRtcClient.setRemoteDescription(it)
                     webRtcClient.answer()
                 },
+
                 onAnswerReceivedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -258,10 +265,12 @@ class VideoCallActivity : AppCompatActivity() {
                     webRtcClient.setRemoteDescription(it)
                     runOnUiThread {
                         binding.clVideoLoading.gone()
+                        handleRing(binding.clVideoLoading.isVisible)
                         handler?.postDelayed(runnable, 0)
                         startTime = SystemClock.uptimeMillis()
                     }
                 },
+
                 onIceCandidateReceivedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -269,24 +278,14 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                     webRtcClient.addIceCandidate(it)
                 },
+
                 onCallEndedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
-                    CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
-                        override fun onUserObtained(users: Users) {
-                            users.isCalling = false
-
-                            val upsertTask = cloudDBZone?.executeUpsert(users)
-                            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
-                                Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
-                            }?.addOnFailureListener {
-                                Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
-                            }
-                        }
-                    })
+                    setFalseUserCalling()
                     finish()
                     webRtcClient.clearCandidates()
                     webRtcClient.closePeerConnection()
@@ -300,8 +299,35 @@ class VideoCallActivity : AppCompatActivity() {
             webRtcClient.call()
     }
 
+    private fun handleRing(loadingVisibility: Boolean) {
+        when (loadingVisibility) {
+            true -> mediaPlayer.start()
+
+            false -> {
+                mediaPlayer.pause()
+                mediaPlayer.seekTo(0)
+            }
+        }
+    }
+
+    private fun setFalseUserCalling() {
+        CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
+            override fun onUserObtained(users: Users) {
+                users.isCalling = false
+
+                cloudDBZone?.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
+                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                }?.addOnFailureListener {
+                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                }
+            }
+        })
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        handleRing(false)
+        setFalseUserCalling()
         webRtcClient.clearCandidates()
         webRtcClient.closePeerConnection()
         signalingClient.destroy()
