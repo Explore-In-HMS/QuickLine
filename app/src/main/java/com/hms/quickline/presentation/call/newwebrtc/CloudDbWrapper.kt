@@ -61,7 +61,7 @@ class CloudDbWrapper {
                 cloudDBZone = it
                 cloudDbInitializeResponse(true)
             }?.addOnFailureListener {
-                Log.w(TAG, "Open cloudDBZone failed for " + it.message)
+                Log.e(TAG, "Open cloudDBZone failed for " + it.message)
                 cloudDbInitializeResponse(false)
             }
         }
