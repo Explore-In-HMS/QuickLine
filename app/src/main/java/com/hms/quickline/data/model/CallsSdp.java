@@ -9,11 +9,7 @@ import com.huawei.agconnect.cloud.database.Text;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
-/**
- * Definition of ObjectType CallsSdp.
- *
- * @since 2022-05-25
- */
+
 @PrimaryKeys({"meetingID"})
 public final class CallsSdp extends CloudDBZoneObject {
     private String meetingID;
@@ -22,12 +18,8 @@ public final class CallsSdp extends CloudDBZoneObject {
 
     private String callType;
 
-    @DefaultValue(booleanValue = false)
-    private Boolean shadow_flag;
-
     public CallsSdp() {
         super(CallsSdp.class);
-        this.shadow_flag = false;
     }
 
     public void setMeetingID(String meetingID) {
@@ -52,14 +44,6 @@ public final class CallsSdp extends CloudDBZoneObject {
 
     public String getCallType() {
         return callType;
-    }
-
-    public void setShadow_flag(Boolean shadow_flag) {
-        this.shadow_flag = shadow_flag;
-    }
-
-    public Boolean getShadow_flag() {
-        return shadow_flag;
     }
 
 }

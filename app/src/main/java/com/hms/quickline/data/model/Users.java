@@ -8,11 +8,6 @@ import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
-/**
- * Definition of ObjectType Users.
- *
- * @since 2022-05-25
- */
 @PrimaryKeys({"uid"})
 public final class Users extends CloudDBZoneObject {
     private String uid;

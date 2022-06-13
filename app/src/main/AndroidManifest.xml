@@ -33,7 +33,8 @@
             android:exported="false"/>
         <activity
             android:name=".presentation.call.VideoCallActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleInstance"/>
         <activity
             android:name=".presentation.call.VoiceCallActivity"
             android:exported="false" />
