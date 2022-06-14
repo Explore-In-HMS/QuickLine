@@ -105,7 +105,7 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         CloudDbWrapper.closeCloudDBZone()
+        super.onDestroy()
     }
 }
