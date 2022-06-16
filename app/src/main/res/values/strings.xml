@@ -24,5 +24,6 @@
     <string name="join">Join</string>
     <string name="create">Create</string>
     <string name="empty_meetingid_error_message">Meeting Id must not be empty</string>
+    <string name="network_warn">Your internet connection is unstable</string>
 
 </resources>

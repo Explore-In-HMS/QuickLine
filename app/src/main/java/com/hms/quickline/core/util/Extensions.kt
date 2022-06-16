@@ -1,6 +1,7 @@
 package com.hms.quickline.core.util
 
 import android.content.Context
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,12 @@ fun showToastLong(context: Context, message: String) =
 
 fun showToastShort(context: Context, message: String) =
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
+fun showToastLongCenter(context: Context, message: String) {
+    val toastCenter = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+    toastCenter.setGravity(Gravity.CENTER, 0,0)
+    toastCenter.show()
+}
 
 fun ViewGroup.layoutInflaterFactory(): LayoutInflater = LayoutInflater.from(context)
 

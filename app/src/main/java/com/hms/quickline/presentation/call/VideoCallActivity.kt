@@ -10,12 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.hms.quickline.R
 import com.hms.quickline.core.common.viewBinding
-import com.hms.quickline.core.util.Constants
+import com.hms.quickline.core.util.*
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
-import com.hms.quickline.core.util.gone
-import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.ActivityVideoCallBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
@@ -82,30 +80,30 @@ class VideoCallActivity : AppCompatActivity() {
             var ret = 0
             if (qoeService != null) {
                 try {
-                    ret = qoeService!!.registerNetQoeCallBack("com.hms.quickline", wirelessListener)
-                    Log.i(TAG,ret.toString())
+                    ret = qoeService!!.registerNetQoeCallBack(
+                        application.packageName,
+                        wirelessListener
+                    )
+                    Log.i(TAG, ret.toString())
                 } catch (ex: RemoteException) {
                     Log.e(TAG, "no registerNetQoeCallback api")
                 }
             }
-            Log.i(TAG,"Connected")
+            Log.i(TAG, "Connected")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             qoeService = null
             Log.i(TAG, "onServiceDisConnected.")
-            Log.i(TAG,"Disconnected")
+            Log.i(TAG, "Disconnected")
         }
     }
 
     private val wirelessListener: IQoeCallBack = object : IQoeCallBack.Stub() {
         @Throws(RemoteException::class)
         override fun callBack(type: Int, qoeInfo: Bundle) {
-            if (qoeInfo == null || type != NETWORK_QOE_INFO_TYPE) {
-                Log.e(
-                    TAG,
-                    "callback failed.type:$type"
-                )
+            if (type != NETWORK_QOE_INFO_TYPE) {
+                Log.e(TAG, "callback failed.type:$type")
                 return
             }
             var channelNum = 0
@@ -114,30 +112,38 @@ class VideoCallActivity : AppCompatActivity() {
             }
             for (i in 0 until channelNum) {
                 netQoeLevel[i] = qoeInfo.getInt("netQoeLevel$i")
-                Log.i(TAG,netQoeLevel[0].toString())
+                Log.i(TAG, netQoeLevel[0].toString())
+
+                if (netQoeLevel[0] == 5) {
+                    runOnUiThread {
+                        showToastLongCenter(this@VideoCallActivity,
+                            getString(R.string.network_warn)
+                        )
+                    }
+                }
             }
         }
     }
 
 
     private fun bindQoeService() {
-            val networkQoeClient = WirelessClient.getNetworkQoeClient(this)
-            networkQoeClient?.networkQoeServiceIntent?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
-                val intent = wirelessResult.intent
-                if (intent == null) {
-                    Log.i(TAG, "intent is null.")
-                    return@OnSuccessListener
-                }
-                this.bindService(intent, srcConn, BIND_AUTO_CREATE)
-            })?.addOnFailureListener { exception ->
-                if (exception is ApiException) {
-                    val errCode = exception.statusCode
-                    Log.e(
-                        TAG,
-                        "Get intent failed:$errCode"
-                    )
-                }
+        val networkQoeClient = WirelessClient.getNetworkQoeClient(this)
+        networkQoeClient?.networkQoeServiceIntent?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
+            val intent = wirelessResult.intent
+            if (intent == null) {
+                Log.i(TAG, "intent is null.")
+                return@OnSuccessListener
             }
+            this.bindService(intent, srcConn, BIND_AUTO_CREATE)
+        })?.addOnFailureListener { exception ->
+            if (exception is ApiException) {
+                val errCode = exception.statusCode
+                Log.e(
+                    TAG,
+                    "Get intent failed:$errCode"
+                )
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -327,7 +333,8 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onOfferReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -335,7 +342,8 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onAnswerReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onAnswerReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -348,14 +356,16 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onIceCandidateReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onIceCandidateReceivedCallback called"
                     )
                     webRtcClient.addIceCandidate(it)
                 },
 
                 onCallEndedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
