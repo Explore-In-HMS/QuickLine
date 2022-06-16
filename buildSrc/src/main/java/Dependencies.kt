@@ -38,4 +38,8 @@ object Dependencies {
 
     //WebRTC
     const val webRTC = "org.webrtc:google-webrtc:${Versions.webRtcVersion}"
+
+    //Wireless
+    const val wirelessKit = "com.huawei.hms:wireless:5.0.1.305"
+
 }

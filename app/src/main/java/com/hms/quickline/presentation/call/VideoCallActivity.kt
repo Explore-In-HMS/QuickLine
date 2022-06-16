@@ -1,21 +1,19 @@
 package com.hms.quickline.presentation.call
 
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.media.MediaPlayer
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
+import android.os.*
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.hms.quickline.R
 import com.hms.quickline.core.common.viewBinding
-import com.hms.quickline.core.util.Constants
+import com.hms.quickline.core.util.*
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
-import com.hms.quickline.core.util.gone
-import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.ActivityVideoCallBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
@@ -27,10 +25,17 @@ import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserve
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.hmf.tasks.OnSuccessListener
+import com.huawei.hms.common.ApiException
+import com.huawei.hms.wireless.IQoeCallBack
+import com.huawei.hms.wireless.IQoeService
+import com.huawei.hms.wireless.WirelessClient
 import dagger.hilt.android.AndroidEntryPoint
-import org.webrtc.*
+import org.webrtc.EglBase
+import org.webrtc.VideoTrack
 import javax.inject.Inject
 import kotlin.properties.Delegates
+
 
 @AndroidEntryPoint
 class VideoCallActivity : AppCompatActivity() {
@@ -67,9 +72,85 @@ class VideoCallActivity : AppCompatActivity() {
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
+    private val netQoeLevel = IntArray(4)
+    private var qoeService: IQoeService? = null
+    private val srcConn: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            qoeService = IQoeService.Stub.asInterface(service)
+            var ret = 0
+            if (qoeService != null) {
+                try {
+                    ret = qoeService!!.registerNetQoeCallBack(
+                        application.packageName,
+                        wirelessListener
+                    )
+                    Log.i(TAG, ret.toString())
+                } catch (ex: RemoteException) {
+                    Log.e(TAG, "no registerNetQoeCallback api")
+                }
+            }
+            Log.i(TAG, "Connected")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            qoeService = null
+            Log.i(TAG, "onServiceDisConnected.")
+            Log.i(TAG, "Disconnected")
+        }
+    }
+
+    private val wirelessListener: IQoeCallBack = object : IQoeCallBack.Stub() {
+        @Throws(RemoteException::class)
+        override fun callBack(type: Int, qoeInfo: Bundle) {
+            if (type != NETWORK_QOE_INFO_TYPE) {
+                Log.e(TAG, "callback failed.type:$type")
+                return
+            }
+            var channelNum = 0
+            if (qoeInfo.containsKey("channelNum")) {
+                channelNum = qoeInfo.getInt("channelNum")
+            }
+            for (i in 0 until channelNum) {
+                netQoeLevel[i] = qoeInfo.getInt("netQoeLevel$i")
+                Log.i(TAG, netQoeLevel[0].toString())
+
+                if (netQoeLevel[0] == 5) {
+                    runOnUiThread {
+                        showToastLongCenter(this@VideoCallActivity,
+                            getString(R.string.network_warn)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun bindQoeService() {
+        val networkQoeClient = WirelessClient.getNetworkQoeClient(this)
+        networkQoeClient?.networkQoeServiceIntent?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
+            val intent = wirelessResult.intent
+            if (intent == null) {
+                Log.i(TAG, "intent is null.")
+                return@OnSuccessListener
+            }
+            this.bindService(intent, srcConn, BIND_AUTO_CREATE)
+        })?.addOnFailureListener { exception ->
+            if (exception is ApiException) {
+                val errCode = exception.statusCode
+                Log.e(
+                    TAG,
+                    "Get intent failed:$errCode"
+                )
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        bindQoeService()
 
         handler = Handler(Looper.getMainLooper())
         mediaPlayer = MediaPlayer.create(this, R.raw.quickline_call_ring)
@@ -241,7 +322,8 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun handlingSignalingClient() {
-        signalingClient = SignalingClient(meetingID = meetingID, signalingListener = SignalingListenerObserver(
+        signalingClient =
+            SignalingClient(meetingID = meetingID, signalingListener = SignalingListenerObserver(
                 onConnectionEstablishedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -251,7 +333,8 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onOfferReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -259,7 +342,8 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onAnswerReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onAnswerReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -272,14 +356,16 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onIceCandidateReceivedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onIceCandidateReceivedCallback called"
                     )
                     webRtcClient.addIceCandidate(it)
                 },
 
                 onCallEndedCallback = {
-                    Log.d(SIGNALING_LISTENER_TAG,
+                    Log.d(
+                        SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
@@ -287,7 +373,7 @@ class VideoCallActivity : AppCompatActivity() {
                     finish()
                 }
             )
-        )
+            )
 
         if (!isJoin)
             webRtcClient.call()
@@ -334,6 +420,7 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        this.unbindService(srcConn)
         super.onDestroy()
         handleRing(false)
         setFalseUserCalling()
@@ -343,5 +430,7 @@ class VideoCallActivity : AppCompatActivity() {
         private const val TAG = "ui_CallFragment"
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
+        private const val NETWORK_QOE_INFO_TYPE = 0
+
     }
 }
