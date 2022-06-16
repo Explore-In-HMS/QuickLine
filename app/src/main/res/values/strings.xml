@@ -23,5 +23,6 @@
     <string name="meeting_id">Meeting ID</string>
     <string name="join">Join</string>
     <string name="create">Create</string>
+    <string name="empty_meetingid_error_message">Meeting Id must not be empty</string>
 
 </resources>

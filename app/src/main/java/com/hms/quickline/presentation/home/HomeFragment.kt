@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
@@ -24,23 +25,14 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-
     private val binding by viewBinding(FragmentHomeBinding::bind)
-    private val TAG = "HomeFragmentTag"
-
-
     private val viewModel: HomeViewModel by viewModels()
-
-    private var cloudDBZone: CloudDBZone? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
 
-        cloudDBZone = CloudDbWrapper.cloudDBZone
-
         var name = ""
-
         AGConnectAuth.getInstance().currentUser?.let {
             name = it.displayName
         }
@@ -49,8 +41,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             val selectedMeetingId = etMeetingId.text.toString()
 
             btnJoin.setOnClickListener {
-                checkMeetingId(selectedMeetingId) { hasMeetingId ->
-                    if (hasMeetingId) {
+                viewModel.checkMeetingId(selectedMeetingId) { hasMeetingId ->
+                    if (hasMeetingId && selectedMeetingId.isNotEmpty()) {
                         val intent = Intent(requireActivity(), VideoCallActivity::class.java)
                         intent.putExtra(IS_MEETING_CONTACT, false)
                         intent.putExtra(MEETING_ID, selectedMeetingId)
@@ -65,6 +57,11 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             }
 
             btnCreate.setOnClickListener {
+                if (selectedMeetingId.isEmpty()){
+                    Toast.makeText(requireContext(),resources.getString(R.string.empty_meetingid_error_message),Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
                 val intent = Intent(requireActivity(), VideoCallActivity::class.java)
                 intent.putExtra(MEETING_ID, selectedMeetingId)
                 intent.putExtra(Constants.IS_JOIN, false)
@@ -73,28 +70,5 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
     }
 
-    /**
-     * Check room exists in CloudDatabase
-     */
-    private fun checkMeetingId(meetingId: String, hasMeetingId: (Boolean) -> Unit) {
 
-        CloudDbWrapper.checkMeetingId(meetingId, object : CloudDbWrapper.ResultListener {
-            override fun onSuccess(result: Any?) {
-                val resultList: ArrayList<CallsSdp>? = result as? ArrayList<CallsSdp>
-
-                resultList?.forEach {
-                    if (it.meetingID == meetingId) hasMeetingId(true) else hasMeetingId(false)
-                }
-            }
-
-            override fun onFailure(e: Exception) {
-                e.localizedMessage?.let {
-                    if (it == "noElements")
-                        hasMeetingId(false)
-                    else
-                        Log.e(TAG,"Error MeetingIdCheck")
-                }
-            }
-        })
-    }
 }
