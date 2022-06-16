@@ -40,9 +40,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         with(binding) {
-            val selectedMeetingId = etMeetingId.text.toString()
-
             btnJoin.setOnClickListener {
+                val selectedMeetingId = etMeetingId.text.toString()
                 viewModel.checkMeetingId(selectedMeetingId) { hasMeetingId ->
                     if (hasMeetingId && selectedMeetingId.isNotEmpty()) {
                         val intent = Intent(requireActivity(), VideoCallActivity::class.java)
@@ -59,6 +58,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             }
 
             btnCreate.setOnClickListener {
+                val selectedMeetingId = etMeetingId.text.toString()
                 if (selectedMeetingId.isEmpty()){
                     Toast.makeText(requireContext(),resources.getString(R.string.empty_meetingid_error_message),Toast.LENGTH_SHORT).show()
                     return@setOnClickListener

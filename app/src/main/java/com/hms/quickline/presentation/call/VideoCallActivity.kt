@@ -1,6 +1,7 @@
 package com.hms.quickline.presentation.call
 
-import android.content.*
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
@@ -27,8 +28,8 @@ import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.hmf.tasks.OnSuccessListener
 import com.huawei.hms.common.ApiException
+import com.huawei.hms.wireless.IQoeCallBack
 import com.huawei.hms.wireless.IQoeService
-import com.huawei.hms.wireless.NetworkQoeClient
 import com.huawei.hms.wireless.WirelessClient
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.EglBase
@@ -72,65 +73,76 @@ class VideoCallActivity : AppCompatActivity() {
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
-    private var networkQoeClient: NetworkQoeClient? = null
-    private var reportTime = 0
-    private var receiver: BroadcastReceiver? = null
+    private val netQoeLevel = IntArray(4)
     private var qoeService: IQoeService? = null
-
-    private val mSrcConn: ServiceConnection = object : ServiceConnection {
+    private val srcConn: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             qoeService = IQoeService.Stub.asInterface(service)
+            var ret = 0
             if (qoeService != null) {
-                Log.i(TAG, "bind success.")
+                try {
+                    ret = qoeService!!.registerNetQoeCallBack("com.hms.quickline", wirelessListener)
+                    Log.i(TAG,ret.toString())
+                } catch (ex: RemoteException) {
+                    Log.e(TAG, "no registerNetQoeCallback api")
+                }
             }
+            Log.i(TAG,"Connected")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             qoeService = null
-            Log.i(TAG, "bind failed.")
+            Log.i(TAG, "onServiceDisConnected.")
+            Log.i(TAG,"Disconnected")
         }
     }
 
-    private fun startListener() {
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                reportTime++
-                val enteringTime = intent.getIntExtra("enteringTime", 0)
-                val leavingTime = intent.getIntExtra("leavingTime", 0)
-                val type = intent.getIntExtra("type", 0)
-                Log.i(TAG,type.toString())
+    private val wirelessListener: IQoeCallBack = object : IQoeCallBack.Stub() {
+        @Throws(RemoteException::class)
+        override fun callBack(type: Int, qoeInfo: Bundle) {
+            if (qoeInfo == null || type != NETWORK_QOE_INFO_TYPE) {
+                Log.e(
+                    TAG,
+                    "callback failed.type:$type"
+                )
+                return
+            }
+            var channelNum = 0
+            if (qoeInfo.containsKey("channelNum")) {
+                channelNum = qoeInfo.getInt("channelNum")
+            }
+            for (i in 0 until channelNum) {
+                netQoeLevel[i] = qoeInfo.getInt("netQoeLevel$i")
             }
         }
-        val filter = IntentFilter()
-        filter.addAction(NETWORK_PREDICTION_ACTION)
-        registerReceiver(receiver, filter)
+    }
+
+
+    private fun bindQoeService() {
+            val networkQoeClient = WirelessClient.getNetworkQoeClient(this)
+            networkQoeClient?.networkQoeServiceIntent?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
+                val intent = wirelessResult.intent
+                if (intent == null) {
+                    Log.i(TAG, "intent is null.")
+                    return@OnSuccessListener
+                }
+                this.bindService(intent, srcConn, BIND_AUTO_CREATE)
+            })?.addOnFailureListener { exception ->
+                if (exception is ApiException) {
+                    val errCode = exception.statusCode
+                    Log.e(
+                        TAG,
+                        "Get intent failed:$errCode"
+                    )
+                }
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        startListener()
-        networkQoeClient = WirelessClient.getNetworkQoeClient(this)
-        if (networkQoeClient != null) {
-            networkQoeClient?.networkQoeServiceIntent
-                ?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
-                    val intent = wirelessResult.intent
-
-                    val type = intent.getIntExtra("type", 0)
-                    if (intent == null) {
-                        Log.i(TAG, "intent is null.")
-                        return@OnSuccessListener
-                    }
-                    this.bindService(intent, mSrcConn, BIND_AUTO_CREATE)
-                })
-                ?.addOnFailureListener { excep ->
-                    if (excep is ApiException) {
-                        val errCode = excep.statusCode
-                        Log.e(TAG, "Get intent failed:$errCode")
-                    }
-                }
-        }
+        bindQoeService()
 
         handler = Handler(Looper.getMainLooper())
         mediaPlayer = MediaPlayer.create(this, R.raw.quickline_call_ring)
@@ -405,8 +417,7 @@ class VideoCallActivity : AppCompatActivity() {
         private const val TAG = "ui_CallFragment"
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
-        private const val NETWORK_PREDICTION_ACTION =
-            "com.huawei.hms.action.ACTION_NETWORK_PREDICTION"
+        private const val NETWORK_QOE_INFO_TYPE = 0
 
     }
 }
