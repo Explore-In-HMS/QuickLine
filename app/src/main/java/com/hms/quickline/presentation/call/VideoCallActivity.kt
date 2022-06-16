@@ -114,7 +114,7 @@ class VideoCallActivity : AppCompatActivity() {
             }
             for (i in 0 until channelNum) {
                 netQoeLevel[i] = qoeInfo.getInt("netQoeLevel$i")
-                Toast.makeText(this@VideoCallActivity,netQoeLevel[0].toString(),Toast.LENGTH_SHORT).show()
+                Log.i(TAG,netQoeLevel[0].toString())
             }
         }
     }
@@ -410,6 +410,7 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        this.unbindService(srcConn)
         super.onDestroy()
         handleRing(false)
         setFalseUserCalling()
