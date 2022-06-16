@@ -7,9 +7,9 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.hms.quickline.R
+import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
@@ -35,7 +35,7 @@ import kotlin.properties.Delegates
 @AndroidEntryPoint
 class VideoCallActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityVideoCallBinding
+    private val binding by viewBinding(ActivityVideoCallBinding::inflate)
 
     private lateinit var meetingID: String
     private var name: String? = null
@@ -69,7 +69,6 @@ class VideoCallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityVideoCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
@@ -226,14 +225,17 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                 }
             ))
+
         webRtcClient.createLocalDataChannel()
         gettingCameraPictureToShowInLocalView()
     }
 
     private fun gettingCameraPictureToShowInLocalView() {
-        webRtcClient.initSurfaceView(binding.remoteView)
-        webRtcClient.initSurfaceView(binding.localView)
-        webRtcClient.startLocalVideoCapture(binding.localView)
+        runOnUiThread {
+            webRtcClient.initSurfaceView(binding.remoteView)
+            webRtcClient.initSurfaceView(binding.localView)
+            webRtcClient.startLocalVideoCapture(binding.localView)
+        }
 
         handlingSignalingClient()
     }
@@ -249,8 +251,7 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onOfferReceivedCallback = {
-                    Log.d(
-                        SIGNALING_LISTENER_TAG,
+                    Log.d(SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onOfferReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -258,8 +259,7 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onAnswerReceivedCallback = {
-                    Log.d(
-                        SIGNALING_LISTENER_TAG,
+                    Log.d(SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onAnswerReceivedCallback called"
                     )
                     webRtcClient.setRemoteDescription(it)
@@ -272,25 +272,19 @@ class VideoCallActivity : AppCompatActivity() {
                 },
 
                 onIceCandidateReceivedCallback = {
-                    Log.d(
-                        SIGNALING_LISTENER_TAG,
+                    Log.d(SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onIceCandidateReceivedCallback called"
                     )
                     webRtcClient.addIceCandidate(it)
                 },
 
                 onCallEndedCallback = {
-                    Log.d(
-                        SIGNALING_LISTENER_TAG,
+                    Log.d(SIGNALING_LISTENER_TAG,
                         "handlingSignalingClient: onCallEndedCallback called"
                     )
 
                     setFalseUserCalling()
                     finish()
-                    webRtcClient.clearCandidates()
-                    webRtcClient.closePeerConnection()
-                    webRtcClient.clearSdp()
-                    signalingClient.destroy()
                 }
             )
         )
@@ -301,8 +295,10 @@ class VideoCallActivity : AppCompatActivity() {
 
     private fun handleRing(loadingVisibility: Boolean) {
         when (loadingVisibility) {
-            true -> mediaPlayer.start()
-
+            true -> {
+                mediaPlayer.start()
+                mediaPlayer.isLooping = true
+            }
             false -> {
                 mediaPlayer.pause()
                 mediaPlayer.seekTo(0)
@@ -318,19 +314,29 @@ class VideoCallActivity : AppCompatActivity() {
                 cloudDBZone?.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
                     Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
                 }?.addOnFailureListener {
-                    Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                    Log.e(TAG, "Calls Sdp Upsert failed: ${it.message}")
                 }
             }
         })
+    }
+
+    private fun closeConnection() {
+        webRtcClient.clearCandidates()
+        webRtcClient.closePeerConnection()
+        webRtcClient.clearSdp()
+        signalingClient.removeEventsListener()
+        signalingClient.destroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        closeConnection()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handleRing(false)
         setFalseUserCalling()
-        webRtcClient.clearCandidates()
-        webRtcClient.closePeerConnection()
-        signalingClient.destroy()
     }
 
     companion object {
