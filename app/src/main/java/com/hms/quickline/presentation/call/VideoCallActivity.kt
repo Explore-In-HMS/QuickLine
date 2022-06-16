@@ -1,13 +1,10 @@
 package com.hms.quickline.presentation.call
 
+import android.content.*
 import android.media.MediaPlayer
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
+import android.os.*
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
@@ -27,10 +24,17 @@ import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserve
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
 import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.hmf.tasks.OnSuccessListener
+import com.huawei.hms.common.ApiException
+import com.huawei.hms.wireless.IQoeService
+import com.huawei.hms.wireless.NetworkQoeClient
+import com.huawei.hms.wireless.WirelessClient
 import dagger.hilt.android.AndroidEntryPoint
-import org.webrtc.*
+import org.webrtc.EglBase
+import org.webrtc.VideoTrack
 import javax.inject.Inject
 import kotlin.properties.Delegates
+
 
 @AndroidEntryPoint
 class VideoCallActivity : AppCompatActivity() {
@@ -67,10 +71,66 @@ class VideoCallActivity : AppCompatActivity() {
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
+    private var networkQoeClient: NetworkQoeClient? = null
+    private var reportTime = 0
+    private var receiver: BroadcastReceiver? = null
+    private var qoeService: IQoeService? = null
+
+    private val mSrcConn: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            qoeService = IQoeService.Stub.asInterface(service)
+            if (qoeService != null) {
+                Log.i(TAG, "bind success.")
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            qoeService = null
+            Log.i(TAG, "bind failed.")
+        }
+    }
+
+    private fun startListener() {
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                reportTime++
+                val enteringTime = intent.getIntExtra("enteringTime", 0)
+                val leavingTime = intent.getIntExtra("leavingTime", 0)
+                val type = intent.getIntExtra("type", 0)
+                Log.i(TAG,type.toString())
+            }
+        }
+        val filter = IntentFilter()
+        filter.addAction(NETWORK_PREDICTION_ACTION)
+        registerReceiver(receiver, filter)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVideoCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        startListener()
+        networkQoeClient = WirelessClient.getNetworkQoeClient(this)
+        if (networkQoeClient != null) {
+            networkQoeClient?.networkQoeServiceIntent
+                ?.addOnSuccessListener(OnSuccessListener { wirelessResult ->
+                    val intent = wirelessResult.intent
+
+                    val type = intent.getIntExtra("type", 0)
+                    if (intent == null) {
+                        Log.i(TAG, "intent is null.")
+                        return@OnSuccessListener
+                    }
+                    this.bindService(intent, mSrcConn, BIND_AUTO_CREATE)
+                })
+                ?.addOnFailureListener { excep ->
+                    if (excep is ApiException) {
+                        val errCode = excep.statusCode
+                        Log.e(TAG, "Get intent failed:$errCode")
+                    }
+                }
+        }
 
         handler = Handler(Looper.getMainLooper())
         mediaPlayer = MediaPlayer.create(this, R.raw.quickline_call_ring)
@@ -239,7 +299,8 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun handlingSignalingClient() {
-        signalingClient = SignalingClient(meetingID = meetingID, signalingListener = SignalingListenerObserver(
+        signalingClient =
+            SignalingClient(meetingID = meetingID, signalingListener = SignalingListenerObserver(
                 onConnectionEstablishedCallback = {
                     Log.d(
                         SIGNALING_LISTENER_TAG,
@@ -293,7 +354,7 @@ class VideoCallActivity : AppCompatActivity() {
                     signalingClient.destroy()
                 }
             )
-        )
+            )
 
         if (!isJoin)
             webRtcClient.call()
@@ -337,5 +398,8 @@ class VideoCallActivity : AppCompatActivity() {
         private const val TAG = "ui_CallFragment"
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
+        private const val NETWORK_PREDICTION_ACTION =
+            "com.huawei.hms.action.ACTION_NETWORK_PREDICTION"
+
     }
 }

@@ -78,5 +78,7 @@ dependencies {
     implementation Dependencies.auth
     implementation Dependencies.huaweiAuth
 
+    //Wireless
+    implementation Dependencies.wirelessKit
     implementation 'com.airbnb.android:lottie:5.0.3'
 }
