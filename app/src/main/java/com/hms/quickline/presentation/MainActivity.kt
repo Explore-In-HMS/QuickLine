@@ -16,6 +16,7 @@ import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.databinding.ActivityMainBinding
+import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -101,5 +102,10 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
 
     override fun setBottomBarVisibility(isVisible: Boolean) {
         binding.bottomNav.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun onDestroy() {
+        CloudDbWrapper.closeCloudDBZone()
+        super.onDestroy()
     }
 }
