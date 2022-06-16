@@ -13,12 +13,14 @@ import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
+import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentHomeBinding
 import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.hms.quickline.presentation.splash.SplashFragmentDirections
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,6 +68,11 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 intent.putExtra(MEETING_ID, selectedMeetingId)
                 intent.putExtra(Constants.IS_JOIN, false)
                 startActivity(intent)
+            }
+
+            ivLogout.setOnClickListener {
+                AGConnectAuth.getInstance().signOut()
+                navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
     }
