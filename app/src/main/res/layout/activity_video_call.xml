@@ -104,12 +104,12 @@
         android:id="@+id/tv_calling_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_16sdp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/_16sdp"
         android:textColor="@color/white"
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivWifi"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Caner Türe" />
 
@@ -183,5 +183,14 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_calling_user_loading" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/ivWifi"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
