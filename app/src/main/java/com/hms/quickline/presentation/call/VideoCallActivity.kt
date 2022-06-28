@@ -62,13 +62,14 @@ class VideoCallActivity : AppCompatActivity() {
 
     private val audioManager by lazy { RTCAudioManager.create(this) }
 
-    var millisecondTime = 0L
-    var startTime = 0L
+    private var millisecondTime = 0L
+    private var startTime = 0L
 
-    var seconds = 0
-    var minutes = 0
+    private var seconds = 0
+    private var minutes = 0
 
-    var handler: Handler? = null
+    private var handler: Handler? = null
+    private var isToastShown = false
 
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
@@ -116,10 +117,16 @@ class VideoCallActivity : AppCompatActivity() {
 
                 if (netQoeLevel[0] == 5) {
                     runOnUiThread {
-                        showToastLongCenter(this@VideoCallActivity,
-                            getString(R.string.network_warn)
-                        )
+                        binding.ivWifi.setImageResource(R.drawable.ic_wifi_weak)
+                        if (!isToastShown){
+                            isToastShown = true
+                            showToastLongCenter(this@VideoCallActivity,
+                                getString(R.string.network_warn)
+                                ,Toast.LENGTH_LONG)
+                        }
                     }
+                }else {
+                    binding.ivWifi.setImageResource(R.drawable.ic_wifi_healty)
                 }
             }
         }

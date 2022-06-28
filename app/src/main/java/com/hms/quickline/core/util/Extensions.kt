@@ -17,8 +17,8 @@ fun showToastLong(context: Context, message: String) =
 fun showToastShort(context: Context, message: String) =
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
-fun showToastLongCenter(context: Context, message: String) {
-    val toastCenter = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+fun showToastLongCenter(context: Context, message: String, length:Int) {
+    val toastCenter = Toast.makeText(context, message, length)
     toastCenter.setGravity(Gravity.CENTER, 0,0)
     toastCenter.show()
 }

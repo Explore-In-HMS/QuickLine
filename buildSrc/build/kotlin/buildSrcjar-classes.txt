@@ -1,1 +1,0 @@
-C:\Users\d00625778\Desktop\QuckLineAndroid\buildSrc\build\classes\kotlin\main\Classpaths.class;C:\Users\d00625778\Desktop\QuckLineAndroid\buildSrc\build\classes\kotlin\main\Configs.class;C:\Users\d00625778\Desktop\QuckLineAndroid\buildSrc\build\classes\kotlin\main\Dependencies.class;C:\Users\d00625778\Desktop\QuckLineAndroid\buildSrc\build\classes\kotlin\main\Versions.class
