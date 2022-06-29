@@ -17,7 +17,9 @@ import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.huawei.agconnect.auth.AGConnectAuth
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
@@ -103,6 +105,17 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     override fun setBottomBarVisibility(isVisible: Boolean) {
         binding.bottomNav.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
+
+    private fun updateLastSeen() {
+        val uid = AGConnectAuth.getInstance().currentUser.uid
+        CloudDbWrapper.updateLastSeen(uid, Date())
+    }
+
+    override fun onStop() {
+        updateLastSeen()
+        super.onStop()
+    }
+
 
     override fun onDestroy() {
         CloudDbWrapper.closeCloudDBZone()

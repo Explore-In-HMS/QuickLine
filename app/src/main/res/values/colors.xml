@@ -15,4 +15,6 @@
     <color name="orange">#0A15C3</color>
     <color name="orange_light">#5E68FF</color>
     <color name="orange_lightest">#F2F4FA</color>
+    <color name="busy_color">#FF0000</color>
+    <color name="available_color">#4CAF50</color>
 </resources>

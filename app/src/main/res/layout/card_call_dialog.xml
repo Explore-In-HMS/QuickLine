@@ -27,18 +27,24 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Caner Türe" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name">
+
         <ImageView
             android:id="@+id/img_state_available"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_2sdp"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/circle_background"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="@color/available_color"
             android:padding="@dimen/_2sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name"
             app:srcCompat="@drawable/ic_check_12"
             app:tint="@color/white"
             tools:ignore="ContentDescription" />
@@ -47,15 +53,12 @@
             android:id="@+id/img_state_busy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_2sdp"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/circle_background"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="@color/busy_color"
             android:padding="@dimen/_2sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name"
             app:srcCompat="@drawable/ic_busy"
+            android:visibility="gone"
             app:tint="@color/white"
             tools:ignore="ContentDescription" />
 
@@ -63,12 +66,12 @@
             android:id="@+id/tv_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/_4sdp"
             android:textSize="@dimen/_10ssp"
-            app:layout_constraintBottom_toBottomOf="@+id/img_state_available"
-            app:layout_constraintStart_toEndOf="@+id/img_state_available"
-            app:layout_constraintTop_toTopOf="@+id/img_state_available"
             tools:text="Available" />
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/img_voice_call"

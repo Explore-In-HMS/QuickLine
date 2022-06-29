@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import java.util.*
 
 fun showToastLong(context: Context, message: String) =
     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -26,3 +27,23 @@ fun showToastLongCenter(context: Context, message: String, length:Int) {
 fun ViewGroup.layoutInflaterFactory(): LayoutInflater = LayoutInflater.from(context)
 
 fun Fragment.navigate(navDirections: NavDirections) = findNavController().navigate(navDirections)
+
+fun getStatus(lastSeen: Date): String {
+    val currentDate = Date()
+    val difference: Long = currentDate.time - lastSeen.time
+
+    val criteriaOnline = 1000 * 60 //a minute
+    val criteriaAway = 1000 * 60 * 10 //ten minutes
+
+    return when {
+        difference < criteriaOnline -> {
+            "Online"
+        }
+        difference < criteriaAway -> {
+            "Away"
+        }
+        else -> {
+            "Offline"
+        }
+    }
+}

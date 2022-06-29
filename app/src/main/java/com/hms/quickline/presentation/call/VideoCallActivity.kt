@@ -403,6 +403,7 @@ class VideoCallActivity : AppCompatActivity() {
         CloudDbWrapper.getUserById(meetingID, object : CloudDbWrapper.ICloudDbWrapper {
             override fun onUserObtained(users: Users) {
                 users.isCalling = false
+                users.isAvailable = true
 
                 cloudDBZone?.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
                     Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")

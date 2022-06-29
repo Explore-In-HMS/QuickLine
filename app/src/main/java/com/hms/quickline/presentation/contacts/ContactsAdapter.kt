@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.hms.quickline.R
 import com.hms.quickline.core.util.gone
+import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.CardCallDialogBinding
 
@@ -30,7 +31,9 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
         fun bind(item: Users) {
+
             with(binding) {
+
                 if (item.photo == null) {
                     Glide.with(this.root.context)
                         .load(R.drawable.ic_person_24)
@@ -45,11 +48,15 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
 
                 tvName.text = item.name
                 if (item.isAvailable) {
-                    tvState.text = "Available"
+                    tvState.text = root.context.getString(R.string.available)
+                    imgStateAvailable.visible()
                     imgStateBusy.gone()
+                    imgVideoCall.visible()
                 } else {
-                    tvState.text = "Busy"
+                    tvState.text = root.context.getString(R.string.busy)
+                    imgStateBusy.visible()
                     imgStateAvailable.gone()
+                    imgVideoCall.gone()
                 }
 
                 imgVoiceCall.setOnClickListener {

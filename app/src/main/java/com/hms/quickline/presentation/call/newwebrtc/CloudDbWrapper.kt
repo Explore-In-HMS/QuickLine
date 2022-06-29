@@ -14,6 +14,7 @@ import com.huawei.agconnect.AGConnectOptionsBuilder
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.*
 import com.huawei.agconnect.cloud.database.exceptions.AGConnectCloudDBException
+import java.util.*
 
 class CloudDbWrapper {
 
@@ -130,6 +131,29 @@ class CloudDbWrapper {
                 Log.e(TAG, "Query User is failed ${it.message}")
                 resultListener.onFailure(it)
             }
+        }
+
+        fun updateLastSeen(userID: String, lastSeen: Date) {
+           /* if (cloudDBZone == null) {
+                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+                return
+            }
+            cloudDBZone!!.runTransaction {
+                return@runTransaction try {
+                    val query = CloudDBZoneQuery.where(Users::class.java).equalTo(UID, userID)
+                    val result = it.executeQuery(query)
+                    val user: Users
+                    if (result.size > 0) {
+                        user = result[0]
+                        user.lastSeen = lastSeen
+                        it.executeUpsert(mutableListOf(user))
+                        true
+                    } else
+                        false
+                } catch (e: AGConnectCloudDBException) {
+                    false
+                }
+            }*/
         }
 
         fun closeCloudDBZone() {
