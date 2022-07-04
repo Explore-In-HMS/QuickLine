@@ -53,4 +53,7 @@ object Dependencies {
     //SafetyDetect
     const val safetyDetect = "com.huawei.hms:safetydetect:${Versions.safetyDetectVersion}"
 
+    //Analytics Kit
+    const val analyticsKit = "com.huawei.hms:hianalytics:${Versions.analyticsVersion}"
+
 }

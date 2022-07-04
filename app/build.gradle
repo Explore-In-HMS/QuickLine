@@ -88,4 +88,7 @@ dependencies {
 
     //SafetyDetect
     implementation Dependencies.safetyDetect
+
+    //Analytics Kit
+    implementation Dependencies.analyticsKit
 }
