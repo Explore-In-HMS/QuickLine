@@ -2,7 +2,6 @@ package com.hms.quickline.presentation.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -15,14 +14,10 @@ import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
 import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
-import com.hms.quickline.data.model.CallsSdp
-import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentHomeBinding
 import com.hms.quickline.presentation.call.VideoCallActivity
-import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
-import com.hms.quickline.presentation.splash.SplashFragmentDirections
 import com.huawei.agconnect.auth.AGConnectAuth
-import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.agconnect.crash.AGConnectCrash
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,6 +28,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
+        AGConnectCrash.getInstance()
 
         var name = ""
         AGConnectAuth.getInstance().currentUser?.let {
@@ -54,13 +50,17 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                         showToastLong(binding.root.context, getString(R.string.no_room_message))
                     }
                 }
-
             }
 
             btnCreate.setOnClickListener {
                 val selectedMeetingId = etMeetingId.text.toString()
-                if (selectedMeetingId.isEmpty()){
-                    Toast.makeText(requireContext(),resources.getString(R.string.empty_meetingid_error_message),Toast.LENGTH_SHORT).show()
+                if (selectedMeetingId.isEmpty()) {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.empty_meetingid_error_message),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    AGConnectCrash.getInstance()
                     return@setOnClickListener
                 }
 
@@ -76,6 +76,4 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             }
         }
     }
-
-
 }

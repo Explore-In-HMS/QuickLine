@@ -29,8 +29,6 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
-
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
