@@ -50,4 +50,7 @@ object Dependencies {
     const val crashService = "com.huawei.agconnect:agconnect-crash:${Versions.crashServiceVersion}"
     const val apmAgc = "com.huawei.agconnect:agconnect-apms:${Versions.apmVersion}"
 
+    //SafetyDetect
+    const val safetyDetect = "com.huawei.hms:safetydetect:${Versions.safetyDetectVersion}"
+
 }

@@ -85,4 +85,7 @@ dependencies {
     //Crash
     implementation Dependencies.crashService
     implementation Dependencies.apmAgc
+
+    //SafetyDetect
+    implementation Dependencies.safetyDetect
 }
