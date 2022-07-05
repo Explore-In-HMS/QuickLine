@@ -80,5 +80,9 @@ dependencies {
 
     //Wireless
     implementation Dependencies.wirelessKit
-    implementation 'com.airbnb.android:lottie:5.0.3'
+    implementation Dependencies.lottie
+
+    //Crash
+    implementation Dependencies.crashService
+    implementation Dependencies.apmAgc
 }

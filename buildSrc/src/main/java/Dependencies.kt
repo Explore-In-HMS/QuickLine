@@ -34,12 +34,20 @@ object Dependencies {
 
     //Auth
     const val auth = "com.huawei.agconnect:agconnect-auth:${Versions.authVersion}"
-    const val huaweiAuth = "com.huawei.agconnect:agconnect-auth-huawei:${Versions.huaweiAuthVersion}"
+    const val huaweiAuth =
+        "com.huawei.agconnect:agconnect-auth-huawei:${Versions.huaweiAuthVersion}"
 
     //WebRTC
     const val webRTC = "org.webrtc:google-webrtc:${Versions.webRtcVersion}"
 
     //Wireless
-    const val wirelessKit = "com.huawei.hms:wireless:5.0.1.305"
+    const val wirelessKit = "com.huawei.hms:wireless:${Versions.wirelessKitVersion}"
+
+    //Lottie
+    const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
+
+    //CrashService
+    const val crashService = "com.huawei.agconnect:agconnect-crash:${Versions.crashServiceVersion}"
+    const val apmAgc = "com.huawei.agconnect:agconnect-apms:${Versions.apmVersion}"
 
 }

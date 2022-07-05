@@ -20,4 +20,8 @@ object Versions {
     const val authVersion = "1.6.4.300"
     const val huaweiAuthVersion = "1.6.4.300"
     const val webRtcVersion = "1.0.30039"
+    const val wirelessKitVersion = "5.0.1.305"
+    const val lottieVersion = "5.0.3"
+    const val crashServiceVersion = "1.7.0.300"
+    const val apmVersion = "1.5.2.310"
 }
