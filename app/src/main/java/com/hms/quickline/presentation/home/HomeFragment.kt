@@ -15,33 +15,60 @@ import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
 import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
-import com.hms.quickline.data.model.CallsSdp
-import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentHomeBinding
 import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
-import com.hms.quickline.presentation.splash.SplashFragmentDirections
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
+
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by viewModels()
+
+    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
+
+    var name = ""
+    var userId= ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
 
-        var name = ""
         AGConnectAuth.getInstance().currentUser?.let {
             name = it.displayName
+            userId = it.uid
         }
 
+        CloudDbWrapper.updateLastSeen(userId, Date())
+
+        initClickListeners()
+        initAvailable()
+        observeAvailable()
+        viewModel.checkAvailable(userId)
+    }
+
+    private fun initAvailable() {
+        binding.btnBusy.setOnCheckedChangeListener { _, isChecked ->
+            cloudDBZone?.let { viewModel.updateAvailable(userId,!isChecked, it) }
+        }
+    }
+
+    private fun observeAvailable() {
+        viewModel.getAvailableLiveData().observe(viewLifecycleOwner, {
+            binding.btnBusy.isChecked = !it
+        })
+    }
+
+    private fun initClickListeners() {
         with(binding) {
+
             btnJoin.setOnClickListener {
                 val selectedMeetingId = etMeetingId.text.toString()
+
                 viewModel.checkMeetingId(selectedMeetingId) { hasMeetingId ->
                     if (hasMeetingId && selectedMeetingId.isNotEmpty()) {
                         val intent = Intent(requireActivity(), VideoCallActivity::class.java)
@@ -54,7 +81,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                         showToastLong(binding.root.context, getString(R.string.no_room_message))
                     }
                 }
-
             }
 
             btnCreate.setOnClickListener {
@@ -76,6 +102,4 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             }
         }
     }
-
-
 }
