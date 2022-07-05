@@ -56,4 +56,7 @@ object Dependencies {
     //Analytics Kit
     const val analyticsKit = "com.huawei.hms:hianalytics:${Versions.analyticsVersion}"
 
+    //Push Kit
+    const val pushKit = "com.huawei.hms:push:${Versions.pushKitVersion}"
+
 }

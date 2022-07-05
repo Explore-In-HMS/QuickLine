@@ -91,4 +91,7 @@ dependencies {
 
     //Analytics Kit
     implementation Dependencies.analyticsKit
+
+    //Push Kit
+    implementation Dependencies.pushKit
 }
