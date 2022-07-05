@@ -39,27 +39,14 @@
 
         <ImageView
             android:id="@+id/img_state_available"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/_12sdp"
+            android:layout_height="@dimen/_12sdp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/circle_background"
             android:backgroundTint="@color/available_color"
-            android:padding="@dimen/_2sdp"
             app:srcCompat="@drawable/ic_check_12"
             app:tint="@color/white"
-            tools:ignore="ContentDescription" />
-
-        <ImageView
-            android:id="@+id/img_state_busy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/circle_background"
-            android:backgroundTint="@color/busy_color"
             android:padding="@dimen/_2sdp"
-            app:srcCompat="@drawable/ic_busy"
-            android:visibility="gone"
-            app:tint="@color/white"
             tools:ignore="ContentDescription" />
 
         <TextView

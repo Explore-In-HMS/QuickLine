@@ -38,13 +38,11 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         mFragmentNavigation.setBottomBarVisibility(true)
 
-
         AGConnectAuth.getInstance().currentUser?.let {
             name = it.displayName
             userId = it.uid
         }
 
-        //send to cloud db last seen data
         CloudDbWrapper.updateLastSeen(userId, Date())
 
         initClickListeners()
@@ -83,7 +81,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                         showToastLong(binding.root.context, getString(R.string.no_room_message))
                     }
                 }
-
             }
 
             btnCreate.setOnClickListener {

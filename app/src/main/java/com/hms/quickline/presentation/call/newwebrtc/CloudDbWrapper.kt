@@ -134,7 +134,7 @@ class CloudDbWrapper {
         }
 
         fun updateLastSeen(userID: String, lastSeen: Date) {
-           /* if (cloudDBZone == null) {
+            if (cloudDBZone == null) {
                 Log.d(TAG, "Cloud DB Zone is null, try re-open it")
                 return
             }
@@ -153,7 +153,7 @@ class CloudDbWrapper {
                 } catch (e: AGConnectCloudDBException) {
                     false
                 }
-            }*/
+            }
         }
 
         fun closeCloudDBZone() {

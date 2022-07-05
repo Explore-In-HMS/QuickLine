@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
+import com.hms.quickline.core.util.Constants.IS_JOIN
+import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
+import com.hms.quickline.core.util.Constants.MEETING_ID
+import com.hms.quickline.core.util.Constants.NAME
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentContactsBinding
 import com.hms.quickline.presentation.call.VideoCallActivity
@@ -57,7 +61,7 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
                     usersList.add(user)
                 }
             } catch (e: AGConnectCloudDBException) {
-                Log.w("TAG", "processQueryResult: " + e.message)
+                Log.w(TAG, "processQueryResult: " + e.message)
             } finally {
                 binding.rvMeetingIdList.layoutManager = LinearLayoutManager(requireContext())
                 adapter = ContactsAdapter(usersList, this)
@@ -65,7 +69,7 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
                 snapshot.release()
             }
         }?.addOnFailureListener {
-            Log.e("TAG", "Fail processQueryResult: " + it.message)
+            Log.e(TAG, "Fail processQueryResult: " + it.message)
         }
     }
 
@@ -74,14 +78,13 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
             Intent(requireActivity(), VoiceCallActivity::class.java)
         else
             Intent(requireActivity(), VideoCallActivity::class.java)
-        intent.putExtra("isMeetingContact", true)
-        intent.putExtra("meetingID", user.uid)
-        intent.putExtra("name", user.name)
-        intent.putExtra("isJoin", false)
+        intent.putExtra(IS_MEETING_CONTACT, true)
+        intent.putExtra(MEETING_ID, user.uid)
+        intent.putExtra(NAME, user.name)
+        intent.putExtra(IS_JOIN, false)
         startActivity(intent)
 
         user.isCalling = true
-        user.isAvailable = false
 
         val upsertTask = cloudDBZone?.executeUpsert(user)
         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
@@ -89,6 +92,5 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
         }?.addOnFailureListener {
             Log.i(TAG, "Calls Sdp Upsert failed: ${it.message}")
         }
-
     }
 }

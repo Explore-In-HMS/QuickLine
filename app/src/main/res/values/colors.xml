@@ -17,4 +17,6 @@
     <color name="orange_lightest">#F2F4FA</color>
     <color name="busy_color">#FF0000</color>
     <color name="available_color">#4CAF50</color>
+    <color name="away_color">#FFC107</color>
+    <color name="offline_color">#929392</color>
 </resources>

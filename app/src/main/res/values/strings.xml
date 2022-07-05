@@ -28,5 +28,7 @@
 
     <string name="available">Available</string>
     <string name="busy">Busy</string>
+    <string name="away">Away</string>
+    <string name="offline">Offline</string>
 
 </resources>

@@ -36,14 +36,10 @@ fun getStatus(lastSeen: Date): String {
     val criteriaAway = 1000 * 60 * 10 //ten minutes
 
     return when {
-        difference < criteriaOnline -> {
-            "Online"
-        }
-        difference < criteriaAway -> {
-            "Away"
-        }
-        else -> {
-            "Offline"
-        }
+        difference < criteriaOnline -> "Available"
+
+        difference < criteriaAway -> "Away"
+
+        else -> "Offline"
     }
 }

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.hms.quickline.R
+import com.hms.quickline.core.util.getStatus
 import com.hms.quickline.core.util.gone
 import com.hms.quickline.core.util.visible
 import com.hms.quickline.data.model.Users
@@ -29,7 +30,7 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
 
     inner class ViewHolder(binding: CardCallDialogBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        @SuppressLint("SetTextI18n")
+        @SuppressLint("SetTextI18n", "UseCompatLoadingForColorStateLists")
         fun bind(item: Users) {
 
             with(binding) {
@@ -48,14 +49,40 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
 
                 tvName.text = item.name
                 if (item.isAvailable) {
-                    tvState.text = root.context.getString(R.string.available)
-                    imgStateAvailable.visible()
-                    imgStateBusy.gone()
                     imgVideoCall.visible()
+
+                    item.lastSeen?.let {
+                        when(getStatus(it)) {
+
+                            root.context.getString(R.string.available) -> {
+                                tvState.text = root.context.getString(R.string.available)
+                                imgStateAvailable.backgroundTintList = root.context.resources.getColorStateList(R.color.available_color)
+                                imgStateAvailable.setImageResource(R.drawable.ic_check_12)
+                            }
+
+                            root.context.getString(R.string.away) -> {
+                                tvState.text = root.context.getString(R.string.away)
+                                imgStateAvailable.backgroundTintList = root.context.resources.getColorStateList(R.color.away_color)
+                                imgStateAvailable.setImageResource(R.drawable.ic_recent)
+                            }
+
+                            root.context.getString(R.string.offline) -> {
+                                tvState.text = root.context.getString(R.string.offline)
+                                imgStateAvailable.backgroundTintList = root.context.resources.getColorStateList(R.color.offline_color)
+                                imgStateAvailable.setImageResource(0)
+
+                            }
+                        }
+                    } ?: run {
+                        tvState.text = root.context.getString(R.string.available)
+                        imgStateAvailable.backgroundTintList = root.context.resources.getColorStateList(R.color.available_color)
+                        imgStateAvailable.setImageResource(R.drawable.ic_check_12)
+                    }
+
                 } else {
                     tvState.text = root.context.getString(R.string.busy)
-                    imgStateBusy.visible()
-                    imgStateAvailable.gone()
+                    imgStateAvailable.backgroundTintList = root.context.resources.getColorStateList(R.color.busy_color)
+                    imgStateAvailable.setImageResource(R.drawable.ic_phone_24)
                     imgVideoCall.gone()
                 }
 

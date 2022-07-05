@@ -28,7 +28,7 @@ public final class Users extends CloudDBZoneObject {
 
     private String phone;
 
-    //private Date lastSeen;
+    private Date lastSeen;
 
     public Users() {
         super(Users.class);
@@ -92,8 +92,8 @@ public final class Users extends CloudDBZoneObject {
         return phone;
     }
 
-//    public Date getLastSeen() { return lastSeen; }
+    public Date getLastSeen() { return lastSeen; }
 
-   // public void setLastSeen(Date lastSeen) { this.lastSeen = lastSeen; }
+    public void setLastSeen(Date lastSeen) { this.lastSeen = lastSeen; }
 
 }
