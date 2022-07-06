@@ -3,10 +3,12 @@ package com.hms.quickline.presentation
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
@@ -25,6 +27,11 @@ import com.huawei.hms.common.ApiException
 import com.huawei.hms.support.api.safetydetect.SafetyDetect
 import com.huawei.hms.support.api.safetydetect.SafetyDetectStatusCodes
 import dagger.hilt.android.AndroidEntryPoint
+import org.json.JSONException
+import org.json.JSONObject
+import java.nio.charset.StandardCharsets
+import java.security.NoSuchAlgorithmException
+import java.security.SecureRandom
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
@@ -35,6 +42,8 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        invokeSysIntegrity()
 
         HiAnalyticsTools.enableLog()
         HiAnalytics.getInstance(this)
