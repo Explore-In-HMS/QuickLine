@@ -8,6 +8,8 @@ import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
+import java.util.Date;
+
 /**
  * Definition of ObjectType Users.
  *
@@ -31,7 +33,7 @@ public final class Users extends CloudDBZoneObject {
 
     private String phone;
 
-    private String lastSeen;
+    private Date lastSeen;
 
     @DefaultValue(booleanValue = false)
     private Boolean isVerified;
@@ -99,11 +101,11 @@ public final class Users extends CloudDBZoneObject {
         return phone;
     }
 
-    public void setLastSeen(String lastSeen) {
+    public void setLastSeen(Date lastSeen) {
         this.lastSeen = lastSeen;
     }
 
-    public String getLastSeen() {
+    public Date getLastSeen() {
         return lastSeen;
     }
 
