@@ -10,6 +10,11 @@ import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
 import java.util.Date;
 
+/**
+ * Definition of ObjectType Users.
+ *
+ * @since 2022-07-06
+ */
 @PrimaryKeys({"uid"})
 public final class Users extends CloudDBZoneObject {
     private String uid;
@@ -30,10 +35,14 @@ public final class Users extends CloudDBZoneObject {
 
     private Date lastSeen;
 
+    @DefaultValue(booleanValue = false)
+    private Boolean isVerified;
+
     public Users() {
         super(Users.class);
         this.isCalling = false;
         this.isAvailable = true;
+        this.isVerified = false;
     }
 
     public void setUid(String uid) {
@@ -92,8 +101,20 @@ public final class Users extends CloudDBZoneObject {
         return phone;
     }
 
-    public Date getLastSeen() { return lastSeen; }
+    public void setLastSeen(Date lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 
-    public void setLastSeen(Date lastSeen) { this.lastSeen = lastSeen; }
+    public Date getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setIsVerified(Boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    public Boolean getIsVerified() {
+        return isVerified;
+    }
 
 }

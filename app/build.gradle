@@ -91,4 +91,7 @@ dependencies {
 
     //Analytics Kit
     implementation Dependencies.analyticsKit
+
+    // Liveness Detection SDK.
+    implementation Dependencies.livenessDetection
 }

@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
@@ -15,10 +16,14 @@ import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
+import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.hms.analytics.HiAnalytics
 import com.huawei.hms.analytics.HiAnalyticsTools
+import com.huawei.hms.common.ApiException
+import com.huawei.hms.support.api.safetydetect.SafetyDetect
+import com.huawei.hms.support.api.safetydetect.SafetyDetectStatusCodes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -110,5 +115,56 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     override fun onDestroy() {
         CloudDbWrapper.closeCloudDBZone()
         super.onDestroy()
+    }
+
+    private fun invokeSysIntegrity() {
+        val nonce = ByteArray(24)
+        try {
+            val random: SecureRandom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                SecureRandom.getInstanceStrong()
+            } else {
+                SecureRandom.getInstance("SHA1PRNG")
+            }
+            random.nextBytes(nonce)
+        } catch (e: NoSuchAlgorithmException) {
+            Log.e("NoSuchAlgorithmException", e.message!!)
+        }
+
+        SafetyDetect.getClient(this)
+            .sysIntegrity(nonce, "105993909")
+            .addOnSuccessListener { response ->
+                val jwsStr = response.result
+                val jwsSplit = jwsStr.split(".").toTypedArray()
+                val jwsPayloadStr = jwsSplit[1]
+                val payloadDetail = String(
+                    Base64.decode(
+                        jwsPayloadStr.toByteArray(StandardCharsets.UTF_8),
+                        Base64.URL_SAFE
+                    ), StandardCharsets.UTF_8
+                )
+                try {
+                    val jsonObject = JSONObject(payloadDetail)
+                    val basicIntegrity = jsonObject.getBoolean("basicIntegrity")
+                    val isBasicIntegrity = basicIntegrity.toString()
+                    val basicIntegrityResult = "Basic Integrity: $isBasicIntegrity"
+                    Log.i("Basic Integrity", basicIntegrityResult)
+                    showToastLong(this, "The device is secure")
+                    if (!basicIntegrity) {
+                        Log.i("Advice", jsonObject.getString("advice"))
+                    }
+                } catch (e: JSONException) {
+                    val errorMsg = e.message
+                    Log.e("JsonException", errorMsg ?: "unknown error")
+                }
+            }
+            .addOnFailureListener { e ->
+                val errorMsg: String? = if (e is ApiException) {
+                    SafetyDetectStatusCodes.getStatusCodeString(e.statusCode) + ": " + e.message
+                } else {
+                    e.message
+                }
+                Log.e("TAG", errorMsg.orEmpty())
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+            }
     }
 }

@@ -25,6 +25,8 @@
     <string name="create">Create</string>
     <string name="empty_meetingid_error_message">Meeting Id must not be empty</string>
     <string name="network_warn">Your internet connection is unstable</string>
+    <string name="user_verified_message">Your account has verified.</string>
+    <string name="user_verified_error_message">Your face not detected. Please try again.</string>
 
     <string name="available">Available</string>
     <string name="busy">Busy</string>

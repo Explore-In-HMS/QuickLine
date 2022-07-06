@@ -26,4 +26,5 @@ object Versions {
     const val apmVersion = "1.5.2.310"
     const val safetyDetectVersion = "6.4.0.301"
     const val analyticsVersion = "6.5.0.300"
+    const val livenessDetectionVersion = "2.2.0.300"
 }

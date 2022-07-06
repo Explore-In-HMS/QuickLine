@@ -6,10 +6,14 @@ package com.hms.quickline.data.model;
 
 import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.Text;
-import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
 
+/**
+ * Definition of ObjectType CallsSdp.
+ *
+ * @since 2022-07-05
+ */
 @PrimaryKeys({"meetingID"})
 public final class CallsSdp extends CloudDBZoneObject {
     private String meetingID;
