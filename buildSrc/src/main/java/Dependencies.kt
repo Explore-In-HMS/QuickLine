@@ -49,6 +49,8 @@ object Dependencies {
     //CrashService
     const val crashService = "com.huawei.agconnect:agconnect-crash:${Versions.crashServiceVersion}"
     const val apmAgc = "com.huawei.agconnect:agconnect-apms:${Versions.apmVersion}"
+    //Face Detection
+    const val livenessDetection = "com.huawei.hms:ml-computer-vision-livenessdetection:${Versions.livenessDetectionVersion}"
 
     //SafetyDetect
     const val safetyDetect = "com.huawei.hms:safetydetect:${Versions.safetyDetectVersion}"

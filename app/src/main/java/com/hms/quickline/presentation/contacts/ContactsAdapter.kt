@@ -93,6 +93,11 @@ class ContactsAdapter(list: ArrayList<Users>, listener: ICallDialogAdapter) :
                 imgVideoCall.setOnClickListener {
                     itemListener.onItemSelected(false, item)
                 }
+
+                if (item.isVerified)
+                    binding.ivVerify.visible()
+                else
+                    binding.ivVerify.gone()
             }
         }
     }

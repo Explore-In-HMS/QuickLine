@@ -94,4 +94,7 @@ dependencies {
 
     //Push Kit
     implementation Dependencies.pushKit
+
+    // Liveness Detection SDK.
+    implementation Dependencies.livenessDetection
 }
