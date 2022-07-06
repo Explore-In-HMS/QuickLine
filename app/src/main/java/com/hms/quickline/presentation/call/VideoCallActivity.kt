@@ -24,6 +24,7 @@ import com.hms.quickline.presentation.call.newwebrtc.listener.SignalingListenerO
 import com.hms.quickline.presentation.call.newwebrtc.observer.DataChannelObserver
 import com.hms.quickline.presentation.call.newwebrtc.observer.PeerConnectionObserver
 import com.hms.quickline.presentation.call.newwebrtc.util.PeerConnectionUtil
+import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
 import com.huawei.hmf.tasks.OnSuccessListener
 import com.huawei.hms.common.ApiException
@@ -203,6 +204,8 @@ class VideoCallActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        setUserAvailability(false)
     }
 
     private var runnable: Runnable = object : Runnable {
@@ -405,9 +408,28 @@ class VideoCallActivity : AppCompatActivity() {
                 users.isCalling = false
 
                 cloudDBZone?.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
-                    Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
+                    Log.i(TAG, "User Calling Info Upsert success: $cloudDBZoneResult")
                 }?.addOnFailureListener {
-                    Log.e(TAG, "Calls Sdp Upsert failed: ${it.message}")
+                    Log.e(TAG, "User Calling Info Upsert failed: ${it.message}")
+                }
+            }
+        })
+    }
+
+    private fun setUserAvailability(isAvailable : Boolean) {
+        lateinit var userId : String
+        AGConnectAuth.getInstance().currentUser?.let {
+            userId = it.uid
+        }
+
+        CloudDbWrapper.getUserById(userId, object : CloudDbWrapper.ICloudDbWrapper {
+            override fun onUserObtained(users: Users) {
+                users.isAvailable = isAvailable
+
+                cloudDBZone?.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
+                    Log.i(TAG, "User Calling Info Upsert success: $cloudDBZoneResult")
+                }?.addOnFailureListener {
+                    Log.e(TAG, "User Calling Info Upsert failed: ${it.message}")
                 }
             }
         })
@@ -431,6 +453,7 @@ class VideoCallActivity : AppCompatActivity() {
         super.onDestroy()
         handleRing(false)
         setFalseUserCalling()
+        setUserAvailability(true)
     }
 
     companion object {
@@ -438,6 +461,5 @@ class VideoCallActivity : AppCompatActivity() {
         private const val WEB_RTC_DATA_CHANNEL_TAG = "ui_WebRtcDataChannel"
         private const val SIGNALING_LISTENER_TAG = "signalingListener"
         private const val NETWORK_QOE_INFO_TYPE = 0
-
     }
 }
