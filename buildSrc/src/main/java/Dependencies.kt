@@ -52,4 +52,7 @@ object Dependencies {
     //Face Detection
     const val livenessDetection = "com.huawei.hms:ml-computer-vision-livenessdetection:${Versions.livenessDetectionVersion}"
 
+    //SafetyDetect
+    const val safetyDetect = "com.huawei.hms:safetydetect:${Versions.safetyDetectVersion}"
+
 }
