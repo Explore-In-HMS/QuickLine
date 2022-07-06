@@ -10,7 +10,7 @@ import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 /**
  * Definition of ObjectType CallsCandidates.
  *
- * @since 2022-06-03
+ * @since 2022-07-05
  */
 @PrimaryKeys({"uuid"})
 public final class CallsCandidates extends CloudDBZoneObject {

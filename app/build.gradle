@@ -85,4 +85,8 @@ dependencies {
     //Crash
     implementation Dependencies.crashService
     implementation Dependencies.apmAgc
+    implementation 'com.airbnb.android:lottie:5.0.3'
+
+    // Liveness Detection SDK.
+    implementation Dependencies.livenessDetection
 }
