@@ -8,6 +8,11 @@ import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
+/**
+ * Definition of ObjectType Users.
+ *
+ * @since 2022-07-06
+ */
 @PrimaryKeys({"uid"})
 public final class Users extends CloudDBZoneObject {
     private String uid;
@@ -26,10 +31,16 @@ public final class Users extends CloudDBZoneObject {
 
     private String phone;
 
+    private String lastSeen;
+
+    @DefaultValue(booleanValue = false)
+    private Boolean isVerified;
+
     public Users() {
         super(Users.class);
         this.isCalling = false;
         this.isAvailable = true;
+        this.isVerified = false;
     }
 
     public void setUid(String uid) {
@@ -86,6 +97,22 @@ public final class Users extends CloudDBZoneObject {
 
     public String getPhone() {
         return phone;
+    }
+
+    public void setLastSeen(String lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setIsVerified(Boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    public Boolean getIsVerified() {
+        return isVerified;
     }
 
 }

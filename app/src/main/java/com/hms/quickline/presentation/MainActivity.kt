@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.UserDictionary.Words.APP_ID
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -19,10 +18,10 @@ import com.hms.quickline.core.base.BaseActivity
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.setupWithNavController
+import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.hms.common.ApiException
-import com.huawei.hms.support.api.entity.safetydetect.SysIntegrityRequest
 import com.huawei.hms.support.api.safetydetect.SafetyDetect
 import com.huawei.hms.support.api.safetydetect.SafetyDetectStatusCodes
 import dagger.hilt.android.AndroidEntryPoint
@@ -122,7 +121,6 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     }
 
     private fun invokeSysIntegrity() {
-// TODO (developer): Change the nonce generation to include your own value.
         val nonce = ByteArray(24)
         try {
             val random: SecureRandom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -134,19 +132,11 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         } catch (e: NoSuchAlgorithmException) {
             Log.e("NoSuchAlgorithmException", e.message!!)
         }
-// TODO (developer): Change your app ID. You can obtain your app ID in AppGallery Connect.
-        val sysIntegrityRequest = SysIntegrityRequest()
-        sysIntegrityRequest.appId = "105993909"
-        sysIntegrityRequest.nonce = nonce
-        sysIntegrityRequest.alg = "RS256"
 
         SafetyDetect.getClient(this)
-            .sysIntegrity(sysIntegrityRequest)
-            .addOnSuccessListener { response -> // Indicates communication with the service was successful.
-                // Use response.getResult() to obtain the result data.
+            .sysIntegrity(nonce, "105993909")
+            .addOnSuccessListener { response ->
                 val jwsStr = response.result
-
-// Process the result data here.
                 val jwsSplit = jwsStr.split(".").toTypedArray()
                 val jwsPayloadStr = jwsSplit[1]
                 val payloadDetail = String(
@@ -158,36 +148,26 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
                 try {
                     val jsonObject = JSONObject(payloadDetail)
                     val basicIntegrity = jsonObject.getBoolean("basicIntegrity")
-                    //fg_button_sys_integrity_go.setBackgroundResource(if (basicIntegrity) R.drawable.btn_round_green else R.drawable.btn_round_red)
-                    //fg_button_sys_integrity_go.setText(R.string.rerun)
                     val isBasicIntegrity = basicIntegrity.toString()
                     val basicIntegrityResult = "Basic Integrity: $isBasicIntegrity"
-                   // fg_payloadBasicIntegrity.text = basicIntegrityResult
+                    Log.i("Basic Integrity", basicIntegrityResult)
+                    showToastLong(this, "The device is secure")
                     if (!basicIntegrity) {
-                        val advice = "Advice: " + jsonObject.getString("advice")
-                      //  fg_payloadAdvice.text = advice
+                        Log.i("Advice", jsonObject.getString("advice"))
                     }
                 } catch (e: JSONException) {
                     val errorMsg = e.message
                     Log.e("JsonException", errorMsg ?: "unknown error")
                 }
             }
-            .addOnFailureListener { e -> // There was an error communicating with the service.
-                val errorMsg: String?
-                errorMsg = if (e is ApiException) {
-// An error with the HMS API contains some additional details.
-                    val apiException = e as ApiException
-                    SafetyDetectStatusCodes.getStatusCodeString(apiException.statusCode) +
-                            ": " + apiException.message
-// You can use the apiException.getStatusCode() method to obtain the status code.
+            .addOnFailureListener { e ->
+                val errorMsg: String? = if (e is ApiException) {
+                    SafetyDetectStatusCodes.getStatusCodeString(e.statusCode) + ": " + e.message
                 } else {
-// An unknown type of error has occurred.
                     e.message
                 }
-                Log.e("aaa", errorMsg!!)
+                Log.e("TAG", errorMsg.orEmpty())
                 Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
-               // fg_button_sys_integrity_go.setBackgroundResource(R.drawable.btn_round_yellow)
-                //fg_button_sys_integrity_go.setText(R.string.rerun)
             }
     }
 }
