@@ -34,16 +34,16 @@ class QuickLineMessagingService : HmsMessageService() {
         val judgeWhetherIn10s = false
         // If the message is not processed within 10 seconds, create a job to process it.
         if (judgeWhetherIn10s) {
-            startWorkManagerJob(message)
+            startWorkManagerJob()
         } else {
             // Process the message within 10 seconds.
-            processWithin10s(message)
+            processWithin10s()
         }
     }
-    private fun startWorkManagerJob(message: RemoteMessage?) {
+    private fun startWorkManagerJob() {
         Log.d(TAG, "Start new Job processing.")
     }
-    private fun processWithin10s(message: RemoteMessage?) {
+    private fun processWithin10s() {
         Log.d(TAG, "Processing now.")
     }
 

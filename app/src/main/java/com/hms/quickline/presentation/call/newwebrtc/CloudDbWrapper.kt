@@ -21,6 +21,7 @@ class CloudDbWrapper {
     companion object {
 
         private const val TAG = "CloudDbWrapper"
+        private const val CloudDbLog= "Cloud DB Zone is null, try re-open it"
 
         var cloudDB: AGConnectCloudDB? = null
         private var config: CloudDBZoneConfig? = null
@@ -95,7 +96,7 @@ class CloudDbWrapper {
 
         fun checkUserById(uid: String,resultListener: ResultListener){
             if (cloudDBZone == null)
-                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+                Log.d(TAG, CloudDbLog)
 
             val query = CloudDBZoneQuery.where(Users::class.java).equalTo(UID, uid)
             val queryTask = cloudDBZone!!.executeQuery(query,
@@ -115,7 +116,7 @@ class CloudDbWrapper {
 
         fun checkMeetingId(meetingId: String,resultListener: ResultListener){
             if (cloudDBZone == null)
-                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+                Log.d(TAG, CloudDbLog)
 
             val query = CloudDBZoneQuery.where(CallsSdp::class.java).equalTo(MEETING_ID, meetingId)
             val queryTask = cloudDBZone!!.executeQuery(query,
@@ -135,7 +136,7 @@ class CloudDbWrapper {
 
         fun updateLastSeen(userID: String, lastSeen: Date) {
             if (cloudDBZone == null) {
-                Log.d(TAG, "Cloud DB Zone is null, try re-open it")
+                Log.d(TAG, CloudDbLog)
                 return
             }
             cloudDBZone!!.runTransaction {

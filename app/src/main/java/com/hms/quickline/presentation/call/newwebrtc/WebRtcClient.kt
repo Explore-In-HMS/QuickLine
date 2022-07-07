@@ -254,22 +254,15 @@ class WebRtcClient(
             } finally {
                 val iceCandidateArray: MutableList<IceCandidate> = mutableListOf()
                 for (data in callsCandidatesList) {
+                    val iceCandidate = IceCandidate(
+                        data.sdpMid,
+                        data.sdpMLineIndex!!,
+                        data.sdpCandidate
+                    )
                     if (data.callType != null && data.callType == Constants.USERTYPE.OFFER_USER.name) {
-                        iceCandidateArray.add(
-                            IceCandidate(
-                                data.sdpMid,
-                                data.sdpMLineIndex,
-                                data.sdpCandidate
-                            )
-                        )
+                        iceCandidateArray.add(iceCandidate)
                     } else if (data.callType != null && data.callType == Constants.USERTYPE.ANSWER_USER.name) {
-                        iceCandidateArray.add(
-                            IceCandidate(
-                                data.sdpMid,
-                                data.sdpMLineIndex,
-                                data.sdpCandidate
-                            )
-                        )
+                        iceCandidateArray.add(iceCandidate)
                     }
                 }
 
