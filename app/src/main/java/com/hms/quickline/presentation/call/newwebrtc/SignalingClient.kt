@@ -122,23 +122,15 @@ class SignalingClient(
             } finally {
 
                 for (data in callsCandidatesTemp) {
-
+                    val iceCandidate = IceCandidate(
+                        data.sdpMid,
+                        data.sdpMLineIndex!!,
+                        data.sdpCandidate
+                    )
                     if (sdpType == Constants.TYPE.OFFER && data.callType == Constants.USERTYPE.OFFER_USER.name) {
-                        signalingListener.onIceCandidateReceived(
-                            IceCandidate(
-                                data.sdpMid,
-                                data.sdpMLineIndex!!,
-                                data.sdpCandidate
-                            )
-                        )
+                        signalingListener.onIceCandidateReceived(iceCandidate)
                     } else if (sdpType == Constants.TYPE.ANSWER && data.callType == Constants.USERTYPE.ANSWER_USER.name) {
-                        signalingListener.onIceCandidateReceived(
-                            IceCandidate(
-                                data.sdpMid,
-                                data.sdpMLineIndex!!,
-                                data.sdpCandidate
-                            )
-                        )
+                        signalingListener.onIceCandidateReceived(iceCandidate)
                     } else if (sdpType == Constants.TYPE.END) {
                         signalingListener.onCallEnded()
                     }

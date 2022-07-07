@@ -40,10 +40,10 @@ class QuickLineMessagingService : HmsMessageService() {
             processWithin10s(message)
         }
     }
-    private fun startWorkManagerJob(message: RemoteMessage?) {
+    private fun startWorkManagerJob() {
         Log.d(TAG, "Start new Job processing.")
     }
-    private fun processWithin10s(message: RemoteMessage?) {
+    private fun processWithin10s() {
         Log.d(TAG, "Processing now.")
     }
 
