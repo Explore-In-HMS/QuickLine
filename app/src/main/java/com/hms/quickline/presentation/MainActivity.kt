@@ -21,6 +21,8 @@ import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
+import com.huawei.hms.analytics.HiAnalytics
+import com.huawei.hms.analytics.HiAnalyticsTools
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.support.api.safetydetect.SafetyDetect
 import com.huawei.hms.support.api.safetydetect.SafetyDetectStatusCodes
@@ -40,7 +42,11 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
         invokeSysIntegrity()
+
+        HiAnalyticsTools.enableLog()
+        HiAnalytics.getInstance(this)
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()

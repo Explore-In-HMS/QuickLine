@@ -2,7 +2,6 @@ package com.hms.quickline.presentation.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -32,7 +31,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
     var name = ""
-    var userId= ""
+    var userId = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,7 +52,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     private fun initAvailable() {
         binding.btnBusy.setOnCheckedChangeListener { _, isChecked ->
-            cloudDBZone?.let { viewModel.updateAvailable(userId,!isChecked, it) }
+            cloudDBZone?.let { viewModel.updateAvailable(userId, !isChecked, it) }
         }
     }
 
@@ -85,8 +84,12 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
             btnCreate.setOnClickListener {
                 val selectedMeetingId = etMeetingId.text.toString()
-                if (selectedMeetingId.isEmpty()){
-                    Toast.makeText(requireContext(),resources.getString(R.string.empty_meetingid_error_message),Toast.LENGTH_SHORT).show()
+                if (selectedMeetingId.isEmpty()) {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.empty_meetingid_error_message),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setOnClickListener
                 }
 

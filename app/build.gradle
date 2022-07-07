@@ -89,6 +89,9 @@ dependencies {
     //SafetyDetect
     implementation Dependencies.safetyDetect
 
+    //Analytics Kit
+    implementation Dependencies.analyticsKit
+
     // Liveness Detection SDK.
     implementation Dependencies.livenessDetection
 }
