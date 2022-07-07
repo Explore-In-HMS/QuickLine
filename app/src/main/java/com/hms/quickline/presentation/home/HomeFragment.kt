@@ -2,6 +2,7 @@ package com.hms.quickline.presentation.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -19,6 +20,8 @@ import com.hms.quickline.presentation.call.VideoCallActivity
 import com.hms.quickline.presentation.call.newwebrtc.CloudDbWrapper
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.hms.aaid.HmsInstanceId
+import com.huawei.hms.common.ApiException
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -104,5 +107,24 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
+
+        getToken()
+    }
+
+    private fun getToken() {
+        object : Thread() {
+            override fun run() {
+                try {
+                    val appId = "105993909"
+
+                    val tokenScope = "HCM"
+                    val token = HmsInstanceId.getInstance(binding.root.context).getToken(appId, tokenScope)
+                    Log.i("TOKEEENN", "get token:$token")
+
+                } catch (e: ApiException) {
+                    Log.e("TOKEEENN", "get token failed, $e")
+                }
+            }
+        }.start()
     }
 }
