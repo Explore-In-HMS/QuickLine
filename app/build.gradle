@@ -5,6 +5,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.huawei.agconnect'
+    id "org.sonarqube" version "3.0"
 }
 
 android {
@@ -36,6 +37,16 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+    }
+}
+
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "QuickLineKey"
+        property "sonar.projectName", "QuickLine"
+        property "sonar.login", "1806cd5a6af535e65caaa1b351a4a73acb225f45"
+        property "sonar.host.url", "http://10.216.72.212:9000"
     }
 }
 
