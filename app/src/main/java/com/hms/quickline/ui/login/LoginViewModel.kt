@@ -21,14 +21,11 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     private val TAG = "LoginViewModel"
 
-    private val signInHuaweiIdLiveData: MutableLiveData<Resource<AGConnectUser?>> =
-        MutableLiveData()
-
+    private val signInHuaweiIdLiveData: MutableLiveData<Resource<AGConnectUser?>> = MutableLiveData()
     fun getSignInHuaweiIdLiveData(): LiveData<Resource<AGConnectUser?>> = signInHuaweiIdLiveData
 
     private val checkUserLiveData: MutableLiveData<Boolean> = MutableLiveData()
     fun getCheckUserLiveData(): LiveData<Boolean> = checkUserLiveData
-
 
     fun signInWithHuaweiId(requestCode: Int, data: Intent?) {
         viewModelScope.launch {
@@ -39,7 +36,7 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
                     signInHuaweiIdLiveData.value = Resource.success(result.user)
                 }
                 is HuaweiAuthResult.UserFailure -> {
-                    signInHuaweiIdLiveData.value = Resource.Failed(result.errorMessage!!)
+                    signInHuaweiIdLiveData.value = result.errorMessage?.let { Resource.Failed(it) }
                 }
             }
         }

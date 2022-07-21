@@ -47,7 +47,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
         cloudDBZone = CloudDbWrapper.cloudDBZone
 
-
         binding.buttonAuth.apply {
             alpha = 0f
             visibility = View.VISIBLE
@@ -55,10 +54,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
                 .alpha(1f)
                 .setDuration(1000)
                 .setListener(null)
-        }
-
-        agConnectAuth.currentUser?.let {
-            loginViewModel.checkUserLogin(it.uid)
         }
 
         observeData()
@@ -72,16 +67,16 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
         binding.buttonAuth.setOnClickListener {
             signInHuaweiId()
         }
-
     }
 
     private fun observeData(){
-        loginViewModel.getSignInHuaweiIdLiveData().observe(viewLifecycleOwner) {
-            handleSignInReturn(it)
-        }
-
         loginViewModel.getCheckUserLiveData().observe(viewLifecycleOwner) {
             hasUserDb = it
+            saveUserToDb()
+        }
+
+        loginViewModel.getSignInHuaweiIdLiveData().observe(viewLifecycleOwner) {
+            handleSignInReturn(it)
         }
     }
 
@@ -96,8 +91,8 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
                 binding.progressBar.showProgress()
             }
             is Resource.Success<*> -> {
+                loginViewModel.checkUserLogin(agConnectAuth.currentUser.uid)
                 binding.progressBar.hideProgress()
-                saveUserToDb()
             }
             is Resource.Failed<*> -> {
                 binding.progressBar.hideProgress()
@@ -127,9 +122,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
                 Log.i(TAG, "User Upsert success: $cloudDBZoneResult")
 
                 hasUserDb?.let {
-                    if (it) {
-                        navigateHome()
-                    }
+                    if (it) navigateHome()
                 }
 
             }?.addOnFailureListener {
@@ -138,7 +131,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
         }
     }
-
 
     private fun navigateHome() {
         val intent = Intent(requireContext(), CallService::class.java)
