@@ -53,9 +53,9 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         initClickListeners()
         initAvailable()
-        observeAvailable()
+        observeData()
         viewModel.checkAvailable(userId)
-        getToken()
+        viewModel.getPushToken(requireContext())
     }
 
     private fun initAvailable() {
@@ -64,9 +64,13 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
     }
 
-    private fun observeAvailable() {
+    private fun observeData() {
         viewModel.getAvailableLiveData().observe(viewLifecycleOwner, {
             binding.btnBusy.isChecked = !it
+        })
+
+        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner, {
+            Log.i("PushNotificationTAG", "get token:$it")
         })
     }
 
@@ -100,7 +104,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 val selectedMeetingId = etMeetingId.text.toString()
 
                 if (selectedMeetingId.isEmpty()) {
-                    showToastShort(requireContext(),resources.getString(R.string.empty_meetingid_error_message))
+                    showToastShort(
+                        requireContext(),
+                        resources.getString(R.string.empty_meetingid_error_message)
+                    )
                     return@setOnClickListener
                 }
 
@@ -118,22 +125,5 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
-    }
-
-    private fun getToken() {
-        object : Thread() {
-            override fun run() {
-                try {
-                    val appId = "105993909"
-
-                    val tokenScope = "HCM"
-                    val token = HmsInstanceId.getInstance(binding.root.context).getToken(appId, tokenScope)
-                    Log.i("TOKENOFUSER", "get token:$token")
-
-                } catch (e: ApiException) {
-                    Log.e("TOKENOFUSER", "get token failed, $e")
-                }
-            }
-        }.start()
     }
 }

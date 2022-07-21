@@ -103,20 +103,14 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
     }
 
     private fun livenessDetection() {
-
         //Obtain liveness detection config and set detect mask and sunglasses
         val captureConfig: MLLivenessCaptureConfig = MLLivenessCaptureConfig.Builder().setOptions(DETECT_MASK).build()
+
         // Obtains the liveness detection plug-in instance.
         val capture: MLLivenessCapture = MLLivenessCapture.getInstance()
-        //set liveness detection config
         capture.setConfig(captureConfig)
-
-        // Enable liveness detection.
         capture.startDetect(requireActivity(), this.callback)
-
-
     }
-
 
     override fun onItemSelected(isVoiceCall: Boolean, user: Users) {
         val intent = if (isVoiceCall)
@@ -153,10 +147,12 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
             Log.i(TAG, "success")
             if (result.isLive){
                 user.isVerified = true
+
                 val upsertTask = cloudDBZone?.executeUpsert(user)
                 upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
                     Log.i("UpsertUser", "User Upsert success: $cloudDBZoneResult")
                     showToastShort(requireContext(),resources.getText(R.string.user_verified_message).toString())
+
                     viewModel.getUserList()
                     binding.btnVerify.gone()
                 }?.addOnFailureListener {

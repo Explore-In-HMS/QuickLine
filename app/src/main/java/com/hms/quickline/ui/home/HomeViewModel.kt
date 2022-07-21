@@ -1,22 +1,47 @@
 package com.hms.quickline.ui.home
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.hms.quickline.core.base.BaseViewModel
+import com.hms.quickline.data.di.IoDispatcher
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
 import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.hms.aaid.HmsInstanceId
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope.coroutineContext
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : BaseViewModel() {
+class HomeViewModel @Inject constructor(@IoDispatcher val dispatcher: CoroutineDispatcher) : BaseViewModel() {
     private val TAG = "HomeViewModel"
 
     private val availableLiveData: MutableLiveData<Boolean> = MutableLiveData()
     fun getAvailableLiveData(): LiveData<Boolean> = availableLiveData
+
+    private val userPushTokenLiveData: MutableLiveData<String> = MutableLiveData()
+    fun getUserPushTokenLiveData(): LiveData<String> = userPushTokenLiveData
+
+    @DelicateCoroutinesApi
+    private var coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
+
+    @DelicateCoroutinesApi
+    fun getPushToken(context: Context) {
+        coroutineScope.launch {
+            async(dispatcher) {
+                val appId = "105993909"
+                val tokenScope = "HCM"
+                val token = HmsInstanceId.getInstance(context).getToken(appId, tokenScope)
+                Log.i("PushNotificationTAG", "get token:$token")
+
+                userPushTokenLiveData.postValue(token)
+            }
+        }
+    }
 
     /**
      * Check room exists in CloudDatabase

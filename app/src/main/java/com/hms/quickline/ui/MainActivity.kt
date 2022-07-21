@@ -20,6 +20,7 @@ import com.hms.quickline.core.common.viewBinding
 import com.hms.quickline.core.util.Constants.REQUEST_CODE
 import com.hms.quickline.core.util.setupWithNavController
 import com.hms.quickline.core.util.showToastLong
+import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.ActivityMainBinding
 import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.huawei.hms.analytics.HiAnalytics
@@ -177,7 +178,7 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
                     e.message
                 }
                 Log.e("TAG", errorMsg.orEmpty())
-                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+                errorMsg?.let { showToastShort(this, it) }
             }
     }
 }
