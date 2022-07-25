@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/recentCallsFragment"
-        android:name="com.hms.quickline.presentation.recentcalls.RecentCallsFragment"
+        android:name="com.hms.quickline.ui.recentcalls.RecentCallsFragment"
         android:label="fragment_recent_calls"
         tools:layout="@layout/fragment_recent_calls" />
 </navigation>
