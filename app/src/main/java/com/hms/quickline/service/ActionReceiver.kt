@@ -44,7 +44,7 @@ class ActionReceiver : BroadcastReceiver() {
                 }
 
                 context.startActivity(videoIntent)
-                notificationUtils.getManager().cancel(150)
+                notificationUtils?.getManager()?.cancel(150)
             }
             DECLINE -> {
                 notificationUtils?.getManager()?.cancel(150)

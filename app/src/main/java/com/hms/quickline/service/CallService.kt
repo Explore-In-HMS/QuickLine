@@ -28,7 +28,7 @@ class CallService: Service() {
     private var registerUser: ListenerHandler? = null
     private var currentUID :String? = ""
     private val TAG = "CallService"
-
+    private var isNotificationShown = false
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -58,7 +58,6 @@ class CallService: Service() {
             Log.w(TAG, "Snapshot Error: " + e.message)
         } finally {
             Log.i(TAG,"isCalling:${users.isCalling}")
-            var isNotificationShown = false
             if (users.isCalling == true && !isNotificationShown){
                 isNotificationShown = true
                 showCallNotification(users.uid, callerName = users.callerName)
