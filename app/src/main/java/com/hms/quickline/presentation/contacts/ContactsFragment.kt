@@ -151,6 +151,7 @@ class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
         startActivity(intent)
 
         user.isCalling = true
+        user.callerName = this.user.name
 
         val upsertTask = cloudDBZone?.executeUpsert(user)
         upsertTask?.addOnSuccessListener { cloudDBZoneResult ->

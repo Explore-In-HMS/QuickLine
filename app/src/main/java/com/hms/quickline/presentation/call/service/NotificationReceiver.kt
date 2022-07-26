@@ -10,10 +10,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val uid = intent.getStringExtra(Constants.UID)!!
+        val uid = intent.getStringExtra(Constants.UID)
+        val callerName = intent.getStringExtra(Constants.CALLER_NAME)
 
-        val notificationUtils = NotificationUtils(context,uid)
-        val notification = notificationUtils.getNotificationBuilder().build()
-        notificationUtils.getManager().notify(150, notification)
+        val notificationUtils = callerName?.let { NotificationUtils(context,uid, it) }
+        val notification = notificationUtils?.getNotificationBuilder()?.build()
+        notificationUtils?.getManager()?.notify(150, notification)
     }
 }

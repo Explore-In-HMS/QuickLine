@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hms.quickline.core.util.Constants.ANSWER
+import com.hms.quickline.core.util.Constants.CALLER_NAME
 import com.hms.quickline.core.util.Constants.DECLINE
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.IS_JOIN
@@ -26,7 +27,8 @@ class ActionReceiver : BroadcastReceiver() {
     private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
     private val TAG = "ActionReceiver"
     override fun onReceive(context: Context, intent: Intent) {
-        val notificationUtils = NotificationUtils(context)
+        val callerName = intent.getStringExtra(CALLER_NAME)
+        val notificationUtils = callerName?.let { NotificationUtils(context, callerName = it) }
         val uid = intent.getStringExtra(UID)
         when(intent.action){
             ANSWER -> {
@@ -36,10 +38,10 @@ class ActionReceiver : BroadcastReceiver() {
                 i.putExtra(MEETING_ID,uid)
                 i.putExtra(IS_JOIN, true)
                 context.startActivity(i)
-                notificationUtils.getManager().cancel(150)
+                notificationUtils?.getManager()?.cancel(150)
             }
             DECLINE -> {
-                notificationUtils.getManager().cancel(150)
+                notificationUtils?.getManager()?.cancel(150)
 
 
                 uid?.let {
