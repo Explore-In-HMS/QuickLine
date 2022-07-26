@@ -1,22 +1,41 @@
 package com.hms.quickline.ui.profile
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
+import com.hms.quickline.core.util.gone
+import com.hms.quickline.core.util.showToastShort
+import com.hms.quickline.core.util.visible
+import com.hms.quickline.data.model.Users
 import com.hms.quickline.databinding.FragmentProfileBinding
 import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
+import com.huawei.hms.mlsdk.livenessdetection.MLLivenessCapture
+import com.huawei.hms.mlsdk.livenessdetection.MLLivenessCaptureConfig
+import com.huawei.hms.mlsdk.livenessdetection.MLLivenessCaptureResult
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
+
+    companion object {
+        private val PERMISSIONS = arrayOf(
+            Manifest.permission.CAMERA
+        )
+    }
+
+    private val TAG = "ProfileFragment"
 
     private val binding by viewBinding(FragmentProfileBinding::bind)
     private val viewModel: ProfileViewModel by viewModels()
@@ -28,6 +47,8 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
 
     private var name = ""
     private var userId = ""
+
+    private lateinit var user: Users
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,6 +65,14 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         initAvailable()
         observeData()
         viewModel.checkAvailable(userId)
+
+        binding.btnVerify.setOnClickListener {
+            detect()
+        }
+
+        agConnectAuth.currentUser?.let {
+            viewModel.getUser(it.uid)
+        }
     }
 
     private fun initAvailable() {
@@ -55,13 +84,94 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
     }
 
     private fun observeData() {
-        viewModel.getAvailableLiveData().observe(viewLifecycleOwner, {
+        viewModel.getAvailableLiveData().observe(viewLifecycleOwner) {
             binding.btnBusy.isChecked = !it
-        })
+        }
 
-        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner, {
-            Log.i("PushNotificationTAG", "get token:$it")
-        })
+        viewModel.getUserLiveData().observe(viewLifecycleOwner) {
+            if (!it.isVerified)
+                binding.btnVerify.visible()
+
+            user = it
+        }
     }
 
+    private fun detect() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            livenessDetection()
+            return
+        }
+
+        ActivityCompat.requestPermissions(requireActivity(), PERMISSIONS, 0)
+    }
+
+    private val callback: MLLivenessCapture.Callback = object : MLLivenessCapture.Callback {
+        /**
+         * Liveness detection success callback.
+         * @param result result
+         */
+        override fun onSuccess(result: MLLivenessCaptureResult) {
+            Log.i(TAG, "success")
+            if (result.isLive) {
+                user.isVerified = true
+
+                val upsertTask = cloudDBZone?.executeUpsert(user)
+                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                    Log.i("UpsertUser", "User Upsert success: $cloudDBZoneResult")
+                    showToastShort(
+                        requireContext(),
+                        resources.getText(R.string.user_verified_message).toString()
+                    )
+
+                    viewModel.getUserList()
+                    binding.btnVerify.gone()
+                }?.addOnFailureListener {
+                    Log.i("UpsertUser", "User Upsert failed: ${it.message}")
+                }
+            } else {
+                showToastShort(
+                    requireContext(),
+                    resources.getText(R.string.user_verified_error_message).toString()
+                )
+            }
+        }
+
+        override fun onFailure(errorCode: Int) {
+            Log.i(TAG, "error")
+        }
+    }
+
+    private fun livenessDetection() {
+        //Obtain liveness detection config and set detect mask and sunglasses
+        val captureConfig: MLLivenessCaptureConfig = MLLivenessCaptureConfig.Builder().setOptions(
+            MLLivenessCaptureConfig.DETECT_MASK
+        ).build()
+
+        // Obtains the liveness detection plug-in instance.
+        val capture: MLLivenessCapture = MLLivenessCapture.getInstance()
+        capture.setConfig(captureConfig)
+        capture.startDetect(requireActivity(), this.callback)
+    }
+
+    // Permission application callback.
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String?>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.i(TAG, "onRequestPermissionsResult ")
+
+        livenessDetection()
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        Log.i(
+            TAG,
+            "onActivityResult requestCode $requestCode, resultCode $resultCode"
+        )
+    }
 }

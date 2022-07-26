@@ -36,4 +36,10 @@
     <string name="request_code_invalid">Request code is invalid!</string>
     <string name="sign_in_huawei">Sign In With Huawei ID</string>
 
+    //Profile
+    <string name="user_name">User Name</string>
+    <string name="verify_account">Verify Account</string>
+    <string name="mail">Mail</string>
+
+
 </resources>

@@ -57,10 +57,9 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
 
     private fun observeData() {
-
-        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner, {
+        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner) {
             Log.i("PushNotificationTAG", "get token:$it")
-        })
+        }
     }
 
     private fun initClickListeners() {
