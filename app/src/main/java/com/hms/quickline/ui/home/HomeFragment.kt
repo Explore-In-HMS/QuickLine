@@ -16,12 +16,10 @@ import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
-import com.hms.quickline.ui.call.VideoCallActivity
 import com.hms.quickline.domain.repository.CloudDbWrapper
+import com.hms.quickline.ui.call.VideoCallActivity
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.cloud.database.CloudDBZone
-import com.huawei.hms.aaid.HmsInstanceId
-import com.huawei.hms.common.ApiException
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
@@ -52,22 +50,13 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         CloudDbWrapper.updateLastSeen(userId, Date())
 
         initClickListeners()
-        initAvailable()
         observeData()
         viewModel.checkAvailable(userId)
         viewModel.getPushToken(requireContext())
     }
 
-    private fun initAvailable() {
-        binding.btnBusy.setOnCheckedChangeListener { _, isChecked ->
-            cloudDBZone?.let { viewModel.updateAvailable(userId, !isChecked, it) }
-        }
-    }
 
     private fun observeData() {
-        viewModel.getAvailableLiveData().observe(viewLifecycleOwner, {
-            binding.btnBusy.isChecked = !it
-        })
 
         viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner, {
             Log.i("PushNotificationTAG", "get token:$it")

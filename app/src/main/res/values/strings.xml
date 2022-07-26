@@ -7,6 +7,7 @@
     <string name="title_home">Home</string>
     <string name="title_recent_calls">Recent Calls</string>
     <string name="title_contacts">Contacts</string>
+    <string name="title_profile">Profile</string>
 
     <string name="pref_speakerphone_key">speakerphone_preference</string>
     <string name="pref_speakerphone_default">auto</string>

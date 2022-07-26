@@ -12,7 +12,7 @@
         android:title="@string/title_contacts" />
 
     <item
-        android:id="@+id/recentCalls"
-        android:icon="@drawable/ic_recent"
-        android:title="@string/title_recent_calls" />
+        android:id="@+id/profile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/title_profile" />
 </menu>

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Base64
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
@@ -66,7 +65,7 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
                 R.navigation.main_nav_graph,
                 R.navigation.home,
                 R.navigation.contacts,
-                R.navigation.recentcalls
+                R.navigation.profile
             )
 
         val controller = binding.bottomNav.setupWithNavController(
