@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout>
+
+    <data>
+        <variable
+            name="userData"
+            type="com.hms.quickline.data.model.Users" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,12 +25,13 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tv_name"
+            android:id="@+id/text_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_12sdp"
             android:textColor="@color/black"
             android:textSize="@dimen/_14ssp"
+            android:text="@{userData.name}"
             app:layout_constraintStart_toEndOf="@+id/img_profile_photo"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Caner Türe" />
@@ -34,8 +43,8 @@
             android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name">
+            app:layout_constraintStart_toStartOf="@+id/text_name"
+            app:layout_constraintTop_toBottomOf="@+id/text_name">
 
         <ImageView
             android:id="@+id/img_state_available"
@@ -81,6 +90,7 @@
             android:layout_height="@dimen/_28sdp"
             android:background="@drawable/bg_voice_video_buttons"
             android:padding="@dimen/_6sdp"
+            app:isGone="@{!userData.isAvailable}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -95,6 +105,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:contactImageUrl="@{userData.photo}"
             app:srcCompat="@drawable/ic_person"
             tools:ignore="ContentDescription" />
 
@@ -103,10 +114,12 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
-            app:layout_constraintStart_toEndOf="@+id/tv_name"
-            app:layout_constraintTop_toTopOf="@+id/tv_name"
+            app:isGone="@{!userData.isVerified}"
+            app:layout_constraintBottom_toBottomOf="@+id/text_name"
+            app:layout_constraintStart_toEndOf="@+id/text_name"
+            app:layout_constraintTop_toTopOf="@+id/text_name"
             app:srcCompat="@drawable/ic_verify" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
+</layout>
