@@ -67,18 +67,25 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         observeData()
         viewModel.checkAvailable(userId)
 
-        binding.btnVerify.setOnClickListener {
-            detect()
-        }
+        initClickListener()
 
         agConnectAuth.currentUser?.let {
             viewModel.getUser(it.uid)
         }
 
-        binding.ivLogout.setOnClickListener { viewModel.signOut() }
-
         viewModel.getUserInfo()
         observeLiveData()
+    }
+
+    private fun initClickListener() {
+        binding.btnVerify.setOnClickListener {
+            detect()
+        }
+
+        binding.signOut.setOnClickListener {
+            viewModel.signOut()
+            //navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
+        }
     }
 
     private fun initAvailable() {

@@ -59,7 +59,7 @@
 
 
     <TextView
-        android:id="@+id/btnVerify"
+        android:id="@+id/btn_verify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -72,7 +72,7 @@
         app:drawableStartCompat="@drawable/ic_verify" />
 
     <ImageView
-        android:id="@+id/ivLogout"
+        android:id="@+id/sign_out"
         android:layout_width="@dimen/_32sdp"
         android:layout_height="@dimen/_32sdp"
         android:layout_marginTop="16dp"

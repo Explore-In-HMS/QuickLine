@@ -12,7 +12,6 @@ import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
-import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
@@ -42,11 +41,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             userId = it.uid
         }
 
-        //CloudDbWrapper.updateLastSeen(userId, Date())
-
         initClickListeners()
         observeData()
-        //viewModel.checkAvailable(userId)
         viewModel.getPushToken(requireContext())
     }
 
@@ -100,11 +96,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 }
 
                 startActivity(intent)
-            }
-
-            ivLogout.setOnClickListener {
-                agConnectAuth.signOut()
-                navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
     }
