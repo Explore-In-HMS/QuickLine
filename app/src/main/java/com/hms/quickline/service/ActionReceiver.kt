@@ -53,9 +53,9 @@ class ActionReceiver : BroadcastReceiver() {
                 val callsSdp = CallsSdp()
                 callsSdp.meetingID = uid
                 callsSdp.callType = Constants.TYPE.END.name
-                val upsertTask = cloudDBZone?.executeUpsert(callsSdp)
+                val upsertSdpTask = cloudDBZone?.executeUpsert(callsSdp)
 
-                upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                upsertSdpTask?.addOnSuccessListener { cloudDBZoneResult ->
                     Log.i(TAG, "Calls Sdp Upsert success: $cloudDBZoneResult")
                 }?.addOnFailureListener {
                     Log.e(TAG, "Calls Sdp Upsert failed: ${it.message}")
@@ -66,8 +66,8 @@ class ActionReceiver : BroadcastReceiver() {
                         override fun onUserObtained(users: Users) {
                             users.isCalling = false
 
-                            val upsertTask = users.let { cloudDBZone?.executeUpsert(it) }
-                            upsertTask?.addOnSuccessListener { cloudDBZoneResult ->
+                            val upsertUserTask = users.let { cloudDBZone?.executeUpsert(it) }
+                            upsertUserTask?.addOnSuccessListener { cloudDBZoneResult ->
                                 Log.i(TAG, "Calls UserCalling Upsert success: $cloudDBZoneResult")
                             }?.addOnFailureListener { exp->
                                 Log.e(TAG, "Calls UserCalling Upsert failed: ${exp.message}")
