@@ -6,18 +6,20 @@ package com.hms.quickline.data.model;
 
 import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.ObjectTypeInfo;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Definition of ObjectType Helper.
  *
- * @since 2022-07-06
+ * @since 2022-07-25
  */
 public final class ObjectTypeInfoHelper {
     private static final int FORMAT_VERSION = 2;
-    private static final int OBJECT_TYPE_VERSION = 43;
+    private static final int OBJECT_TYPE_VERSION = 45;
 
     public static ObjectTypeInfo getObjectTypeInfo() {
         ObjectTypeInfo objectTypeInfo = new ObjectTypeInfo();
