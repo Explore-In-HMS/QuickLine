@@ -29,9 +29,8 @@ Auth service provides multiple authentication methods to help developers secure 
 **Hardware Requirements**
 - A computer that can run Android Studio.
 - A Huawei Phone for debugging.
-- <span style="color:red">If test device has no HMS, app cannot run.</span>
-
-
+- <span style="color:red">Works on devices with HMS.</span>
+>
 
 **Software Requirements**
 - Android SDK package
