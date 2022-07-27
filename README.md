@@ -4,7 +4,7 @@
 <img src="/screenshots/QLSS.jpg" width=150/>
 <img src="/screenshots/20220727-115811(WeLinkPC).jpg" width=150>
 <img src="/screenshots/20220727-120018(WeLinkPC).jpg" width=150>
-<img src="/screenshots/20220727-120018(WeLinkPC).jpg" width=150>
+<img src="/screenshots/20220727-115825(WeLinkPC).jpg" width=150>
 <img src="/screenshots/20220727-115829(WeLinkPC).jpg" width=150>
 <img src="/screenshots/20220727-115833(WeLinkPC).jpg" width=150>
 
