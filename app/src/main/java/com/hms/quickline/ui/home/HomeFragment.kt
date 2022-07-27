@@ -16,12 +16,9 @@ import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
-import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.hms.quickline.ui.call.VideoCallActivity
 import com.huawei.agconnect.auth.AGConnectAuth
-import com.huawei.agconnect.cloud.database.CloudDBZone
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,8 +29,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var agConnectAuth: AGConnectAuth
-
-    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
     private var name = ""
     private var userId = ""
@@ -47,14 +42,13 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             userId = it.uid
         }
 
-        CloudDbWrapper.updateLastSeen(userId, Date())
+        //CloudDbWrapper.updateLastSeen(userId, Date())
 
         initClickListeners()
         observeData()
-        viewModel.checkAvailable(userId)
+        //viewModel.checkAvailable(userId)
         viewModel.getPushToken(requireContext())
     }
-
 
     private fun observeData() {
         viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner) {

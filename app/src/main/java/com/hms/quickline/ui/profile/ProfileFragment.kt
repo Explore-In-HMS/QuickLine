@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
 import com.hms.quickline.R
 import com.hms.quickline.core.base.BaseFragment
 import com.hms.quickline.core.common.viewBinding
@@ -73,6 +74,11 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         agConnectAuth.currentUser?.let {
             viewModel.getUser(it.uid)
         }
+
+        binding.ivLogout.setOnClickListener { viewModel.signOut() }
+
+        viewModel.getUserInfo()
+        observeLiveData()
     }
 
     private fun initAvailable() {
@@ -104,7 +110,6 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
             livenessDetection()
             return
         }
-
         ActivityCompat.requestPermissions(requireActivity(), PERMISSIONS, 0)
     }
 
@@ -164,7 +169,6 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         Log.i(TAG, "onRequestPermissionsResult ")
 
         livenessDetection()
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -173,5 +177,18 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
             TAG,
             "onActivityResult requestCode $requestCode, resultCode $resultCode"
         )
+    }
+
+    private fun observeLiveData() {
+        viewModel.userData.observe(viewLifecycleOwner) {
+            it?.let {
+                binding.profileName.text = it.displayName
+
+                context?.let { ctx ->
+                    Glide.with(ctx).load(it.photoUrl).fitCenter().circleCrop()
+                        .into(binding.profileImage)
+                }
+            }
+        }
     }
 }
