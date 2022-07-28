@@ -18,7 +18,7 @@ import com.hms.quickline.core.util.Constants.UID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class NotificationUtils(context: Context,private val uid: String? = null) : ContextWrapper(context) {
+class NotificationUtils(context: Context,private val uid: String? = null, private val callerName: String) : ContextWrapper(context) {
 
     private var manager: NotificationManager? = null
 
@@ -78,7 +78,7 @@ class NotificationUtils(context: Context,private val uid: String? = null) : Cont
 
         return NotificationCompat.Builder(applicationContext, MY_CHANNEL_ID)
             .setContentTitle("Quick Line")
-            .setContentText("Incoming Call!")
+            .setContentText("$callerName is calling")
             .setSmallIcon(R.drawable.hwid_auth_button_normal)
             .setColor(Color.YELLOW)
             .addAction(actionAnswer)

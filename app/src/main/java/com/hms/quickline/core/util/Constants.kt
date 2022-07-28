@@ -23,6 +23,8 @@ object Constants {
     const val IS_JOIN = "isJoin"
     const val ANSWER = "answer"
     const val UID = "uid"
+    const val USER = "user"
+    const val CALLER_NAME = "callerName"
     const val DECLINE = "decline"
     const val IS_MEETING_CONTACT = "isMeetingContact"
     const val NAME = "name"
