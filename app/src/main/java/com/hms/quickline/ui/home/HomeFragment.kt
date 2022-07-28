@@ -96,6 +96,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 }
 
                 startActivity(intent)
+                //navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
     }

@@ -40,6 +40,7 @@
     <string name="user_name">User Name</string>
     <string name="verify_account">Verify Account</string>
     <string name="mail">Mail</string>
+    <string name="sign_out">Sign Out</string>
 
 
 </resources>
