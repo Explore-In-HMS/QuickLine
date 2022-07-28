@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.hms.quickline.R
 import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.ANSWER
 import com.hms.quickline.core.util.Constants.CALLER_NAME
@@ -31,8 +32,8 @@ class ActionReceiver : BroadcastReceiver() {
     private val TAG = "ActionReceiver"
 
     override fun onReceive(context: Context, intent: Intent) {
-        val callerName = intent.getStringExtra(CALLER_NAME)
-        val notificationUtils = callerName?.let { NotificationUtils(context, callerName = it) }
+        val callerName = intent.getStringExtra(CALLER_NAME) ?: context.resources.getString(R.string.unknown)
+        val notificationUtils = NotificationUtils(context = context, callerName = callerName)
         val uid = intent.getStringExtra(UID)
 
         when (intent.action) {
@@ -45,10 +46,10 @@ class ActionReceiver : BroadcastReceiver() {
                     putExtra(IS_JOIN, true)
                 }
                 context.startActivity(videoIntent)
-                notificationUtils?.getManager()?.cancel(150)
+                notificationUtils.getManager().cancel(150)
             }
             DECLINE -> {
-                notificationUtils?.getManager()?.cancel(150)
+                notificationUtils.getManager().cancel(150)
 
                 val callsSdp = CallsSdp()
                 callsSdp.meetingID = uid
