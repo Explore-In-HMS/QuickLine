@@ -36,13 +36,13 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         )
     }
 
+    @Inject
+    lateinit var agConnectAuth: AGConnectAuth
+
     private val TAG = "ProfileFragment"
 
     private val binding by viewBinding(FragmentProfileBinding::bind)
     private val viewModel: ProfileViewModel by viewModels()
-
-    @Inject
-    lateinit var agConnectAuth: AGConnectAuth
 
     private var cloudDBZone: CloudDBZone? = null
 

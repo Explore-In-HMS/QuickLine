@@ -61,7 +61,6 @@ class ProfileViewModel @Inject constructor(private val agConnectAuth: AGConnectA
     }
 
     fun getUser(uid: String) {
-
         CloudDbWrapper.getUserById(uid, object : CloudDbWrapper.ICloudDbWrapper {
             override fun onUserObtained(users: Users) {
                 userLiveData.value = users

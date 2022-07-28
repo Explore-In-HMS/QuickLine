@@ -47,15 +47,6 @@
             android:text="@string/user_name"
             android:textColor="@color/white"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/profileMail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/_100sdp"
-            android:text="@string/mail"
-            android:textColor="@color/white" />
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
