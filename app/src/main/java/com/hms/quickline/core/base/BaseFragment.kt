@@ -32,5 +32,6 @@ open class BaseFragment : Fragment {
         fun setBottomBarVisibility(isVisible: Boolean = true)
         fun giveAction(action: Int)
         fun navigateUP()
+        fun navigateTop()
     }
 }

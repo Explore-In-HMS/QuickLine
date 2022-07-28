@@ -84,7 +84,7 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
 
         binding.signOut.setOnClickListener {
             viewModel.signOut()
-            //navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
+            mFragmentNavigation.navigateTop()
         }
     }
 

@@ -119,6 +119,12 @@ class MainActivity : BaseActivity(), BaseFragment.FragmentNavigation {
         currentNavController?.value?.navigateUp()
     }
 
+    override fun navigateTop() {
+        finish()
+        startActivity(intent)
+        currentNavController?.value?.navigate(R.id.home)
+    }
+
     override fun setBottomBarVisibility(isVisible: Boolean) {
         binding.bottomNav.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
