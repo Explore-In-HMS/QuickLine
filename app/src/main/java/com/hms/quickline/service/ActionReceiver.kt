@@ -18,7 +18,6 @@ import com.hms.quickline.core.util.Constants.IS_JOIN
 import com.hms.quickline.core.util.Constants.UID
 import com.hms.quickline.data.model.CallsSdp
 import com.hms.quickline.data.model.Users
-import com.hms.quickline.data.webrtc.WebRtcClient
 import com.hms.quickline.ui.call.VideoCallActivity
 import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.huawei.agconnect.cloud.database.CloudDBZone
@@ -34,16 +33,15 @@ class ActionReceiver : BroadcastReceiver() {
         val notificationUtils = NotificationUtils(context)
         val uid = intent.getStringExtra(UID)
 
-        when(intent.action){
+        when (intent.action) {
             ANSWER -> {
                 val videoIntent = Intent(context, VideoCallActivity::class.java)
                 videoIntent.apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    Log.i(TAG,uid.toString())
-                    putExtra(MEETING_ID,uid)
+                    Log.i(TAG, uid.toString())
+                    putExtra(MEETING_ID, uid)
                     putExtra(IS_JOIN, true)
                 }
-
                 context.startActivity(videoIntent)
                 notificationUtils.getManager().cancel(150)
             }
@@ -62,22 +60,20 @@ class ActionReceiver : BroadcastReceiver() {
                 }
 
                 uid?.let { id ->
-                    CloudDbWrapper.getUserById(id,object: CloudDbWrapper.ICloudDbWrapper{
+                    CloudDbWrapper.getUserById(id, object : CloudDbWrapper.ICloudDbWrapper {
                         override fun onUserObtained(users: Users) {
                             users.isCalling = false
 
                             val upsertUserTask = users.let { cloudDBZone?.executeUpsert(it) }
                             upsertUserTask?.addOnSuccessListener { cloudDBZoneResult ->
                                 Log.i(TAG, "Calls UserCalling Upsert success: $cloudDBZoneResult")
-                            }?.addOnFailureListener { exp->
+                            }?.addOnFailureListener { exp ->
                                 Log.e(TAG, "Calls UserCalling Upsert failed: ${exp.message}")
                             }
                         }
                     })
                 }
-
             }
         }
-
     }
 }
