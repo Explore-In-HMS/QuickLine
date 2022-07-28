@@ -5,7 +5,11 @@
 package com.hms.quickline.data.model;
 
 import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
+import com.huawei.agconnect.cloud.database.Text;
 import com.huawei.agconnect.cloud.database.annotations.DefaultValue;
+import com.huawei.agconnect.cloud.database.annotations.EntireEncrypted;
+import com.huawei.agconnect.cloud.database.annotations.NotNull;
+import com.huawei.agconnect.cloud.database.annotations.Indexes;
 import com.huawei.agconnect.cloud.database.annotations.PrimaryKeys;
 
 import java.util.Date;
@@ -13,7 +17,7 @@ import java.util.Date;
 /**
  * Definition of ObjectType Users.
  *
- * @since 2022-07-06
+ * @since 2022-07-25
  */
 @PrimaryKeys({"uid"})
 public final class Users extends CloudDBZoneObject {
@@ -37,6 +41,8 @@ public final class Users extends CloudDBZoneObject {
 
     @DefaultValue(booleanValue = false)
     private Boolean isVerified;
+
+    private String callerName;
 
     public Users() {
         super(Users.class);
@@ -115,6 +121,14 @@ public final class Users extends CloudDBZoneObject {
 
     public Boolean getIsVerified() {
         return isVerified;
+    }
+
+    public void setCallerName(String callerName) {
+        this.callerName = callerName;
+    }
+
+    public String getCallerName() {
+        return callerName;
     }
 
 }
