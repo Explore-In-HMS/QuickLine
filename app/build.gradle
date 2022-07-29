@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'com.huawei.agconnect'
+    id "org.sonarqube" version "3.0"
 }
 
 android {
@@ -38,18 +40,29 @@ android {
     }
 }
 
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "QuickLineKey"
+        property "sonar.projectName", "QuickLine"
+        property "sonar.login", "1806cd5a6af535e65caaa1b351a4a73acb225f45"
+        property "sonar.host.url", "http://10.216.72.212:9000"
+    }
+}
+
 dependencies {
 
     implementation Dependencies.coreKtx
     implementation Dependencies.appCompat
     implementation Dependencies.materialDesign
     implementation Dependencies.constraintLayout
+    implementation Dependencies.navigationFragment
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     testImplementation Dependencies.jUnit
     androidTestImplementation Dependencies.testJUnit
     androidTestImplementation Dependencies.espressoCore
 
-    implementation Dependencies.navigationFragment
     implementation Dependencies.navigationUi
 
     implementation Dependencies.hiltAndroid
@@ -59,4 +72,40 @@ dependencies {
 
     implementation Dependencies.glide
     kapt Dependencies.glideKapt
+
+    implementation Dependencies.sdp
+    implementation Dependencies.ssp
+
+    //AGConnect
+    implementation Dependencies.agconnect
+
+    //CloudDB
+    implementation Dependencies.cloudDB
+
+    //WebRTC
+    implementation Dependencies.webRTC
+
+    //Auth
+    implementation Dependencies.auth
+    implementation Dependencies.huaweiAuth
+
+    //Wireless
+    implementation Dependencies.wirelessKit
+    implementation Dependencies.lottie
+
+    //Crash
+    implementation Dependencies.crashService
+    implementation Dependencies.apmAgc
+
+    //SafetyDetect
+    implementation Dependencies.safetyDetect
+
+    //Analytics Kit
+    implementation Dependencies.analyticsKit
+
+    //Push Kit
+    implementation Dependencies.pushKit
+
+    // Liveness Detection SDK.
+    implementation Dependencies.livenessDetection
 }
