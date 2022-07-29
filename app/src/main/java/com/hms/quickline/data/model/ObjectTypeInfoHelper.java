@@ -8,7 +8,6 @@ import com.huawei.agconnect.cloud.database.CloudDBZoneObject;
 import com.huawei.agconnect.cloud.database.ObjectTypeInfo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
