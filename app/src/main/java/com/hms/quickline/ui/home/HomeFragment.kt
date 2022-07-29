@@ -12,18 +12,12 @@ import com.hms.quickline.core.util.Constants
 import com.hms.quickline.core.util.Constants.IS_MEETING_CONTACT
 import com.hms.quickline.core.util.Constants.MEETING_ID
 import com.hms.quickline.core.util.Constants.NAME
-import com.hms.quickline.core.util.navigate
 import com.hms.quickline.core.util.showToastLong
 import com.hms.quickline.core.util.showToastShort
 import com.hms.quickline.databinding.FragmentHomeBinding
 import com.hms.quickline.ui.call.VideoCallActivity
-import com.hms.quickline.domain.repository.CloudDbWrapper
 import com.huawei.agconnect.auth.AGConnectAuth
-import com.huawei.agconnect.cloud.database.CloudDBZone
-import com.huawei.hms.aaid.HmsInstanceId
-import com.huawei.hms.common.ApiException
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,8 +28,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var agConnectAuth: AGConnectAuth
-
-    private var cloudDBZone: CloudDBZone? = CloudDbWrapper.cloudDBZone
 
     private var name = ""
     private var userId = ""
@@ -49,29 +41,15 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             userId = it.uid
         }
 
-        CloudDbWrapper.updateLastSeen(userId, Date())
-
         initClickListeners()
-        initAvailable()
         observeData()
-        viewModel.checkAvailable(userId)
         viewModel.getPushToken(requireContext())
     }
 
-    private fun initAvailable() {
-        binding.btnBusy.setOnCheckedChangeListener { _, isChecked ->
-            cloudDBZone?.let { viewModel.updateAvailable(userId, !isChecked, it) }
-        }
-    }
-
     private fun observeData() {
-        viewModel.getAvailableLiveData().observe(viewLifecycleOwner, {
-            binding.btnBusy.isChecked = !it
-        })
-
-        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner, {
+        viewModel.getUserPushTokenLiveData().observe(viewLifecycleOwner) {
             Log.i("PushNotificationTAG", "get token:$it")
-        })
+        }
     }
 
     private fun initClickListeners() {
@@ -118,11 +96,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                 }
 
                 startActivity(intent)
-            }
-
-            ivLogout.setOnClickListener {
-                agConnectAuth.signOut()
-                navigate(HomeFragmentDirections.actionHomeFragmentToSplash())
             }
         }
     }
