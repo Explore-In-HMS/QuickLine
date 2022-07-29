@@ -46,9 +46,9 @@ class ProfileViewModel @Inject constructor(private val agConnectAuth: AGConnectA
                 users.isAvailable = isAvailable
 
                 cloudDBZone.executeUpsert(users)?.addOnSuccessListener { cloudDBZoneResult ->
-                    Log.i("HomeFragmentBusy", "Available data success: $cloudDBZoneResult")
+                    Log.i("ProfileFragmentBusy", "Available data success: $cloudDBZoneResult")
                 }?.addOnFailureListener {
-                    Log.e("HomeFragmentBusy", "Available data failed: ${it.message}")
+                    Log.e("ProfileFragmentBusy", "Available data failed: ${it.message}")
                 }
             }
         })
