@@ -28,7 +28,7 @@ class CallService: Service() {
     private var registerUser: ListenerHandler? = null
     private var currentUID :String? = ""
     private val TAG = "CallService"
-
+    private var isNotificationShown = false
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -58,15 +58,17 @@ class CallService: Service() {
             Log.w(TAG, "Snapshot Error: " + e.message)
         } finally {
             Log.i(TAG,"isCalling:${users.isCalling}")
-            if (users.isCalling == true){
-                showCallNotification(users.uid)
+            if (users.isCalling == true && !isNotificationShown){
+                isNotificationShown = true
+                showCallNotification(users.uid, callerName = users.callerName)
             }
         }
     }
 
-    private fun showCallNotification(uid: String) {
+    private fun showCallNotification(uid: String,callerName: String) {
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, NotificationReceiver::class.java).putExtra(Constants.UID,uid)
+            .putExtra(Constants.CALLER_NAME,callerName)
 
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent)
