@@ -27,10 +27,8 @@ import javax.inject.Inject
 class ContactsFragment : BaseFragment(R.layout.fragment_contacts),
     ContactsAdapter.ICallDialogAdapter {
 
-
     private val binding by viewBinding(FragmentContactsBinding::bind)
     private val viewModel: ContactsViewModel by viewModels()
-
 
     private lateinit var adapter: ContactsAdapter
 

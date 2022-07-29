@@ -1,7 +1,6 @@
 package com.hms.quickline.core.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -21,15 +20,6 @@ fun showToastLongCenter(context: Context, message: String, length: Int) {
     val toastCenter = Toast.makeText(context, message, length)
     toastCenter.setGravity(Gravity.CENTER, 0, 0)
     toastCenter.show()
-}
-
-private const val USER_MAIL = "USER_MAIL"
-private const val QUICKLINE_STORAGE = "QUICKLINE_STORAGE"
-lateinit var sharedPreferences: SharedPreferences
-
-fun getUserMail(context: Context): String? {
-    sharedPreferences = context.getSharedPreferences(QUICKLINE_STORAGE, Context.MODE_PRIVATE)
-    return sharedPreferences.getString(USER_MAIL, "")
 }
 
 fun ViewGroup.layoutInflaterFactory(): LayoutInflater = LayoutInflater.from(context)
